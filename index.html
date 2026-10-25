@@ -259,6 +259,15 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <button type="button" class="theme-option" data-theme="pop"><span class="swatch" style="background:linear-gradient(130deg,#ea3b77,#ffe3a0)"></span>🌸 Trendy</button></div>
 <h3>2. Kies jouw gewenste domeinnaam</h3><div class="fields"><div><label for="domainName">Gewenste naam</label><input id="domainName" placeholder="mijnwebshop" maxlength="60" spellcheck="false" autocapitalize="off"></div><div><label for="domainExt">Extensie</label><select id="domainExt"><option value=".be">.be</option><option value=".com">.com</option><option value=".store">.store</option><option value=".shop">.shop</option><option value=".nl">.nl</option></select></div></div><div class="domain-preview" id="domainPreview">Jouw gewenste domein verschijnt hier</div><p class="muted">Je kiest hier alleen een naam. Of die beschikbaar is, moet nog worden gecontroleerd bij een domeinprovider. Er wordt nog niets geregistreerd of online gezet.</p>
 <div class="import-buttons"><button type="button" id="makeSite">Bewaar mijn ontwerp</button><button type="button" id="exportSite" class="secondary">⬇ Download gewone website (Starter)</button><button type="button" id="exportShop" class="secondary">🛍️ Download webshopvoorbeeld (Pro)</button></div><p class="muted">Starter maakt een gewone bedrijfswebsite met je naam, diensten en contact. Pro kan ook een webshopvoorbeeld downloaden. Downloaden is gratis in de testmodus; om de website online te zetten is nog hosting nodig.</p><p id="siteStatus" role="status" class="toast"></p>
+<div class="card" id="allbizPublishBox" style="margin:16px 0;border:1px solid #e3d9fa">
+<h3>🌍 Website publiceren — nog in testfase</h3>
+<p class="muted">Testen en downloaden is gratis. Pas met een echt betaald Starter-, Pro- of Business-abonnement kan een website online komen. De website wordt alleen openbaar na je uitdrukkelijke bevestiging; je contactgegevens worden dan ook zichtbaar.</p>
+<label for="allbizSiteSlug">Naam voor je toekomstige website-link</label>
+<input id="allbizSiteSlug" type="text" minlength="3" maxlength="64" pattern="[a-z0-9-]{3,64}" placeholder="bijv. mijn-bedrijf" autocapitalize="off" spellcheck="false">
+<label style="display:flex;align-items:flex-start;gap:9px"><input id="allbizPublishConsent" type="checkbox" style="width:auto;margin:4px 0">Ik bevestig dat mijn website en ingevulde contactgegevens openbaar op internet mogen komen.</label>
+<div class="import-buttons"><button type="button" id="allbizPublishButton">🌍 Website echt publiceren</button><button type="button" class="secondary" id="allbizUnpublishButton">Website offline halen</button></div>
+<p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
+</div>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel"><div class="card"><h2>🏪 Jouw webshop</h2><p class="muted">Zo zien klanten straks jouw producten. Voeg producten toe om je winkel te vullen.</p><div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><button type="button" id="checkout" style="margin-top:12px">Test afrekenen</button><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
@@ -981,6 +990,46 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  /* Publishing is performed by a trusted backend, not a direct database write. */
+  const publishStatus = document.getElementById('allbizPublishStatus');
+  const publishButton = document.getElementById('allbizPublishButton');
+  const offlineButton = document.getElementById('allbizUnpublishButton');
+  const publicationEndpoint = SUPABASE_URL + '/functions/v1/allbiz-site-publish';
+  const publicationCall = async payload => {
+    const {data:{session}} = await client.auth.getSession();
+    if(!session?.access_token)throw Error('Log eerst in bij Mijn account.');
+    const response=await fetch(publicationEndpoint,{
+      method:'POST',
+      headers:{'Authorization':'Bearer '+session.access_token,'apikey':SUPABASE_PUBLIC_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify(payload)
+    });
+    const result=await response.json();
+    if(!response.ok)throw Error(result.error||'Aanvraag mislukt');
+    return result;
+  };
+  const publicationMessage = (message,link) => {
+    publishStatus.replaceChildren(document.createTextNode(message));
+    if(link){const a=document.createElement('a');a.href=link;a.textContent=' Open de website';a.target='_blank';a.rel='noopener noreferrer';publishStatus.append(a)}
+  };
+  publishButton.addEventListener('click',async()=>{
+    if(!document.getElementById('allbizPublishConsent').checked){publicationMessage('Vink eerst de toestemming aan. Je website wordt niet vanzelf openbaar.');return}
+    const slug=document.getElementById('allbizSiteSlug').value.trim().toLowerCase();
+    if(!/^[a-z0-9](?:[a-z0-9-]{1,62}[a-z0-9])$/.test(slug)){publicationMessage('Gebruik 3–64 letters, cijfers of koppeltekens voor je site-link.');return}
+    if(!confirm('Wil je deze website ECHT openbaar maken? Je naam, website-inhoud en eventueel contact-e-mailadres worden zichtbaar op internet.'))return;
+    publishButton.disabled=true;publicationMessage('Publicatie wordt gecontroleerd...');
+    try{
+      const d=await publicationCall({action:'publish',confirmPublish:true,slug,name:document.getElementById('brand').value,tagline:document.getElementById('description').value,about:document.getElementById('siteAbout').value,services:document.getElementById('siteServices').value.split(/\r?\n/).filter(Boolean),email:document.getElementById('siteEmail').value,theme:localStorage.getItem('business-studio-theme')||'classic'});
+      publicationMessage('✅ Website gepubliceerd.',d.url);
+    }catch(error){publicationMessage(error?.message||'Publicatie is niet gelukt. Er is niets gewijzigd.')}
+    finally{publishButton.disabled=false}
+  });
+  offlineButton.addEventListener('click',async()=>{
+    if(!confirm('Wil je jouw eerder gepubliceerde website echt offline halen?'))return;
+    offlineButton.disabled=true;
+    try{await publicationCall({action:'unpublish'});publicationMessage('✅ Website is offline gehaald.')}
+    catch(error){publicationMessage(error?.message||'Offline halen is mislukt.')}
+    finally{offlineButton.disabled=false}
+  });
   let subscriptionRequestId = 0;
   const planLabels = { starter: 'Starter', pro: 'Pro', business: 'Business' };
   let sandboxRequestId = 0;
