@@ -1554,11 +1554,12 @@ try {
         announcement:document.getElementById('shopPromoText').value.trim().slice(0,100),
         banner_image_url:image.slice(0,1000),
         theme:['classic','luxe','nature','pop'].includes(theme)?theme:'classic',
+        builder_data:cleanBuilder(builderData),
         updated_at:new Date().toISOString()
       };
       const {error}=await client.from('allbiz_shop_designs').upsert(row,{onConflict:'user_id'});
       if(error)throw new Error(error.message);
-      shopCloudStatus.textContent='✅ Webshopontwerp privé bewaard. Er is niets gepubliceerd.';
+      shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé bewaard. Er is niets gepubliceerd.';
     }catch(e){shopCloudStatus.textContent='Opslaan mislukt: '+(e.message||'onbekende fout')}
     finally{shopCloudSave.disabled=false}
   });
@@ -1566,7 +1567,7 @@ try {
     shopCloudLoad.disabled=true;shopCloudStatus.textContent='Webshopontwerp ophalen...';
     try{
       const user=await shopCloudUser();
-      const {data,error}=await client.from('allbiz_shop_designs').select('brand,business_tagline,hero_title,hero_subtitle,announcement,banner_image_url,theme').eq('user_id',user.id).maybeSingle();
+      const {data,error}=await client.from('allbiz_shop_designs').select('brand,business_tagline,hero_title,hero_subtitle,announcement,banner_image_url,theme,builder_data').eq('user_id',user.id).maybeSingle();
       if(error)throw new Error(error.message);
       if(!data){shopCloudStatus.textContent='Er is nog geen webshopontwerp privé bewaard.';return}
       if(!confirm('Je huidige webshopontwerp vervangen door het privé bewaarde ontwerp? Producten en bestellingen blijven ongewijzigd.')){shopCloudStatus.textContent='Je huidige webshopontwerp is niet gewijzigd.';return}
@@ -1578,7 +1579,8 @@ try {
       const theme=['classic','luxe','nature','pop'].includes(data.theme)?data.theme:'classic';
       document.querySelector('[data-theme="'+theme+'"]')?.click();
       document.getElementById('shopThemeSelect').value=theme;
-      shopCloudStatus.textContent='✅ Je privé bewaarde webshopontwerp is geopend. Er is niets gepubliceerd.';
+      builderData=cleanBuilder(data.builder_data);builderScreen='home';saveBuilder();builderRefreshForms();renderShop();
+      shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé geopend. Er is niets gepubliceerd.';
     }catch(e){shopCloudStatus.textContent='Ophalen mislukt: '+(e.message||'onbekende fout')}
     finally{shopCloudLoad.disabled=false}
   });
