@@ -295,7 +295,16 @@ input[type=file]{font-size:14px;overflow:hidden}
 <div id="digitalFields" class="hidden"><label for="file">Digitaal bestand (alleen bestandsnaam in demo)</label><input id="file" type="file"><span class="fieldhelp">Echte veilige downloads werken pas na aansluiting van online opslag en betalingen.</span></div>
 <label for="photo">Productfoto, optioneel</label><input id="photo" type="file" accept="image/*"><span class="fieldhelp">Kleine foto's worden op dit toestel opgeslagen voor de demo (maximaal 450 KB).</span>
 <label for="productCategory">Categorie (optioneel)</label><input id="productCategory" list="allbizCategoryIdeas" maxlength="35" placeholder="Bijv. Kleding"><datalist id="allbizCategoryIdeas"><option value="Kleding"><option value="Schoenen"><option value="Beauty"><option value="Wonen"><option value="Elektronica"><option value="Accessoires"></datalist>
-<button type="submit">+ Product toevoegen</button><p id="productStatus" class="toast" role="status"></p></form></div><div class="card"><div class="row"><h2>Mijn producten</h2><span class="pill" id="listCount">0 producten</span></div><div id="productsList" class="products"></div></div></section>
+<button type="submit">+ Product toevoegen</button><p id="productStatus" class="toast" role="status"></p></form></div><div class="card"><div class="row"><h2>Mijn producten</h2><span class="pill" id="listCount">0 producten</span></div><div id="productsList" class="products"></div>
+<div class="shop-studio" style="margin-top:18px">
+<h3>☁️ Producten privé bewaren</h3>
+<p>Bewaar de productnamen, prijzen, categorieën en voorraad in je eigen AllBiz One-account. Op een ander toestel kun je ze opnieuw openen. Bestanden en lokaal geüploade foto's worden niet mee overgezet.</p>
+<div class="import-buttons">
+<button type="button" class="secondary" id="saveProductBackup">☁️ Bewaar mijn producten privé</button>
+<button type="button" class="secondary" id="loadProductBackup">📂 Open bewaarde producten</button>
+</div>
+<p id="productBackupStatus" role="status" class="toast">Producten zijn momenteel op dit toestel opgeslagen.</p>
+</div></div></section>
 
 <section id="import" class="panel">
 <div class="card"><h2>🌍 Producten importeren uit webshops</h2><p>Haal meerdere producten tegelijk binnen, zodat je niet alles zelf hoeft over te typen.</p>
