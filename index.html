@@ -390,6 +390,13 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 </div>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p>
+<div class="shop-studio" style="margin-bottom:18px">
+<h3>💳 Stripe Connect voor webshopverkopers — sandbox</h3>
+<p class="muted">Laat verkopers in de toekomst hun eigen betalingen ontvangen. Dit is een beveiligde testkoppeling; echte betalingen en echte winkels blijven uitgeschakeld.</p>
+<button type="button" id="sellerConnectStatus" class="secondary">🔍 Controleer Stripe Connect</button>
+<button type="button" id="sellerConnectStart">🔗 Koppel mijn Stripe-testverkoper</button>
+<p id="sellerConnectMessage" role="status" class="toast">Nog geen Connect-sandboxstatus gecontroleerd.</p>
+</div>
 <div class="shop-studio">
 <h3>🎨 Ontwerp je winkel</h3>
 <p class="muted">De bedrijfsnaam en slogan stel je in onder 🎨 Website & domein.</p>
@@ -1702,6 +1709,39 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  const connectMsg=document.getElementById('sellerConnectMessage');
+  async function callConnectSandbox(action){
+    const {data:{session},error}=await client.auth.getSession();
+    if(error||!session?.access_token)throw Error('Log eerst in bij Mijn account.');
+    const res=await fetch(SUPABASE_URL+'/functions/v1/allbiz-connect-sandbox',{
+      method:'POST',
+      headers:{Authorization:'Bearer '+session.access_token,apikey:SUPABASE_PUBLIC_KEY,'Content-Type':'application/json'},
+      body:JSON.stringify({action})
+    });
+    const data=await res.json().catch(()=>({}));
+    if(!res.ok||data.error)throw Error(data.error||'Stripe Connect is nog niet beschikbaar.');
+    return data;
+  }
+  document.getElementById('sellerConnectStatus').addEventListener('click',async e=>{
+    const btn=e.currentTarget;btn.disabled=true;
+    connectMsg.textContent='Stripe Connect-teststatus controleren...';
+    try{
+      const data=await callConnectSandbox('status');
+      connectMsg.textContent=data.connected?'✅ Stripe-testverkoper verbonden. Nog geen echte betalingen.':data.configured?'🧪 Stripe-sandbox actief. Testverkoper nog niet volledig verbonden.':'🔒 Stripe Connect is voorbereid. De geheime testsleutel ontbreekt nog op de server; er wordt niets betaald.';
+    }catch(err){connectMsg.textContent=String(err.message||'Controleren mislukt.')}
+    finally{btn.disabled=false}
+  });
+  document.getElementById('sellerConnectStart').addEventListener('click',async e=>{
+    const btn=e.currentTarget;btn.disabled=true;
+    connectMsg.textContent='Beveiligde Stripe-onboarding voorbereiden...';
+    try{
+      const data=await callConnectSandbox('onboard');
+      if(data.connected){connectMsg.textContent='✅ Stripe-testverkoper is al gekoppeld.';return}
+      if(data.onboardingUrl){window.location.assign(data.onboardingUrl);return}
+      connectMsg.textContent='🔒 De server heeft nog een Stripe-testsleutel nodig. De winkel blijft in testmodus.';
+    }catch(err){connectMsg.textContent=String(err.message||'De testkoppeling kon niet starten.')}
+    finally{btn.disabled=false}
+  });
   window.allbizAutoSaveBuilder=async()=>{
     try{
       const {data:{user}}=await client.auth.getUser();if(!user)return;
