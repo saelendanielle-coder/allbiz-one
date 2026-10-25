@@ -329,6 +329,10 @@ input[type=file]{font-size:14px;overflow:hidden}
 <button type="button" class="secondary" id="saveProductBackup">☁️ Bewaar mijn producten privé</button>
 <button type="button" class="secondary" id="loadProductBackup">📂 Open bewaarde producten</button>
 </div>
+<label style="display:flex;align-items:flex-start;gap:10px;margin:14px 0">
+<input type="checkbox" id="catalogAutoSync" style="width:auto;margin:3px 0" aria-describedby="productAutoNote">
+<span><strong>Automatisch privé opslaan na productwijzigingen</strong><span id="productAutoNote" class="fieldhelp" style="display:block">Optioneel. Schakel dit in wanneer je ingelogd bent. Je huidige productlijst wordt de nieuwe privé-back-up; een eerdere back-up kan daardoor worden vervangen. Geen publicatie.</span></span>
+</label>
 <p id="productBackupStatus" role="status" class="toast">Producten zijn momenteel op dit toestel opgeslagen.</p>
 </div></div></section>
 
@@ -656,7 +660,7 @@ let items=[];let cart=[];
 const demoOrdersKey='allbiz-demo-orders-v1';let demoOrders=[];try{const stored=JSON.parse(localStorage.getItem(demoOrdersKey)||'[]');if(Array.isArray(stored))demoOrders=stored.slice(0,100)}catch(e){}
 function saveDemoOrders(){try{localStorage.setItem(demoOrdersKey,JSON.stringify(demoOrders));return true}catch(e){return false}}
 try{const next=JSON.parse(localStorage.getItem(storeKey)||'null');if(Array.isArray(next)){items=next}else{const old=JSON.parse(localStorage.getItem('demo-products')||'[]');if(Array.isArray(old))items=old.map(x=>({id:crypto.randomUUID?crypto.randomUUID():String(Date.now()+Math.random()),type:'digital',name:String(x.name||''),price:Number(x.price)||0,description:'',fileName:''})).filter(x=>x.name)}}catch(e){items=[]}
-function save(){try{localStorage.setItem(storeKey,JSON.stringify(items));return true}catch(e){return false}}
+function save(){try{localStorage.setItem(storeKey,JSON.stringify(items));if(!window.allbizSuspendProductAutoSync)window.allbizQueueProductBackup?.();return true}catch(e){return false}}
 /* The frontend gate merely guides people through the demo.
    Any paid server function must separately verify the live subscription with Supabase. */
 const allbizRequiredTier={products:1,site:1,builder:1,shop:2,orders:2,import:2,video:2,affiliate:2,radar:3,ads:3};
@@ -802,8 +806,8 @@ function attachProductEditor(card,product){
   product.price=newPrice;product.description=desc.value.trim().slice(0,1200);
   product.category=newCategory.slice(0,35);product.stock=newStock;
   product.visibility=visibility.value==='draft'?'draft':'active';
-  if(removePhoto.checked){product.photo='';product.imageUrl=''}
-  if(url&&url!==(previous.imageUrl||'')){product.imageUrl=safeImage(url);product.photo=''}
+  if(removePhoto.checked){product.photo='';product.imageUrl='';product.photoPath=''}
+  if(url&&url!==(previous.imageUrl||'')){product.imageUrl=safeImage(url);product.photo='';product.photoPath=''}
   if(!save()){Object.assign(product,previous);alert('Bewaren mislukt. Er is niets gewijzigd.');return}
   if(product.visibility==='draft')cart=cart.filter(id=>id!==product.id);
   renderAll();
@@ -1716,44 +1720,94 @@ try {
     if(error||!data?.user)throw new Error('Log eerst in bij Mijn account.');
     return data.user;
   }
-  catalogSave.addEventListener('click',async()=>{
-    catalogSave.disabled=true;
-    catalogStatus.textContent='Producten worden privé bewaard...';
+  const catalogAutoToggle=document.getElementById('catalogAutoSync');
+  const autoOwnerKey='allbiz-product-auto-owner-v1';
+  let autoTimer=null,catalogSaving=false,pendingAuto=false;
+  function catalogAutoOwner(){try{return localStorage.getItem(autoOwnerKey)||''}catch(e){return ''}}
+  function queueAutoBackup(){
+    if(!catalogAutoToggle.checked)return;
+    if(autoTimer)clearTimeout(autoTimer);
+    autoTimer=setTimeout(()=>{autoTimer=null;void catalogBackup(true)},1400);
+  }
+  window.allbizQueueProductBackup=queueAutoBackup;
+  async function catalogBackup(automatic=false){
+    if(catalogSaving){if(automatic)pendingAuto=true;return}
+    catalogSaving=true;catalogSave.disabled=true;
+    catalogStatus.textContent=automatic?'☁️ Productwijzigingen privé synchroniseren...':'Producten worden privé bewaard...';
     try{
       const user=await catalogUser();
+      if(automatic&&(!catalogAutoToggle.checked||catalogAutoOwner()!==user.id))return;
       if(items.length>200)throw new Error('Maximaal 200 producten per back-up.');
+      // Capture a snapshot before network requests to avoid saving half-edited entries.
+      const snapshot=items.map(x=>({...x}));
       const clean=[];
-      for(const x of items){
+      for(const x of snapshot){
         let photoPath=String(x.photoPath||'');
-        if(typeof x.photo==='string'&&x.photo.startsWith('data:image/')){
+        if(!photoPath&&typeof x.photo==='string'&&x.photo.startsWith('data:image/')){
           catalogStatus.textContent='Privé foto opslaan voor '+x.name+'...';
           photoPath=await backupPhoto(x.photo,user.id,x.id);
+          const localItem=items.find(v=>v.id===x.id);
+          if(localItem&&localItem.photo===x.photo){
+            localItem.photoPath=photoPath;
+            try{localStorage.setItem(storeKey,JSON.stringify(items))}catch(e){}
+          }
         }
         clean.push({
-        id:String(x.id||'').slice(0,100),
-        type:x.type==='digital'?'digital':'physical',
-        name:String(x.name||'').slice(0,150),
-        price:Number(x.price)||0,
-        description:String(x.description||'').slice(0,1200),
-        category:String(x.category||'Overig').slice(0,35),
-        stock:String(x.stock??'').slice(0,20),
-        cost:String(x.cost??'').slice(0,50),
-        shipping:String(x.shipping??'').slice(0,50),
-        supplier:String(x.supplier||'').slice(0,800),
-        imageUrl:String(x.imageUrl||'').slice(0,800),photoPath,
-        fileName:String(x.fileName||'').slice(0,140),
-        visibility:x.visibility==='draft'?'draft':'active',
-        demoProduct:!!x.demoProduct,
-        emoji:String(x.emoji||'').slice(0,12)
-      });}
+          id:String(x.id||'').slice(0,100),
+          type:x.type==='digital'?'digital':'physical',
+          name:String(x.name||'').slice(0,150),
+          price:Number(x.price)||0,
+          description:String(x.description||'').slice(0,1200),
+          category:String(x.category||'Overig').slice(0,35),
+          stock:String(x.stock??'').slice(0,20),
+          cost:String(x.cost??'').slice(0,50),
+          shipping:String(x.shipping??'').slice(0,50),
+          supplier:String(x.supplier||'').slice(0,800),
+          imageUrl:String(x.imageUrl||'').slice(0,800),photoPath,
+          fileName:String(x.fileName||'').slice(0,140),
+          visibility:x.visibility==='draft'?'draft':'active',
+          demoProduct:!!x.demoProduct,
+          emoji:String(x.emoji||'').slice(0,12)
+        });
+      }
       const {error}=await client.from('allbiz_product_backups').upsert({
         user_id:user.id,products:clean,updated_at:new Date().toISOString()
       },{onConflict:'user_id'});
       if(error)throw new Error(error.message);
-      catalogStatus.textContent='✅ Producten en aanwezige privéfoto’s in je account bewaard. Er is niets gepubliceerd.';
-    }catch(error){catalogStatus.textContent='Opslaan mislukt: '+(error.message||'onbekende fout')}
-    finally{catalogSave.disabled=false}
+      catalogStatus.textContent=automatic?'✅ Productwijzigingen automatisch privé bewaard. Er is niets gepubliceerd.':'✅ Producten en aanwezige privéfoto’s in je account bewaard. Er is niets gepubliceerd.';
+    }catch(error){catalogStatus.textContent=(automatic?'Automatisch opslaan mislukt: ':'Opslaan mislukt: ')+(error.message||'onbekende fout')+'. Je lokale producten blijven bewaard.'}
+    finally{
+      catalogSave.disabled=false;catalogSaving=false;
+      if(pendingAuto){pendingAuto=false;queueAutoBackup()}
+    }
+  }
+  catalogSave.addEventListener('click',()=>{void catalogBackup(false)});
+  catalogAutoToggle.addEventListener('change',async()=>{
+    if(!catalogAutoToggle.checked){
+      if(autoTimer)clearTimeout(autoTimer);
+      autoTimer=null;
+      try{localStorage.removeItem(autoOwnerKey)}catch(e){}
+      catalogStatus.textContent='Automatisch privé opslaan uitgeschakeld. Handmatig bewaren blijft mogelijk.';
+      return;
+    }
+    catalogAutoToggle.disabled=true;
+    try{
+      const user=await catalogUser();
+      if(!confirm('Automatisch bewaren inschakelen? Je huidige producten op dit toestel worden de nieuwe privé-back-up in jouw account. Dit kan een eerdere productback-up vervangen.')){
+        catalogAutoToggle.checked=false;return;
+      }
+      try{localStorage.setItem(autoOwnerKey,user.id)}catch(e){throw new Error('Kan de instelling niet bewaren op dit toestel.')}
+      await catalogBackup(true);
+    }catch(e){
+      catalogAutoToggle.checked=false;catalogStatus.textContent=e.message||'Automatisch opslaan kon niet worden ingeschakeld.';
+    }finally{catalogAutoToggle.disabled=false}
   });
+  void (async()=>{
+    try{
+      const {data:{user}}=await client.auth.getUser();
+      catalogAutoToggle.checked=!!user&&catalogAutoOwner()===user.id;
+    }catch(e){}
+  })();
   catalogLoad.addEventListener('click',async()=>{
     catalogLoad.disabled=true;
     catalogStatus.textContent='Bewaarde producten ophalen...';
@@ -1783,7 +1837,10 @@ try {
       })):[];
       for(const product of restored){if(product.photoPath){product.photo=await loadPrivatePhoto(product.photoPath)}}
       items=restored;cart=[];
-      if(!save()){items=oldItems;cart=oldCart;throw new Error('Opslaan op dit toestel mislukt.')}
+      window.allbizSuspendProductAutoSync=true;
+      const locallySaved=save();
+      window.allbizSuspendProductAutoSync=false;
+      if(!locallySaved){items=oldItems;cart=oldCart;throw new Error('Opslaan op dit toestel mislukt.')}
       renderAll();
       catalogStatus.textContent='✅ '+items.length+' producten en beschikbare privéfoto’s uit je account geopend. Er is niets gepubliceerd.';
     }catch(error){catalogStatus.textContent='Ophalen mislukt: '+(error.message||'onbekende fout')}
