@@ -800,7 +800,7 @@ function fillBuilderCollection(){
  el('builderCollectionText').value=x?.text||'';
  el('builderCollectionVisible').checked=x?.visible!==false;
 }
-function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Bewaar daarna je ontwerp privé om het ook op andere toestellen te openen.')}
+function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Wordt privé gesynchroniseerd als je ingelogd bent.');window.allbizAutoSaveBuilder?.()}
 el('builderPageChoose').addEventListener('change',fillBuilderPage);
 el('builderPreviewPage').addEventListener('click',()=>{
  const page=builderData.pages.find(p=>p.id===el('builderPageChoose').value);
@@ -1540,6 +1540,24 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  window.allbizAutoSaveBuilder=async()=>{
+    try{
+      const {data:{user}}=await client.auth.getUser();if(!user)return;
+      const {error}=await client.from('allbiz_shop_designs').update({builder_data:cleanBuilder(builderData),updated_at:new Date().toISOString()}).eq('user_id',user.id);
+      if(error)throw error;
+      el('builderStatus').textContent='✅ Pagina’s en collecties privé gesynchroniseerd. Er is niets gepubliceerd.';
+    }catch(e){el('builderStatus').textContent='Lokaal bewaard. Privé synchronisatie mislukt; gebruik Bewaar webshopontwerp privé.'}
+  };
+  (async()=>{
+    try{
+      const {data:{user}}=await client.auth.getUser();if(!user)return;
+      const {data,error}=await client.from('allbiz_shop_designs').select('builder_data').eq('user_id',user.id).maybeSingle();
+      if(error||!data)return;
+      const remote=cleanBuilder(data.builder_data);
+      if(builderData.pages.length||builderData.collections.length||builderData.promo.title)return;
+      builderData=remote;saveBuilder();builderRefreshForms();renderShop();
+    }catch(e){}
+  })();
   // Private webshop design storage: only the logged-in owner can read/write via RLS.
   const shopCloudStatus=document.getElementById('shopCloudStatus');
   const shopCloudSave=document.getElementById('shopCloudSave');
