@@ -1117,6 +1117,7 @@ function renderDemoOrders(){
  const holder=el('demoOrderList');if(!holder)return;
  holder.replaceChildren();
  el('demoOrderCount').textContent=String(demoOrders.length);
+ el('demoOrderMessage').textContent=demoOrders.length?('✅ '+demoOrders.length+' testbestelling'+(demoOrders.length===1?'':'en')+' op dit toestel. Dit zijn uitsluitend testbestellingen; geen echte betalingen.'): 'Nog geen testbestellingen op dit toestel.';
  el('demoOrderAmount').textContent=money(demoOrders.reduce((s,o)=>s+Number(o.total||0),0));
  el('demoStockWarning').textContent=String(items.filter(x=>x.type==='physical'&&x.stock!==''&&x.stock!=null&&Number(x.stock)<=3).length);
  el('clearDemoOrders').disabled=demoOrders.length===0;
