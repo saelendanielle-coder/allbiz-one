@@ -135,6 +135,9 @@ input[type=file]{font-size:14px;overflow:hidden}
    box-shadow:0 8px 16px rgba(32,18,73,.06)}
  .mobile-feature-picker label{font-size:14px;color:#3b2a77;font-weight:800;margin:0 0 4px}
  .mobile-feature-picker select{font-size:16px;min-height:48px;padding:10px 13px;margin:0;background:#fff;border:2px solid #6951db;box-shadow:0 2px 6px #b8a5ec24}
+ .mobile-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+ .mobile-shortcuts button{width:100%;min-height:39px;padding:8px 7px;border-radius:11px;font-size:13px;line-height:1.25}
+ #demoOrderList{scroll-margin-top:170px}
  .nav{display:none}
  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
  .stats>.stat:nth-child(3):last-child{grid-column:1/-1}
@@ -290,6 +293,10 @@ input[type=file]{font-size:14px;overflow:hidden}
 <div class="mobile-feature-picker" aria-label="Snel naar een functie">
 <label for="mobileFeatureSelect" id="mobileFeatureLabel">📱 Kies wat je wilt doen</label>
 <select id="mobileFeatureSelect" aria-label="Kies een onderdeel van AllBiz One"></select>
+<div class="mobile-shortcuts" aria-label="Snel navigeren">
+<button type="button" id="quickOrders" class="secondary">📦 Mijn testbestellingen</button>
+<button type="button" id="quickGoBack" class="secondary">↩️ Vorige onderdeel</button>
+</div>
 </div>
 <nav class="nav" aria-label="Menu">
 <button type="button" class="active" data-tab="account" data-nav-i18n="account">🔐 Mijn account</button>
@@ -674,16 +681,16 @@ window.allbizApplyAccess=(kind,plan)=>{
  banner.hidden=!(allbizSandboxTier>0&&allbizLiveTier===0);
  if(!banner.hidden)banner.textContent='🧪 Testmodus · '+allbizTierLabel[allbizSandboxTier]+': je kunt de bijbehorende lokale demo-onderdelen proberen. Dit is GEEN echt betaald abonnement.';
  const current=document.querySelector('.panel.active')?.id;
- if(current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account',{automatic:true});
+ if(kind!=='reset'&&!window.allbizAccessChecking&&current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account',{automatic:true,keepSavedTab:true});
 };
 // Remember where the user was, including the scroll position of each section.
 const navProgressKey='allbiz-navigation-progress-v1';
 const navAllowed=new Set([...document.querySelectorAll('nav.nav [data-tab]')].map(b=>b.dataset.tab));
-let navProgress={tab:'account',positions:{}};
+let navProgress={tab:'account',previous:'',positions:{}};
 try{
  const saved=JSON.parse(localStorage.getItem(navProgressKey)||'null');
  if(saved&&navAllowed.has(saved.tab)&&saved.positions&&typeof saved.positions==='object'){
-  navProgress.tab=saved.tab;navProgress.positions=saved.positions;
+  navProgress.tab=saved.tab;navProgress.positions=saved.positions;navProgress.previous=navAllowed.has(saved.previous)?saved.previous:'';
  }
 }catch(e){}
 let navUserInteracted=false,navRestored=false,navChanging=false,scrollSaveTimer=null;
@@ -738,9 +745,32 @@ function switchTab(tab,options={}){
  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab));
  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
  if(tab==='shop')renderShop();
- navProgress.tab=tab;persistNavigation();
+ if(previous!==tab&&!options.automatic&&navAllowed.has(previous))navProgress.previous=previous;
+ if(!options.keepSavedTab)navProgress.tab=tab;
+ persistNavigation();
  if(previous!==tab||options.automatic)restoreScrollPosition(tab);
 }
+window.allbizFinishAccessCheck=()=>{
+ const current=document.querySelector('.panel.active')?.id;
+ if(current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current]){
+  switchTab('account',{automatic:true,keepSavedTab:true});
+ }
+};
+function openTestOrders(){
+ switchTab('orders');
+ if(document.querySelector('.panel.active')?.id!=='orders')return;
+ setTimeout(()=>{
+   if(document.querySelector('.panel.active')?.id!=='orders')return;
+   el('demoOrderList').scrollIntoView({behavior:'auto',block:'start'});
+   rememberScrollPosition();
+ },210);
+}
+el('quickOrders').addEventListener('click',openTestOrders);
+el('quickGoBack').addEventListener('click',()=>{
+ const back=navProgress.previous;
+ if(navAllowed.has(back))switchTab(back);
+ else switchTab('dashboard');
+});
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.goto)));
 el('jumpToProductBackup').addEventListener('click',()=>{el('catalogBackupBox').scrollIntoView({behavior:'smooth',block:'start'})});
@@ -2087,6 +2117,7 @@ try {
   $('authSubmit').disabled = false;
   $('authReset').disabled = false;
   const renderUser = (user) => {
+    window.allbizAccessChecking=true;
     window.allbizApplyAccess?.('reset');
     guest.hidden = !!user;
     signedIn.hidden = !user;
@@ -2098,8 +2129,10 @@ try {
       a.target = user ? '_blank' : '_self';
     });
     Promise.allSettled([refreshSubscriptionStatus(user),refreshSandboxStatus(user)]).then(()=>{
+      window.allbizAccessChecking=false;
       window.allbizNavigationReady=true;
       window.allbizResumeLastSection?.();
+      window.allbizFinishAccessCheck?.();
     });
   };
   document.querySelectorAll('a.subscription-pay-link').forEach(a => a.addEventListener('click', async ev => {
