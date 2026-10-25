@@ -811,6 +811,15 @@ translate(lang);
 // The splash appears on launch, and can be skipped immediately by tapping the button.
 // On repeat visits, fade after a brief introduction while preserving the user's selected language.
 if(safeStore.get('allbiz-welcome-complete')==='yes'){setTimeout(openApp,1450)}
+function openRequestedSection(){
+ const section = window.location.hash.slice(1);
+ if(section === 'plans' || section === 'account'){
+   openApp();
+   document.querySelector('nav.nav button[data-tab="'+section+'"]')?.click();
+ }
+}
+window.addEventListener('hashchange', openRequestedSection);
+openRequestedSection();
 })();
 </script>
 <script>
