@@ -242,6 +242,32 @@ input[type=file]{font-size:14px;overflow:hidden}
 .product-edit-panel .product-edit-actions button{width:auto;flex:1;min-width:110px}
 .product-edit-panel .product-photo-removal{display:flex;align-items:center;gap:8px;font-weight:500}
 .product-edit-panel .product-photo-removal input{width:auto;margin:0}
+/* Visual page, menu, collection and campaign editor */
+.shop-builder-details{margin-top:16px;border:1px solid #dcd2f4;border-radius:14px;background:#fff;padding:10px 13px}
+.shop-builder-details>summary{font-weight:750;font-size:17px;color:#4c2db1;cursor:pointer;padding:10px 3px}
+.shop-builder-group{border-top:1px solid #eee7f8;padding-top:14px;margin-top:14px}
+.shop-builder-group h4{font-size:16px;margin:0 0 9px}
+.shop-builder-help{font-size:13px;line-height:1.5;color:#686075}
+.shop-builder-action-row{display:flex;flex-wrap:wrap;gap:8px;margin:10px 0}
+.shop-builder-action-row button{flex:1;min-width:94px;width:auto;padding:10px 11px}
+.shop-builder-details input,.shop-builder-details textarea,.shop-builder-details select{width:100%;margin-top:4px}
+.shop-builder-details textarea{min-height:90px}
+.shop-builder-check{display:flex;align-items:center;gap:8px;margin:12px 0}
+.shop-builder-check input{width:auto;margin:0}
+.shop-builder-nav{display:flex;gap:7px;overflow-x:auto;padding:10px 15px;background:#fff;border-bottom:1px solid #eae2f6}
+.shop-builder-nav button{width:auto;flex-shrink:0;border-radius:999px;background:#f0ecfd;color:#4c3499;padding:9px 12px;font-size:13px}
+.shop-builder-nav button.active{background:#5b3fd0;color:#fff}
+.shop-builder-page{padding:30px 20px;min-height:210px;background:#fff}
+.shop-builder-page h2{font-size:clamp(24px,5vw,34px)}
+.shop-builder-page p{white-space:pre-line;overflow-wrap:anywhere;line-height:1.65}
+.shop-builder-collection-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:12px;padding:14px}
+.shop-builder-collection-card{border:1px solid #d8c9f5;background:#f8f5ff;padding:21px 14px;border-radius:14px;text-align:left;cursor:pointer;color:#352065}
+.shop-builder-collection-card strong{display:block;font-size:18px;margin-bottom:7px}
+.shop-builder-collection-card small{font-size:13px;line-height:1.4}
+.shop-builder-campaign{padding:26px 20px;background:linear-gradient(135deg,#251951,#5e3caf);color:#fff;margin:14px 0;border-radius:15px}
+.shop-builder-campaign h3{font-size:clamp(23px,4vw,31px);color:#fff;margin:0 0 9px}
+.shop-builder-campaign p{color:#fff;opacity:.94;white-space:pre-line}
+.shop-builder-campaign button{width:auto;background:#fff;color:#38226c;margin-top:8px}
 </style>
 </head>
 <body class="splash-open">
@@ -353,6 +379,47 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button id="shopSaveDesign" type="button">💾 Bewaar webshopontwerp</button><button id="shopDemoProducts" type="button" class="secondary">🧪 Voeg 3 voorbeeldproducten toe</button></div>
 <p id="shopDesignStatus" class="toast" role="status">Er worden geen echte bestellingen of betalingen gedaan.</p>
 <div class="import-buttons"><button type="button" class="secondary" id="shopCloudSave">☁️ Bewaar webshopontwerp privé</button><button type="button" class="secondary" id="shopCloudLoad">📂 Open bewaard webshopontwerp</button></div><p id="shopCloudStatus" role="status" class="toast">Je webshopontwerp staat momenteel alleen op dit toestel.</p>
+<details class="shop-builder-details" id="shopBuilderDetails">
+<summary>🧩 Geavanceerde webshopbouwer — pagina's, menu's en collecties</summary>
+<p class="shop-builder-help">Bouw hier je eigen demo-webshop. Veranderingen zijn niet openbaar. Bewaar ze met de privé-opslagknop hierboven zodat je op een ander toestel verder kunt.</p>
+<div class="shop-builder-group">
+<h4>📄 Pagina's & navigatiemenu</h4>
+<label for="builderPageChoose">Pagina kiezen of een nieuwe maken</label>
+<select id="builderPageChoose"><option value="new">+ Nieuwe pagina</option></select>
+<label for="builderPageTitle">Paginatitel (zichtbaar in menu)</label>
+<input id="builderPageTitle" maxlength="60" placeholder="Bijv. Over ons, Contact of Verzending">
+<label for="builderPageText">Tekst op de pagina</label>
+<textarea id="builderPageText" maxlength="2500" placeholder="Schrijf de inhoud van deze pagina..."></textarea>
+<label class="shop-builder-check"><input id="builderPageVisible" type="checkbox" checked>Toon pagina in het menu</label>
+<div class="shop-builder-action-row">
+<button type="button" id="builderSavePage">+ Pagina bewaren</button>
+<button type="button" id="builderDeletePage" class="secondary">Verwijderen</button>
+</div>
+<p class="shop-builder-help">Gebruik de pijltjes om de volgorde van extra menupagina's aan te passen. De vaste knoppen Startpagina, Producten en Collecties blijven bestaan.</p>
+<div class="shop-builder-action-row"><button id="builderPageUp" type="button" class="secondary">↑ Eerder in menu</button><button id="builderPageDown" type="button" class="secondary">↓ Later in menu</button></div>
+</div>
+<div class="shop-builder-group">
+<h4>🛍️ Productcollecties</h4>
+<p class="shop-builder-help">Koppel een collectie aan een productcategorie. Voeg producten in die categorie toe onder 🛍️ Producten.</p>
+<label for="builderCollectionChoose">Collectie kiezen</label><select id="builderCollectionChoose"><option value="new">+ Nieuwe collectie</option></select>
+<label for="builderCollectionCategory">Gekoppelde productcategorie</label><input id="builderCollectionCategory" list="allbizCategoryIdeas" maxlength="35" placeholder="Bijv. Kleding">
+<label for="builderCollectionLabel">Titel op de collectiekaart</label><input id="builderCollectionLabel" maxlength="70" placeholder="Bijv. Onze kledingcollectie">
+<label for="builderCollectionText">Korte beschrijving</label><textarea id="builderCollectionText" maxlength="220" placeholder="Bijv. Ontdek onze nieuwste kleding"></textarea>
+<label class="shop-builder-check"><input id="builderCollectionVisible" type="checkbox" checked>Collectie tonen op de collectiepagina</label>
+<div class="shop-builder-action-row">
+<button id="builderSaveCollection" type="button">+ Collectie bewaren</button>
+<button id="builderDeleteCollection" type="button" class="secondary">Verwijderen</button>
+</div>
+</div>
+<div class="shop-builder-group">
+<h4>📢 Extra actie-banner</h4>
+<label for="builderPromoTitle">Bannertitel</label><input id="builderPromoTitle" maxlength="90" placeholder="Bijv. Onze herfstcollectie">
+<label for="builderPromoText">Bannertekst</label><textarea id="builderPromoText" maxlength="240" placeholder="Bijv. Ontdek de nieuwe collectie."></textarea>
+<label for="builderPromoButton">Tekst op de knop</label><input id="builderPromoButton" maxlength="45" placeholder="Bijv. Bekijk de collectie">
+<button id="builderSavePromo" type="button">✅ Actie-banner bewaren</button>
+</div>
+<p id="builderStatus" class="toast" role="status">Nog niets aangepast. Je bouwt uitsluitend een webshopdemo.</p>
+</details>
 </div>
 <div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><button type="button" class="secondary" data-goto="orders" style="margin:10px 0 14px;width:100%">📦 Bekijk mijn testbestellingen</button><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
