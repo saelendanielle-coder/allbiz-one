@@ -331,7 +331,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button id="shopSaveDesign" type="button">💾 Bewaar webshopontwerp</button><button id="shopDemoProducts" type="button" class="secondary">🧪 Voeg 3 voorbeeldproducten toe</button></div>
 <p id="shopDesignStatus" class="toast" role="status">Er worden geen echte bestellingen of betalingen gedaan.</p>
 </div>
-<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
+<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><button type="button" class="secondary" data-goto="orders" style="margin:10px 0 14px;width:100%">📦 Bekijk mijn testbestellingen</button><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
 <section id="orders" class="panel">
 <div class="card">
@@ -1190,7 +1190,7 @@ translate(lang);
 if(safeStore.get('allbiz-welcome-complete')==='yes'){setTimeout(openApp,1450)}
 function openRequestedSection(){
  const section = window.location.hash.slice(1);
- if(section === 'plans' || section === 'account'){
+ if(['plans','account','orders'].includes(section)){
    openApp();
    document.querySelector('nav.nav button[data-tab="'+section+'"]')?.click();
  }
