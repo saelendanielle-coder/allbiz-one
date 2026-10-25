@@ -231,6 +231,17 @@ input[type=file]{font-size:14px;overflow:hidden}
 .demo-summary{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 18px}
 .demo-summary div{background:#f1edff;border-radius:12px;padding:12px 15px;flex:1;min-width:120px}
 .demo-summary strong{font-size:22px;display:block}
+/* Edit existing product records without removing/recreating them */
+.product-edit-panel{margin-top:14px;border:1px solid #ddd1f8;border-radius:14px;background:#faf8ff;padding:12px}
+.product-edit-panel summary{cursor:pointer;font-size:15px;color:#5334b3;font-weight:750;padding:8px 4px}
+.product-edit-panel form{padding:10px 4px 4px;display:grid;gap:10px}
+.product-edit-panel label{display:block;margin-top:3px;font-size:13px;font-weight:650}
+.product-edit-panel input,.product-edit-panel textarea,.product-edit-panel select{width:100%;margin:4px 0 0}
+.product-edit-panel textarea{min-height:85px}
+.product-edit-panel .product-edit-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:7px}
+.product-edit-panel .product-edit-actions button{width:auto;flex:1;min-width:110px}
+.product-edit-panel .product-photo-removal{display:flex;align-items:center;gap:8px;font-weight:500}
+.product-edit-panel .product-photo-removal input{width:auto;margin:0}
 </style>
 </head>
 <body class="splash-open">
@@ -600,7 +611,74 @@ document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',(
 function toggleType(){const physical=document.querySelector('input[name="type"]:checked').value==='physical';el('physicalFields').classList.toggle('hidden',!physical);el('digitalFields').classList.toggle('hidden',physical)}
 document.querySelectorAll('input[name="type"]').forEach(r=>r.addEventListener('change',toggleType));
 function element(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
-function productCard(x,forShop=false){const d=element('div','product');if(x.photo||x.imageUrl){const image=element('img','product-photo');image.src=x.photo||x.imageUrl;image.referrerPolicy='no-referrer';image.alt='Foto van '+x.name;d.append(image)}else{d.append(element('div','placeholder',x.emoji|| (x.type==='physical'?'📦':'📥')))}d.append(element('span','pill',x.type==='physical'?'Fysiek / dropshipping':'Digitaal'));if(x.category)d.append(element('span','pill',String(x.category)));if(x.type==='physical'&&x.stock!==''&&x.stock!=null){const left=Number(x.stock);if(Number.isFinite(left)&&left<=0)d.append(element('span','pill','Uitverkocht'));}d.append(element('h3','',x.name));if(x.description)d.append(element('p','small muted',x.description));d.append(element('div','price',money(x.price)));if(x.type==='physical'){if(x.cost!==''&&x.cost!=null){const margin=Number(x.price)-Number(x.cost)-(Number(x.shipping)||0);d.append(element('p','small muted','Geschatte marge: '+money(margin)+' (vóór overige kosten)'))}if(x.stock!==''&&x.stock!=null)d.append(element('p','small muted','Beschikbaar (handmatig): '+x.stock));if(!forShop&&x.supplier){try{const url=new URL(x.supplier);if(['https:','http:'].includes(url.protocol)){const a=element('a','small','Bekijk leverancier ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';d.append(a)}}catch(e){}}}else if(x.fileName){d.append(element('p','small muted','Bestand: '+x.fileName))}const actions=element('div','actions');const b=element('button',forShop?'':'danger',forShop?'🛒 In mandje':'Verwijderen');b.type='button';b.addEventListener('click',()=>{if(forShop){const already=cart.filter(id=>id===x.id).length;const stock=x.stock===''||x.stock==null?null:Number(x.stock);if(stock!==null&&Number.isFinite(stock)&&already>=stock){el('checkoutStatus').textContent='Niet genoeg testvoorraad voor dit product.';return}cart.push(x.id);renderShop();el('checkoutStatus').textContent='Toegevoegd aan jouw testmandje.'}else if(confirm('Dit product verwijderen?')){items=items.filter(p=>p.id!==x.id);cart=cart.filter(id=>id!==x.id);save();renderAll()}});actions.append(b);d.append(actions);if(!forShop){const inv=element('div','inventory-tools');inv.append(element('span','inventory-stock','Voorraad: '+(x.stock===''||x.stock==null?'niet bijgehouden':x.stock)));const edit=element('button','secondary','✏️ Voorraad aanpassen');edit.type='button';edit.addEventListener('click',()=>{const next=prompt('Testvoorraad voor '+x.name+' (een geheel getal, leeg = niet bijhouden):',x.stock??'');if(next===null)return;if(next.trim()!==''&&(!/^\d{1,8}$/.test(next.trim())||Number(next)>1000000)){alert('Voer een geldig voorraadgetal in.');return}x.stock=next.trim();if(save())renderAll();else alert('Opslaan lukt niet.');});inv.append(edit);d.append(inv)}return d}
+function productCard(x,forShop=false){const d=element('div','product');if(x.photo||x.imageUrl){const image=element('img','product-photo');image.src=x.photo||x.imageUrl;image.referrerPolicy='no-referrer';image.alt='Foto van '+x.name;d.append(image)}else{d.append(element('div','placeholder',x.emoji|| (x.type==='physical'?'📦':'📥')))}d.append(element('span','pill',x.type==='physical'?'Fysiek / dropshipping':'Digitaal'));if(x.category)d.append(element('span','pill',String(x.category)));if(!forShop&&x.visibility==='draft')d.append(element('span','pill','📝 Concept — niet zichtbaar in demo-webshop'));if(x.type==='physical'&&x.stock!==''&&x.stock!=null){const left=Number(x.stock);if(Number.isFinite(left)&&left<=0)d.append(element('span','pill','Uitverkocht'));}d.append(element('h3','',x.name));if(x.description)d.append(element('p','small muted',x.description));d.append(element('div','price',money(x.price)));if(x.type==='physical'){if(x.cost!==''&&x.cost!=null){const margin=Number(x.price)-Number(x.cost)-(Number(x.shipping)||0);d.append(element('p','small muted','Geschatte marge: '+money(margin)+' (vóór overige kosten)'))}if(x.stock!==''&&x.stock!=null)d.append(element('p','small muted','Beschikbaar (handmatig): '+x.stock));if(!forShop&&x.supplier){try{const url=new URL(x.supplier);if(['https:','http:'].includes(url.protocol)){const a=element('a','small','Bekijk leverancier ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';d.append(a)}}catch(e){}}}else if(x.fileName){d.append(element('p','small muted','Bestand: '+x.fileName))}const actions=element('div','actions');const b=element('button',forShop?'':'danger',forShop?'🛒 In mandje':'Verwijderen');b.type='button';b.addEventListener('click',()=>{if(forShop){const already=cart.filter(id=>id===x.id).length;const stock=x.stock===''||x.stock==null?null:Number(x.stock);if(stock!==null&&Number.isFinite(stock)&&already>=stock){el('checkoutStatus').textContent='Niet genoeg testvoorraad voor dit product.';return}cart.push(x.id);renderShop();el('checkoutStatus').textContent='Toegevoegd aan jouw testmandje.'}else if(confirm('Dit product verwijderen?')){items=items.filter(p=>p.id!==x.id);cart=cart.filter(id=>id!==x.id);save();renderAll()}});actions.append(b);d.append(actions);if(!forShop){const inv=element('div','inventory-tools');inv.append(element('span','inventory-stock','Voorraad: '+(x.stock===''||x.stock==null?'niet bijgehouden':x.stock)));const edit=element('button','secondary','✏️ Voorraad aanpassen');edit.type='button';edit.addEventListener('click',()=>{const next=prompt('Testvoorraad voor '+x.name+' (een geheel getal, leeg = niet bijhouden):',x.stock??'');if(next===null)return;if(next.trim()!==''&&(!/^\d{1,8}$/.test(next.trim())||Number(next)>1000000)){alert('Voer een geldig voorraadgetal in.');return}x.stock=next.trim();if(save())renderAll();else alert('Opslaan lukt niet.');});inv.append(edit);d.append(inv);attachProductEditor(d,x)}return d}
+
+function attachProductEditor(card,product){
+ const panel=element('details','product-edit-panel');
+ panel.append(element('summary','','✏️ Product volledig bewerken'));
+ const form=element('form','');
+ const field=(title,value,type='text',max=150)=>{
+  const label=element('label','',title);
+  const control=element(type==='textarea'?'textarea':'input','');
+  if(type!=='textarea')control.type=type;
+  control.value=String(value??'');
+  if(max>0)control.maxLength=max;
+  label.append(control);form.append(label);return control;
+ };
+ const name=field('Productnaam',product.name,'text',150);name.required=true;
+ const price=field('Verkoopprijs (€)',Number(product.price||0).toFixed(2),'number',0);
+ price.min='0';price.max='999999';price.step='0.01';price.required=true;
+ const desc=field('Beschrijving',product.description||'','textarea',1200);
+ const category=field('Categorie',product.category||'Overig','text',35);
+ const stock=field('Testvoorraad (leeg = onbeperkt)',product.stock??'','number',0);
+ stock.min='0';stock.max='1000000';stock.step='1';stock.placeholder='Niet bijgehouden';
+ const image=field('Foto-URL (optioneel, https://)',product.imageUrl||'','url',800);
+ image.placeholder='https://voorbeeld.nl/productfoto.jpg';
+ const removeLabel=element('label','product-photo-removal','');
+ const removePhoto=element('input','');removePhoto.type='checkbox';
+ removeLabel.append(removePhoto,document.createTextNode('Huidige afbeelding verwijderen'));form.append(removeLabel);
+ const statusLabel=element('label','','Weergave in webshopdemo');
+ const visibility=element('select','');
+ [{value:'active',label:'🟢 Actief — zichtbaar in demo-webshop'}, {value:'draft',label:'📝 Concept — verborgen in demo-webshop'}].forEach(o=>{
+  const option=element('option','',o.label);option.value=o.value;visibility.append(option);
+ });
+ visibility.value=product.visibility==='draft'?'draft':'active';
+ statusLabel.append(visibility);form.append(statusLabel);
+ const action=element('div','product-edit-actions');
+ const saveButton=element('button','','✅ Wijzigingen bewaren');
+ saveButton.type='submit';
+ const cancelButton=element('button','secondary','Annuleren');cancelButton.type='button';
+ cancelButton.addEventListener('click',()=>{panel.open=false;form.reset()});
+ action.append(saveButton,cancelButton);form.append(action);
+ const notice=element('p','muted','Wijzigingen worden alleen op dit toestel bewaard. Deze webshop is niet publiek online.');
+ form.append(notice);
+ form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const newName=name.value.trim(),newPrice=Number(price.value);
+  const newCategory=category.value.trim()||'Overig';
+  const newStock=stock.value.trim();
+  const url=image.value.trim();
+  if(!newName||!Number.isFinite(newPrice)||newPrice<0||newPrice>999999){
+   alert('Controleer de productnaam en verkoopprijs.');return;
+  }
+  if(newStock!==''&&(!Number.isInteger(Number(newStock))||Number(newStock)<0||Number(newStock)>1000000)){
+   alert('Voorraad moet een positief geheel getal zijn of leeg blijven.');return;
+  }
+  if(url&&!safeImage(url)){alert('Gebruik een geldige link naar een afbeelding.');return}
+  const previous={...product};
+  product.name=newName.slice(0,150);
+  product.price=newPrice;product.description=desc.value.trim().slice(0,1200);
+  product.category=newCategory.slice(0,35);product.stock=newStock;
+  product.visibility=visibility.value==='draft'?'draft':'active';
+  if(removePhoto.checked){product.photo='';product.imageUrl=''}
+  if(url&&url!==(previous.imageUrl||'')){product.imageUrl=safeImage(url);product.photo=''}
+  if(!save()){Object.assign(product,previous);alert('Bewaren mislukt. Er is niets gewijzigd.');return}
+  if(product.visibility==='draft')cart=cart.filter(id=>id!==product.id);
+  renderAll();
+  el('productStatus').textContent='✅ '+product.name+' aangepast en bewaard. '+(product.visibility==='draft'?'Dit concept is niet zichtbaar in de webshopdemo.':'Zichtbaar in de webshopdemo.');
+ });
+ panel.append(form);card.append(panel);
+}
 function renderAll(){renderDemoOrders();el('count').textContent=items.length;el('digitalCount').textContent=items.filter(x=>x.type!=='physical').length;el('physicalCount').textContent=items.filter(x=>x.type==='physical').length;el('listCount').textContent=items.length+' producten';const l=el('productsList');l.replaceChildren();if(!items.length)l.append(element('p','empty','Nog geen producten. Voeg je eerste product toe!'));else items.forEach(x=>l.append(productCard(x)));renderShop();renderSite()}
 const shopDesignKey='allbiz-pro-storefront-v1';
 let shopQuery='',shopCategory='Alle';
@@ -634,7 +712,7 @@ function renderShop(){
  cta.type='button';cta.addEventListener('click',()=>el('shopSearch').focus());
  hero.append(cta);p.append(hero);
  const header=element('div','shop-intro');header.append(element('h3','','Shop de collectie'));header.append(element('p','muted','Ontdek de producten van deze voorbeeldwinkel.'));p.append(header);
- const cats=['Alle',...new Set(items.map(x=>String(x.category||'Overig').trim()||'Overig'))].slice(0,25);
+ const cats=['Alle',...new Set(items.filter(x=>x.visibility!=='draft').map(x=>String(x.category||'Overig').trim()||'Overig'))].slice(0,25);
  if(!cats.includes(shopCategory))shopCategory='Alle';
  const chips=element('div','shop-category-chips');
  cats.forEach(cat=>{
@@ -663,7 +741,7 @@ function renderShop(){
  updateShopCollection();
  appendAffiliatePreview(p);
  const c=el('cartList');c.replaceChildren();
- cart=cart.filter(id=>items.some(x=>x.id===id));
+ cart=cart.filter(id=>items.some(x=>x.id===id&&x.visibility!=='draft'));
  if(!cart.length)c.append(element('p','muted','Je mandje is leeg.'));
  else{
   const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
@@ -699,9 +777,9 @@ function updateShopCollection(){
  const list=el('shopFilteredProducts');if(!list)return;
  list.replaceChildren();
  const needle=shopQuery.toLocaleLowerCase();
- const matches=items.filter(x=>(shopCategory==='Alle'||(x.category||'Overig')===shopCategory) &&
+ const matches=items.filter(x=>x.visibility!=='draft'&&(shopCategory==='Alle'||(x.category||'Overig')===shopCategory) &&
    [x.name,x.description,x.category].some(v=>String(v||'').toLocaleLowerCase().includes(needle)));
- el('shopVisibleCount').textContent=matches.length+' van '+items.length+' producten';
+ el('shopVisibleCount').textContent=matches.length+' van '+items.filter(x=>x.visibility!=='draft').length+' zichtbare producten';
  if(!matches.length){
    const msg=element('div','empty',items.length?'Geen producten gevonden. Probeer een andere zoekterm of categorie.':'Je winkel is nog leeg. Voeg via Producten iets toe of gebruik hierboven de knop voor 3 voorbeeldproducten.');
    list.append(msg);
