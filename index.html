@@ -882,7 +882,20 @@ try {
     guest.hidden = !!user;
     signedIn.hidden = !user;
     $('authUserEmail').textContent = user?.email || '';
+    document.querySelectorAll('a.subscription-pay-link').forEach(a => {
+      const original = a.dataset.baseHref || a.getAttribute('href');
+      a.dataset.baseHref = original;
+      a.href = user ? original + '?client_reference_id=' + encodeURIComponent(user.id) : '#account';
+      a.target = user ? '_blank' : '_self';
+    });
   };
+  document.querySelectorAll('a.subscription-pay-link').forEach(a => a.addEventListener('click', async ev => {
+    const {data} = await client.auth.getSession();
+    if (data.session?.user) return;
+    ev.preventDefault();
+    status('Log eerst in of maak een account voordat je een abonnement koopt.');
+    document.querySelector('[data-tab="account"]')?.click();
+  }));
   const {data: sessionData, error: sessionError} = await client.auth.getSession();
   renderUser(sessionError ? null : (sessionData?.session?.user ?? null));
   status(sessionError ? 'Je vorige sessie kon niet hersteld worden. Probeer opnieuw in te loggen.' : '');
