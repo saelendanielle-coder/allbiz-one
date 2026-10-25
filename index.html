@@ -851,9 +851,9 @@ openRequestedSection();
 })();
 </script>
 <script type="module">
-/* De Supabase publishable key is openbaar bedoeld; nooit een secret/service_role key hier plaatsen. */
+/* Tijdelijk de actieve publieke (legacy anon) sleutel gebruiken wegens door de gateway geweigerde publishable key (bad_checksum). Nooit service_role of een geheime sleutel hier plaatsen. */
 const SUPABASE_URL = 'https://woaifabvfqnnunxmhpkc.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_SYjXiKjGYlqVbXjYmrgBeA_odrkqb3D';
+const SUPABASE_PUBLIC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYWlmYWJ2ZnFubnVueG1ocGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4Njk3MzMsImV4cCI6MjEwODQ0NTczM30.uDYHF8yKt48Fc6nVrgPpgy_TiizUFM6tAsVRc2dCT10';
 const $ = id => document.getElementById(id);
 const status = msg => { $('authStatus').textContent = msg; };
 const guest = $('authGuest');
@@ -871,7 +871,7 @@ updateMode();
 status('Beveiligde registratie wordt geladen... Je kunt je gegevens alvast invullen.');
 try {
   const { createClient } = await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').catch(() => import('https://esm.sh/@supabase/supabase-js@2'));
-  const client = createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
+  const client = createClient(SUPABASE_URL, SUPABASE_PUBLIC_KEY, {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
