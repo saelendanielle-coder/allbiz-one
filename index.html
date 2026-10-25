@@ -344,12 +344,15 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p>
 <div class="shop-studio">
 <h3>🎨 Ontwerp je winkel</h3>
+<p class="muted">De bedrijfsnaam en slogan stel je in onder 🎨 Website & domein.</p>
+<label for="shopThemeSelect">Kleuren en stijl van je webshop</label><select id="shopThemeSelect"><option value="classic">💜 Modern</option><option value="luxe">🖤 Luxe</option><option value="nature">🌿 Natuur</option><option value="pop">🌸 Trendy</option></select>
 <p>Verander de teksten en zie het resultaat meteen hieronder. De instellingen worden op dit toestel bewaard.</p>
 <label for="shopHeroTitle">Grote titel op je startpagina</label><input id="shopHeroTitle" maxlength="90" placeholder="Bijv. Nieuwe collectie – ontdek jouw stijl">
 <label for="shopHeroText">Tekst onder de titel</label><textarea id="shopHeroText" maxlength="220" placeholder="Bijv. Mode voor elke dag"></textarea>
 <div class="fields"><div><label for="shopPromoText">Bovenste aanbiedingsbalk</label><input id="shopPromoText" maxlength="100" placeholder="Bijv. Welkom bij onze winkel"></div><div><label for="shopHeroImage">Bannerfoto via https-link (optioneel)</label><input type="url" id="shopHeroImage" placeholder="https://voorbeeld.nl/foto.jpg"></div></div>
 <div class="import-buttons"><button id="shopSaveDesign" type="button">💾 Bewaar webshopontwerp</button><button id="shopDemoProducts" type="button" class="secondary">🧪 Voeg 3 voorbeeldproducten toe</button></div>
 <p id="shopDesignStatus" class="toast" role="status">Er worden geen echte bestellingen of betalingen gedaan.</p>
+<div class="import-buttons"><button type="button" class="secondary" id="shopCloudSave">☁️ Bewaar webshopontwerp privé</button><button type="button" class="secondary" id="shopCloudLoad">📂 Open bewaard webshopontwerp</button></div><p id="shopCloudStatus" role="status" class="toast">Je webshopontwerp staat momenteel alleen op dit toestel.</p>
 </div>
 <div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><button type="button" class="secondary" data-goto="orders" style="margin:10px 0 14px;width:100%">📦 Bekijk mijn testbestellingen</button><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
@@ -906,7 +909,9 @@ function saveSiteSettings(){try{localStorage.setItem('business-studio-brand',el(
 try{activeTheme=localStorage.getItem('business-studio-theme')||'classic';el('domainName').value=localStorage.getItem('business-studio-domain')||'';el('domainExt').value=localStorage.getItem('business-studio-extension')||'.be'}catch(e){}
 if(!['classic','luxe','nature','pop'].includes(activeTheme))activeTheme='classic';
 function refreshDomain(){const d=el('domainName').value.toLowerCase().trim().replace(/\s+/g,'-');const ok=/^[a-z0-9](?:[a-z0-9-]{0,58}[a-z0-9])?$/.test(d)&&!d.includes('--');el('domainPreview').textContent=!d?'Vul eerst een domeinnaam in':ok?d+el('domainExt').value+' — nog niet gecontroleerd op beschikbaarheid':'Gebruik letters a-z, cijfers en - (niet aan het begin of einde)';renderSite()}
-for(const btn of document.querySelectorAll('[data-theme]')){btn.classList.toggle('selected',btn.dataset.theme===activeTheme);btn.addEventListener('click',()=>{activeTheme=btn.dataset.theme;document.querySelectorAll('[data-theme]').forEach(x=>x.classList.toggle('selected',x===btn));saveSiteSettings();renderAll()})}
+for(const btn of document.querySelectorAll('[data-theme]')){btn.classList.toggle('selected',btn.dataset.theme===activeTheme);btn.addEventListener('click',()=>{activeTheme=btn.dataset.theme;document.querySelectorAll('[data-theme]').forEach(x=>x.classList.toggle('selected',x===btn));const shopTheme=el('shopThemeSelect');if(shopTheme)shopTheme.value=activeTheme;saveSiteSettings();renderAll()})}
+el('shopThemeSelect').value=activeTheme;
+el('shopThemeSelect').addEventListener('change',event=>{const theme=event.target.value;if(!['classic','luxe','nature','pop'].includes(theme))return;document.querySelector('[data-theme="'+theme+'"]').click()});
 for(const id of ['brand','description','siteAbout','siteServices','siteEmail'])el(id).addEventListener('input',()=>{renderSite();renderShop();saveSiteSettings()});
 el('domainName').addEventListener('input',()=>{refreshDomain();saveSiteSettings()});el('domainExt').addEventListener('change',()=>{refreshDomain();saveSiteSettings()});
 function newId(){return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
