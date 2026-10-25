@@ -759,6 +759,120 @@ function attachProductEditor(card,product){
  panel.append(form);card.append(panel);
 }
 function renderAll(){renderDemoOrders();el('count').textContent=items.length;el('digitalCount').textContent=items.filter(x=>x.type!=='physical').length;el('physicalCount').textContent=items.filter(x=>x.type==='physical').length;el('listCount').textContent=items.length+' producten';const l=el('productsList');l.replaceChildren();if(!items.length)l.append(element('p','empty','Nog geen producten. Voeg je eerste product toe!'));else items.forEach(x=>l.append(productCard(x)));renderShop();renderSite()}
+
+const builderKey='allbiz-pro-builder-v1';
+const emptyBuilder=()=>({pages:[],collections:[],promo:{title:'',text:'',button:''}});
+function cleanBuilder(raw){
+ const out=emptyBuilder();if(!raw||typeof raw!=='object')return out;
+ const str=(v,n)=>String(v??'').slice(0,n);
+ if(Array.isArray(raw.pages))out.pages=raw.pages.slice(0,12).filter(x=>x&&typeof x==='object').map(x=>({id:str(x.id,60),title:str(x.title,60),text:str(x.text,2500),visible:x.visible!==false})).filter(x=>x.id&&x.title);
+ if(Array.isArray(raw.collections))out.collections=raw.collections.slice(0,12).filter(x=>x&&typeof x==='object').map(x=>({id:str(x.id,60),category:str(x.category,35),label:str(x.label,70),text:str(x.text,220),visible:x.visible!==false})).filter(x=>x.id&&x.category&&x.label);
+ if(raw.promo&&typeof raw.promo==='object')out.promo={title:str(raw.promo.title,90),text:str(raw.promo.text,240),button:str(raw.promo.button,45)};
+ return out;
+}
+let builderData=emptyBuilder(),builderScreen='home';
+try{builderData=cleanBuilder(JSON.parse(localStorage.getItem(builderKey)||'null'))}catch(e){}
+function saveBuilder(){try{localStorage.setItem(builderKey,JSON.stringify(builderData));return true}catch(e){return false}}
+function builderMessage(msg){el('builderStatus').textContent=msg}
+function builderRefreshForms(){
+ const pages=el('builderPageChoose'),oldPage=pages.value;
+ pages.replaceChildren();const fresh=element('option','','+ Nieuwe pagina');fresh.value='new';pages.append(fresh);
+ builderData.pages.forEach(x=>{const opt=element('option','',x.title+(x.visible?'':' (verborgen)'));opt.value=x.id;pages.append(opt)});
+ pages.value=builderData.pages.some(x=>x.id===oldPage)?oldPage:'new';fillBuilderPage();
+ const collections=el('builderCollectionChoose'),oldCollection=collections.value;
+ collections.replaceChildren();const freshCollection=element('option','','+ Nieuwe collectie');freshCollection.value='new';collections.append(freshCollection);
+ builderData.collections.forEach(x=>{const opt=element('option','',x.label);opt.value=x.id;collections.append(opt)});
+ collections.value=builderData.collections.some(x=>x.id===oldCollection)?oldCollection:'new';fillBuilderCollection();
+ el('builderPromoTitle').value=builderData.promo.title;
+ el('builderPromoText').value=builderData.promo.text;
+ el('builderPromoButton').value=builderData.promo.button;
+}
+function fillBuilderPage(){
+ const x=builderData.pages.find(v=>v.id===el('builderPageChoose').value);
+ el('builderPageTitle').value=x?.title||'';el('builderPageText').value=x?.text||'';
+ el('builderPageVisible').checked=x?.visible!==false;
+}
+function fillBuilderCollection(){
+ const x=builderData.collections.find(v=>v.id===el('builderCollectionChoose').value);
+ el('builderCollectionCategory').value=x?.category||'';
+ el('builderCollectionLabel').value=x?.label||'';
+ el('builderCollectionText').value=x?.text||'';
+ el('builderCollectionVisible').checked=x?.visible!==false;
+}
+function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Bewaar daarna je ontwerp privé om het ook op andere toestellen te openen.')}
+el('builderPageChoose').addEventListener('change',fillBuilderPage);
+el('builderCollectionChoose').addEventListener('change',fillBuilderCollection);
+el('builderSavePage').addEventListener('click',()=>{
+ const title=el('builderPageTitle').value.trim(),id=el('builderPageChoose').value;
+ if(!title){builderMessage('Vul eerst een paginatitel in.');return}
+ const item={id:id==='new'?newId():id,title:title.slice(0,60),text:el('builderPageText').value.slice(0,2500),visible:el('builderPageVisible').checked};
+ const index=builderData.pages.findIndex(x=>x.id===id);
+ if(index<0){if(builderData.pages.length>=12){builderMessage('Maximaal 12 extra pagina’s.');return}builderData.pages.push(item)}
+ else builderData.pages[index]=item;
+ builderChanged('✅ Pagina bewaard.');el('builderPageChoose').value=item.id;fillBuilderPage();
+});
+el('builderDeletePage').addEventListener('click',()=>{
+ const id=el('builderPageChoose').value,x=builderData.pages.find(z=>z.id===id);
+ if(!x)return;if(!confirm('De testpagina '+x.title+' verwijderen?'))return;
+ builderData.pages=builderData.pages.filter(z=>z.id!==id);builderScreen='home';builderChanged('✅ Pagina verwijderd.');
+});
+for(const [button,delta] of [['builderPageUp',-1],['builderPageDown',1]]){
+ el(button).addEventListener('click',()=>{
+  const id=el('builderPageChoose').value,index=builderData.pages.findIndex(x=>x.id===id),dest=index+delta;
+  if(index<0||dest<0||dest>=builderData.pages.length)return;
+  [builderData.pages[index],builderData.pages[dest]]=[builderData.pages[dest],builderData.pages[index]];
+  builderChanged('✅ Menuvolgorde aangepast.');el('builderPageChoose').value=id;fillBuilderPage();
+ });
+}
+el('builderSaveCollection').addEventListener('click',()=>{
+ const id=el('builderCollectionChoose').value,category=el('builderCollectionCategory').value.trim(),label=el('builderCollectionLabel').value.trim();
+ if(!category||!label){builderMessage('Vul een categorie en een collectietitel in.');return}
+ const item={id:id==='new'?newId():id,category:category.slice(0,35),label:label.slice(0,70),text:el('builderCollectionText').value.slice(0,220),visible:el('builderCollectionVisible').checked};
+ const index=builderData.collections.findIndex(x=>x.id===id);
+ if(index<0){if(builderData.collections.length>=12){builderMessage('Maximaal 12 collecties.');return}builderData.collections.push(item)}else builderData.collections[index]=item;
+ builderChanged('✅ Collectie bewaard.');el('builderCollectionChoose').value=item.id;fillBuilderCollection();
+});
+el('builderDeleteCollection').addEventListener('click',()=>{
+ const id=el('builderCollectionChoose').value,x=builderData.collections.find(c=>c.id===id);
+ if(!x)return;if(!confirm('Collectie '+x.label+' verwijderen?'))return;
+ builderData.collections=builderData.collections.filter(z=>z.id!==id);builderChanged('✅ Collectie verwijderd.');
+});
+el('builderSavePromo').addEventListener('click',()=>{
+ builderData.promo={title:el('builderPromoTitle').value.trim().slice(0,90),text:el('builderPromoText').value.trim().slice(0,240),button:el('builderPromoButton').value.trim().slice(0,45)};
+ builderChanged('✅ Actie-banner bewaard.');
+});
+builderRefreshForms();
+function selectBuilderScreen(name){builderScreen=name;renderShop()}
+function makeBuilderNav(){
+ const nav=element('nav','shop-builder-nav');nav.setAttribute('aria-label','Voorbeeld webshopnavigatie');
+ const entries=[['home','🏠 Startpagina'],['products','🛍️ Producten'],['collections','📁 Collecties'],...builderData.pages.filter(x=>x.visible).map(x=>['page:'+x.id,x.title])];
+ entries.forEach(([id,label])=>{
+  const btn=element('button',id===builderScreen?'active':'',label);btn.type='button';
+  btn.addEventListener('click',()=>selectBuilderScreen(id));nav.append(btn)
+ });
+ return nav;
+}
+function renderBuilderPage(container){
+ if(builderScreen==='products'||builderScreen==='home')return false;
+ if(builderScreen==='collections'){
+  const section=element('section','shop-builder-page');section.append(element('h2','','Collecties'));
+  const grid=element('div','shop-builder-collection-grid');
+  const visible=builderData.collections.filter(x=>x.visible);
+  for(const c of visible){
+   const count=items.filter(x=>x.visibility!=='draft'&&(x.category||'Overig')===c.category).length;
+   const btn=element('button','shop-builder-collection-card');
+   btn.type='button';btn.append(element('strong','',c.label),element('small','',c.text||c.category+' · '+count+' producten'));
+   btn.addEventListener('click',()=>{shopCategory=c.category;builderScreen='products';renderShop()});grid.append(btn);
+  }
+  if(!visible.length)grid.append(element('p','muted','Nog geen collecties. Maak er een via de webshopbouwer.'));
+  section.append(grid);container.append(section);return true;
+ }
+ const page=builderData.pages.find(x=>'page:'+x.id===builderScreen&&x.visible);
+ if(!page){builderScreen='home';return false}
+ const section=element('section','shop-builder-page');section.append(element('h2','',page.title),element('p','',page.text||'Deze pagina heeft nog geen inhoud.'));
+ container.append(section);return true;
+}
+
 const shopDesignKey='allbiz-pro-storefront-v1';
 let shopQuery='',shopCategory='Alle';
 function shopPrefs(){
@@ -780,7 +894,9 @@ function renderShop(){
  const navigation=element('div','shop-preview-top');
  navigation.append(element('strong','',el('brand').value.trim()||'Mijn webshop'));
  navigation.append(element('span','','🔒 Veilige demo · geen bestellingen'));
- p.append(navigation);
+ p.append(navigation);p.append(makeBuilderNav());
+ if(renderBuilderPage(p)){updateBuilderCart();return}
+ const isProductsScreen=builderScreen==='products';
  const hero=element('section','shop-hero');
  const bg=getShopImage();
  if(bg){hero.classList.add('shop-with-image');hero.style.backgroundImage='url('+JSON.stringify(bg)+')'}
@@ -789,7 +905,9 @@ function renderShop(){
  hero.append(element('p','',prefs.subtitle||el('description').value.trim()||'Een stijlvolle winkel, helemaal van jou.'));
  const cta=element('button','shop-cta','Bekijk producten');
  cta.type='button';cta.addEventListener('click',()=>el('shopSearch').focus());
- hero.append(cta);p.append(hero);
+ hero.append(cta);if(!isProductsScreen)p.append(hero);
+ if(!isProductsScreen&&builderData.promo.title){const offer=element('section','shop-builder-campaign');offer.append(element('h3','',builderData.promo.title));if(builderData.promo.text)offer.append(element('p','',builderData.promo.text));const offerButton=element('button','','🛍️ '+(builderData.promo.button||'Bekijk producten'));offerButton.type='button';offerButton.addEventListener('click',()=>selectBuilderScreen('products'));offer.append(offerButton);p.append(offer)}
+ if(!isProductsScreen&&builderData.collections.some(c=>c.visible)){const section=element('section','shop-builder-collection-grid');for(const coll of builderData.collections.filter(c=>c.visible)){const b=element('button','shop-builder-collection-card');b.type='button';b.append(element('strong','',coll.label),element('small','',coll.text||coll.category));b.addEventListener('click',()=>{shopCategory=coll.category;selectBuilderScreen('products')});section.append(b)}p.append(section)}
  const header=element('div','shop-intro');header.append(element('h3','','Shop de collectie'));header.append(element('p','muted','Ontdek de producten van deze voorbeeldwinkel.'));p.append(header);
  const cats=['Alle',...new Set(items.filter(x=>x.visibility!=='draft').map(x=>String(x.category||'Overig').trim()||'Overig'))].slice(0,25);
  if(!cats.includes(shopCategory))shopCategory='Alle';
@@ -852,6 +970,7 @@ function renderShop(){
  el('checkout').disabled=!cart.length;
  el('clearCart').disabled=!cart.length;
 }
+function updateBuilderCart(){const c=el('cartList');if(builderScreen==='collections'||builderScreen.startsWith('page:')){c.replaceChildren();c.append(element('p','muted','Open Producten om een testwinkelmandje te bekijken.'));el('checkout').disabled=true;el('clearCart').disabled=true;el('cartCount').textContent=cart.length;el('cartTotal').textContent='Totaal: '+money(cart.reduce((sum,id)=>sum+Number(items.find(x=>x.id===id)?.price||0),0));}}
 function updateShopCollection(){
  const list=el('shopFilteredProducts');if(!list)return;
  list.replaceChildren();
