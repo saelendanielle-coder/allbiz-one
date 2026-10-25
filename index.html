@@ -328,9 +328,9 @@ input[type=file]{font-size:14px;overflow:hidden}
 <button type="button" class="secondary" id="saveProductBackup">☁️ Bewaar mijn producten privé</button>
 <button type="button" class="secondary" id="loadProductBackup">📂 Open bewaarde producten</button>
 </div>
-<label style="display:flex;align-items:flex-start;gap:10px;margin:14px 0">
-<input type="checkbox" id="catalogAutoSync" style="width:auto;margin:3px 0" aria-describedby="productAutoNote">
-<span><strong>Automatisch privé opslaan na productwijzigingen</strong><span id="productAutoNote" class="fieldhelp" style="display:block">Optioneel. Schakel dit in wanneer je ingelogd bent. Je huidige productlijst wordt de nieuwe privé-back-up; een eerdere back-up kan daardoor worden vervangen. Geen publicatie.</span></span>
+<label style="display:flex;align-items:center;gap:14px;margin:15px 0;padding:18px 14px;border:2px solid #b9a9f3;border-radius:16px;background:#f1ebff;cursor:pointer">
+<input type="checkbox" id="catalogAutoSync" style="width:32px;height:32px;min-width:32px;min-height:32px;margin:0;accent-color:#6145cf;appearance:auto;-webkit-appearance:checkbox;flex-shrink:0" aria-describedby="productAutoNote">
+<span style="display:block;flex:1"><strong id="catalogAutoLabel" style="display:block;font-size:17px;line-height:1.4">☁️ Automatisch opslaan: UIT</strong><span id="productAutoNote" style="display:block;font-size:13px;font-weight:400;line-height:1.5;margin-top:5px;color:#50446f">Tik op dit hele paarse vak om aan te zetten. Je huidige producten worden dan je nieuwe privé-back-up en kunnen een eerdere back-up vervangen. Er wordt niets gepubliceerd.</span></span>
 </label>
 <p id="productBackupStatus" role="status" class="toast">Producten zijn momenteel op dit toestel opgeslagen.</p>
 </div><div id="productsList" class="products"></div></div></section>
@@ -1721,6 +1721,10 @@ try {
     return data.user;
   }
   const catalogAutoToggle=document.getElementById('catalogAutoSync');
+  const catalogAutoLabel=document.getElementById('catalogAutoLabel');
+  function refreshCatalogAutoLabel(){catalogAutoLabel.textContent=catalogAutoToggle.checked?'✅ Automatisch opslaan: AAN':'☁️ Automatisch opslaan: UIT'}
+  catalogAutoToggle.addEventListener('change',refreshCatalogAutoLabel);
+
   const autoOwnerKey='allbiz-product-auto-owner-v1';
   let autoTimer=null,catalogSaving=false,pendingAuto=false;
   function catalogAutoOwner(){try{return localStorage.getItem(autoOwnerKey)||''}catch(e){return ''}}
@@ -1794,18 +1798,19 @@ try {
     try{
       const user=await catalogUser();
       if(!confirm('Automatisch bewaren inschakelen? Je huidige producten op dit toestel worden de nieuwe privé-back-up in jouw account. Dit kan een eerdere productback-up vervangen.')){
-        catalogAutoToggle.checked=false;return;
+        catalogAutoToggle.checked=false;refreshCatalogAutoLabel();return;
       }
       try{localStorage.setItem(autoOwnerKey,user.id)}catch(e){throw new Error('Kan de instelling niet bewaren op dit toestel.')}
       await catalogBackup(true);
     }catch(e){
-      catalogAutoToggle.checked=false;catalogStatus.textContent=e.message||'Automatisch opslaan kon niet worden ingeschakeld.';
+      catalogAutoToggle.checked=false;refreshCatalogAutoLabel();catalogStatus.textContent=e.message||'Automatisch opslaan kon niet worden ingeschakeld.';
     }finally{catalogAutoToggle.disabled=false}
   });
   void (async()=>{
     try{
       const {data:{user}}=await client.auth.getUser();
       catalogAutoToggle.checked=!!user&&catalogAutoOwner()===user.id;
+      refreshCatalogAutoLabel();
     }catch(e){}
   })();
   catalogLoad.addEventListener('click',async()=>{
