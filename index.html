@@ -992,6 +992,52 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  // Website drafts stay private in Supabase. Saving never publishes them.
+  const draftMsg=document.getElementById('allbizDraftStatus');
+  const siteValue=id=>document.getElementById(id).value;
+  async function userForDraft(){
+    const {data,error}=await client.auth.getUser();
+    if(error||!data?.user)throw Error('Log eerst in via Mijn account.');
+    return data.user;
+  }
+  document.getElementById('allbizSaveCloud').addEventListener('click',async e=>{
+    const b=e.currentTarget;b.disabled=true;draftMsg.textContent='Bezig met privé opslaan...';
+    try{
+      const user=await userForDraft();
+      const row={
+        user_id:user.id,name:siteValue('brand').trim().slice(0,100),
+        tagline:siteValue('description').slice(0,250),
+        about:siteValue('siteAbout').slice(0,2000),
+        services:siteValue('siteServices').slice(0,2400),
+        contact_email:siteValue('siteEmail').trim().slice(0,160),
+        theme:localStorage.getItem('business-studio-theme')||'classic',
+        domain_name:siteValue('domainName').slice(0,60),
+        domain_ext:siteValue('domainExt'),updated_at:new Date().toISOString()
+      };
+      const {error}=await client.from('allbiz_site_drafts').upsert(row,{onConflict:'user_id'});
+      if(error)throw new Error(error.message);
+      draftMsg.textContent='✅ Privé in je account bewaard. Niemand kan dit ontwerp bezoeken.';
+    }catch(err){draftMsg.textContent='Opslaan mislukt: '+(err.message||'onbekende fout')}
+    finally{b.disabled=false}
+  });
+  document.getElementById('allbizLoadCloud').addEventListener('click',async e=>{
+    const b=e.currentTarget;b.disabled=true;draftMsg.textContent='Bewaard ontwerp ophalen...';
+    try{
+      const user=await userForDraft();
+      const {data,error}=await client.from('allbiz_site_drafts').select('name,tagline,about,services,contact_email,theme,domain_name,domain_ext').eq('user_id',user.id).maybeSingle();
+      if(error)throw new Error(error.message);
+      if(!data){draftMsg.textContent='Er staat nog geen privé ontwerp in jouw account.';return}
+      if(!confirm('Je huidige ontwerp vervangen door de versie uit jouw account?')){draftMsg.textContent='Je huidige ontwerp is ongewijzigd.';return}
+      const mapping={name:'brand',tagline:'description',about:'siteAbout',services:'siteServices',contact_email:'siteEmail',domain_name:'domainName',domain_ext:'domainExt'};
+      Object.entries(mapping).forEach(([key,id])=>{document.getElementById(id).value=data[key]||''});
+      const theme=document.querySelector('[data-theme="'+(data.theme||'classic')+'"]');
+      if(theme)theme.click();
+      ['brand','description','siteAbout','siteServices','siteEmail','domainName'].forEach(id=>document.getElementById(id).dispatchEvent(new Event('input',{bubbles:true})));
+      document.getElementById('domainExt').dispatchEvent(new Event('change',{bubbles:true}));
+      draftMsg.textContent='✅ Ontwerp uit je account geopend. Er is niets gepubliceerd.';
+    }catch(err){draftMsg.textContent='Ophalen mislukt: '+(err.message||'onbekende fout')}
+    finally{b.disabled=false}
+  });
   /* Publishing is performed by a trusted backend, not a direct database write. */
   const publishStatus = document.getElementById('allbizPublishStatus');
   const publishButton = document.getElementById('allbizPublishButton');
