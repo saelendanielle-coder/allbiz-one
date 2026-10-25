@@ -1569,6 +1569,29 @@ openRequestedSection();
  update();
 })();
 </script>
+<script>
+/* Keep harmless unfinished text when navigating away. Never retain passwords,
+   account fields, payment credentials, or contact information in this draft store. */
+(function(){
+ const fields=['product','price','productDescription','productCategory','cost','shipping','supplier','stock',
+ 'builderPageTitle','builderPageText','builderCollectionCategory','builderCollectionLabel',
+ 'builderCollectionText','builderPromoTitle','builderPromoText','builderPromoButton',
+ 'productPaste','importUrl'];
+ const key='allbiz-unfinished-safe-fields-v1';
+ let draft={};try{draft=JSON.parse(localStorage.getItem(key)||'{}')||{}}catch(e){}
+ for(const id of fields){
+   const input=document.getElementById(id);if(!input)continue;
+   if(typeof draft[id]==='string'&&input.value==='')input.value=draft[id].slice(0,2700);
+   const remember=()=>{draft[id]=input.value.slice(0,2700);try{localStorage.setItem(key,JSON.stringify(draft))}catch(e){}};
+   input.addEventListener('input',remember);
+ }
+ const resetFields=(ids)=>{for(const id of ids){delete draft[id]}try{localStorage.setItem(key,JSON.stringify(draft))}catch(e){}};
+ document.getElementById('productForm')?.addEventListener('submit',()=>setTimeout(()=>{if(!document.getElementById('product').value)resetFields(['product','price','productDescription','productCategory','cost','shipping','supplier','stock'])},350));
+ document.getElementById('builderSavePage')?.addEventListener('click',()=>setTimeout(()=>{if(document.getElementById('builderPageChoose')?.value!=='new')resetFields(['builderPageTitle','builderPageText'])},350));
+ document.getElementById('builderSaveCollection')?.addEventListener('click',()=>setTimeout(()=>{if(document.getElementById('builderCollectionChoose')?.value!=='new')resetFields(['builderCollectionCategory','builderCollectionLabel','builderCollectionText'])},350));
+ document.getElementById('builderSavePromo')?.addEventListener('click',()=>resetFields(['builderPromoTitle','builderPromoText','builderPromoButton']));
+})();
+</script>
 <script type="module">
 /* Tijdelijk de actieve publieke (legacy anon) sleutel gebruiken wegens door de gateway geweigerde publishable key (bad_checksum). Nooit service_role of een geheime sleutel hier plaatsen. */
 const SUPABASE_URL = 'https://woaifabvfqnnunxmhpkc.supabase.co';
