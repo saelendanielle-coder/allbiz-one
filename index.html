@@ -328,6 +328,7 @@ input[type=file]{font-size:14px;overflow:hidden}
 <button type="button" data-tab="plans" data-nav-i18n="plans">💎 Abonnementen</button>
 <button type="button" data-tab="help" data-nav-i18n="help">🤖 Bedrijfshulp</button>
 </nav>
+<button type="button" id="allbizFloatingHelp" data-goto="help" aria-label="Open hulp-assistent" style="position:fixed;bottom:calc(14px + env(safe-area-inset-bottom,0px));right:14px;z-index:50;padding:12px 16px;border-radius:999px;background:#4230a2;color:white;border:2px solid white;box-shadow:0 7px 23px #28204d44">🤖 Hulp nodig?</button>
 <div id="allbizSandboxBanner" role="status" hidden>🧪 Testmodus: je testabonnement geeft alleen toegang tot demo-onderdelen, geen betaalde serverfuncties.</div>
 <div class="card" id="allbizAccessNotice" role="status" hidden>
 <strong id="allbizAccessNoticeTitle">💎 Dit onderdeel hoort bij een abonnement.</strong>
@@ -366,7 +367,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="importStatus" role="status" class="toast import-status"></p>
 <div class="notice">Automatisch rechtstreeks importeren uit iedere winkel met alleen een link, prijzen en voorraad synchroniseren en bestellingen doorsturen vraagt een officiële of toegestane leveranciers-API en een online server. Deze offline testversie doet dat nog niet.</div>
 </div></section>
-<section id="site" class="panel"><div class="card"><h2>🎨 Maak jouw website</h2><p class="muted">Kies een thema dat bij jouw bedrijf past. Je ziet je wijzigingen meteen terug.</p><label for="brand">Bedrijfsnaam</label><input id="brand" placeholder="Bijv. Mijn Trend Shop"><label for="description">Slogan / wat verkoop je?</label><textarea id="description" placeholder="Bijv. Persoonlijke kapsalon in Hasselt"></textarea>
+<section id="site" class="panel"><div class="card"><h2>🎨 Maak jouw website</h2><p class="muted">Kies een thema dat bij jouw bedrijf past. Je ziet je wijzigingen meteen terug.</p><p class="hint"><b>Website-service:</b> maak hier een bedrijfswebsite met diensten en contact. Wil je ook producten en een winkelmandje? Gebruik de aparte webshopbouwer. Dit is nog niet automatisch één werkende online winkel.</p><button type="button" class="secondary" data-goto="shop">🛍️ Naar de webshopbouwer</button><label for="brand">Bedrijfsnaam</label><input id="brand" placeholder="Bijv. Mijn Trend Shop"><label for="description">Slogan / wat verkoop je?</label><textarea id="description" placeholder="Bijv. Persoonlijke kapsalon in Hasselt"></textarea>
 <label for="siteAbout">Over jouw bedrijf</label><textarea id="siteAbout" placeholder="Vertel wie je bent en wat jouw bedrijf doet"></textarea>
 <label for="siteServices">Diensten (één per regel, optioneel)</label><textarea id="siteServices" placeholder="Bijv. Knippen&#10;Kleuren&#10;Brushing"></textarea>
 <label for="siteEmail">Contact-e-mailadres (optioneel)</label><input type="email" id="siteEmail" placeholder="info@jouwbedrijf.be" autocomplete="email">
@@ -389,10 +390,10 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
-<section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p>
+<section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p><p class="hint">Voor een gewone bedrijfswebsite met diensten en contact gebruik je 🎨 Website &amp; domein. Een werkende checkout voor jouw eigen klanten is nog niet verbonden.</p><button type="button" class="secondary" data-goto="site">🎨 Naar de website-service</button>
 <div class="shop-studio" style="margin-bottom:18px">
-<h3>💳 Stripe Connect voor webshopverkopers — sandbox</h3>
-<p class="muted">Laat verkopers in de toekomst hun eigen betalingen ontvangen. Dit is een beveiligde testkoppeling; echte betalingen en echte winkels blijven uitgeschakeld.</p>
+<h3>💳 Stripe Connect — alleen voor webshopverkopers (test)</h3>
+<p class="muted">Stripe Connect is bedoeld voor toekomstige betalingen aan individuele webshopverkopers. Dit is <b>niet</b> nodig om een AllBiz One-abonnement te kopen. Echte webshopbetalingen zijn nog niet beschikbaar.</p>
 <button type="button" id="sellerConnectStatus" class="secondary">🔍 Controleer Stripe Connect</button>
 <button type="button" id="sellerConnectStart">🔗 Koppel mijn Stripe-testverkoper</button>
 <p id="sellerConnectMessage" role="status" class="toast">Nog geen Connect-sandboxstatus gecontroleerd.</p>
@@ -675,7 +676,20 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
  </div>
 </section>
 
-<section id="help" class="panel"><div class="card"><h2>🤖 Bedrijfshulp</h2><label for="topic">Waarmee wil je hulp?</label><select id="topic"><option value="website">Website</option><option value="dropshipping">Dropshipping</option><option value="physical">Gewone producten verkopen</option><option value="product">Digitaal product</option><option value="marketing">Marketing</option><option value="affiliate">Affiliate marketing</option><option value="trading">Trading en brokerkoppeling</option></select><button type="button" id="getTip">Geef mij een tip</button><p id="tip"></p><p class="muted">Voorlopig zijn dit vaste tips, nog geen live AI-assistent.</p></div></section>
+<section id="help" class="panel"><div class="card">
+<h2>🤖 Hulp-assistent</h2>
+<p>Stel een vraag over AllBiz One, of kies hieronder een onderwerp. De assistent geeft uitleg en helpt je naar het juiste scherm.</p>
+<p class="notice"><b>Testversie:</b> dit zijn automatische antwoorden op veelgestelde vragen, geen echte AI-chat of menselijke klantenservice. De assistent kan geen betalingen uitvoeren, accounts wijzigen of bestellingen verwerken. Deel geen wachtwoorden, bank- of identiteitsgegevens.</p>
+<div id="allbizHelpConversation" role="log" aria-live="polite" aria-label="Hulpgesprek" style="min-height:95px;max-height:310px;overflow-y:auto;background:#f8f6fe;border:1px solid #ded8f4;border-radius:14px;padding:12px;display:grid;gap:9px;margin:12px 0"></div>
+<form id="allbizHelpForm"><label for="allbizHelpQuestion">Waarmee kunnen we helpen?</label><textarea id="allbizHelpQuestion" maxlength="500" rows="2" placeholder="Bijvoorbeeld: Hoe kan ik mijn webshop maken?" required></textarea><div class="row"><button type="submit">➤ Vraag hulp</button><button type="button" class="secondary" id="allbizHelpClear">Wis gesprek</button></div></form>
+<div id="allbizHelpQuick" class="import-buttons" style="margin-top:12px">
+<button type="button" class="secondary" data-q="Hoe maak ik een website?">🌐 Website</button>
+<button type="button" class="secondary" data-q="Hoe werkt mijn webshop?">🛍️ Webshop</button>
+<button type="button" class="secondary" data-q="Hoe werkt mijn abonnement?">💎 Abonnement</button>
+<button type="button" class="secondary" data-q="Hoe maak ik een YouTube video?">🎬 YouTube</button>
+<button type="button" class="secondary" data-q="Hoe maak ik reclame?">📣 Marketing</button>
+<button type="button" class="secondary" data-q="Kan ik echt traden?">📈 Trading</button>
+</div></div></section>
 <section class="panel active" id="account" aria-label="Mijn account">
 <div class="card account-card">
 <h2>🔐 Mijn account</h2>
@@ -1265,7 +1279,50 @@ el('clearCart').addEventListener('click',()=>{
  cart=[];closeTestCheckout();renderShop();
  el('checkoutStatus').textContent='✅ Winkelmandje leeggemaakt. Er is niets besteld of betaald.';
 });
-el('getTip').addEventListener('click',()=>{el('tip').textContent=({website:'Begin met een heldere titel, goede productfoto’s en een duidelijk contactadres.',dropshipping:'Zoek betrouwbare leveranciers en controleer levertijd, kwaliteit, retourbeleid en je wettelijke verplichtingen voordat je verkoopt.',physical:'Bereken je verkoopprijs met inkoop, verzending, belastingen, retouren en andere kosten inbegrepen.',product:'Maak een digitaal product dat één duidelijk probleem van je klant oplost.',marketing:'Vertel wie je helpt en waarom jouw product voor die persoon nuttig is.',affiliate:'Meld je eerst aan bij een affiliateprogramma. Promoot daarna uitsluitend met je persoonlijke trackinglink en vermeld duidelijk dat het reclame of een affiliate-link is.'})[el('topic').value]});
+
+/* Lokale klantenhulp: geeft uitleg, geen AI of privégegevens doorsturen. */
+const helpTopics=[
+{keys:['abonnement','stripe','betaling','betalen','starter','pro','business','factuur','betaald'],name:'Abonnementen',tab:'plans',reply:'Log in en open Abonnementen. Kies Starter, Pro of Business. Met de paarse TEST-link kun je zonder echt geld de demo proberen. Na een echte betaling controleer je bij Abonnementen de status. Staat die niet op actief? Betaal niet opnieuw voordat dit is nagekeken.'},
+{keys:['webshop','winkel','winkelmand','checkout','bestelling','verkoper','connect'],name:'Webshop',tab:'shop',reply:'Open Mijn webshop om producten, collecties en je winkelontwerp te bekijken. De checkout is nog een simulatie; klanten kunnen nog niet echt winkelen of betalen. Stripe Connect is alleen een test voor mogelijke toekomstige webshopverkopers.'},
+{keys:['website','domein','publiceren','online','hosting','bedrijfswebsite','webservice'],name:'Website',tab:'site',reply:'Ga naar Website & domein, vul je bedrijfsgegevens in, kies een thema en bewaar je ontwerp. Je kunt een websitevoorbeeld downloaden. Een gewenste domeinnaam is niet automatisch geregistreerd. Online publiceren is een aparte stap die een echt abonnement en jouw toestemming vereist.'},
+{keys:['youtube','video','shorts','filmpje'],name:'YouTube',tab:'video',reply:'Ga naar YouTube-video’s. Kies teksten, foto’s en eventueel audio, bekijk het voorbeeld en download je video. Je moet de video nog zelf uploaden naar YouTube. Gebruik alleen materiaal waarop je rechten hebt.'},
+{keys:['advertentie','reclame','marketing','google ads','facebook','instagram','tiktok','campagne','budget'],name:'Marketing',tab:'ads',reply:'Ga naar Advertenties & groei om advertentieteksten en een budgetplan te maken. Download de voorstellen en plaats ze zelf op de advertentieplatforms. Automatisch publiceren en echte advertentieresultaten zijn nog niet gekoppeld.'},
+{keys:['trading','crypto','broker','beleggen','aandelen','opname','portefeuille'],name:'Trading',tab:'trading',reply:'Echt traden is nog niet mogelijk in AllBiz One. Er is geen broker verbonden en de app kan geen geld storten, kopen, verkopen of opnemen. Deel nooit je brokerwachtwoord of bankcodes.'},
+{keys:['inloggen','inlog','account','wachtwoord','registreren','aanmelden'],name:'Mijn account',tab:'account',reply:'Open Mijn account om je te registreren of in te loggen. Bevestig zo nodig je e-mailadres. Gebruik de wachtwoordhersteloptie als je je wachtwoord vergeten bent. Deel je wachtwoord nooit.'},
+{keys:['product','importeren','dropshipping','leverancier'],name:'Producten',tab:'products',reply:'Open Producten om een product met naam, prijs en beschrijving toe te voegen. In deze testversie worden nog geen echte orders bij leveranciers geplaatst.'},
+{keys:['affiliate','commissie','partnerlink'],name:'Affiliate',tab:'affiliate',reply:'Voeg je eigen affiliate-link toe nadat je je hebt aangesloten bij een geldig affiliateprogramma. Vermeld dat je mogelijk commissie verdient. De app betaalt zelf geen commissies uit.'},
+{keys:['assistent','chatbot','kunstmatige intelligentie','klantenservice','hulp'],name:'Hulp',tab:'help',reply:'Deze assistent geeft vaste antwoorden op veelgestelde vragen. Een echte AI-chat die vrij kan antwoorden, moet nog veilig gekoppeld worden. Deel geen vertrouwelijke gegevens.'}
+];
+const helpBox=el('allbizHelpConversation');
+function addHelpMessage(t,user,topic){
+ const bubble=document.createElement('div');
+ bubble.style.cssText='max-width:96%;justify-self:'+(user?'end':'start')+';padding:11px;border-radius:12px;background:'+(user?'#5940c7':'#fff')+';color:'+(user?'white':'#26213a')+';border:1px solid '+(user?'#5940c7':'#e2dcf1')+';overflow-wrap:anywhere';
+ const msg=document.createElement('div');msg.textContent=t;bubble.appendChild(msg);
+ if(topic&&topic.tab!=='help'){
+  const btn=document.createElement('button');btn.type='button';btn.className='secondary';btn.textContent='Open '+topic.name;btn.style.marginTop='9px';
+  btn.addEventListener('click',()=>switchTab(topic.tab));bubble.appendChild(btn);
+ }
+ helpBox.appendChild(bubble);
+ while(helpBox.children.length>24)helpBox.firstChild.remove();
+ helpBox.scrollTop=helpBox.scrollHeight;
+}
+function answerHelp(q){
+ const query=String(q||'').trim().slice(0,500);if(!query)return;
+ addHelpMessage(query,true);
+ const clean=query.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+ let best=null,highest=0;
+ for(const topic of helpTopics){
+  const score=topic.keys.reduce((total,k)=>total+(clean.includes(k)?k.length:0),0);
+  if(score>highest){highest=score;best=topic}
+ }
+ if(!best)addHelpMessage('Deze vraag kan ik nog niet betrouwbaar beantwoorden. Kies een onderwerp hieronder. Er is nog geen live AI-medewerker beschikbaar.',false);
+ else addHelpMessage(best.reply,false,best);
+}
+el('allbizHelpForm').addEventListener('submit',e=>{e.preventDefault();const f=el('allbizHelpQuestion');answerHelp(f.value);f.value='';f.focus()});
+el('allbizHelpQuick').addEventListener('click',e=>{const btn=e.target.closest('button[data-q]');if(btn)answerHelp(btn.dataset.q)});
+el('allbizHelpClear').addEventListener('click',()=>{helpBox.replaceChildren();addHelpMessage('Hallo! Kies een onderwerp of stel je vraag over AllBiz One.',false)});
+addHelpMessage('Hallo! Waarmee kan ik je helpen? Kies een onderwerp of stel je vraag.',false);
+
 
 function saveSiteSettings(){try{localStorage.setItem('business-studio-brand',el('brand').value);localStorage.setItem('business-studio-description',el('description').value);localStorage.setItem('business-studio-about',el('siteAbout').value);localStorage.setItem('business-studio-services',el('siteServices').value);localStorage.setItem('business-studio-email',el('siteEmail').value);localStorage.setItem('business-studio-theme',activeTheme);localStorage.setItem('business-studio-domain',el('domainName').value);localStorage.setItem('business-studio-extension',el('domainExt').value)}catch(e){}}
 try{activeTheme=localStorage.getItem('business-studio-theme')||'classic';el('domainName').value=localStorage.getItem('business-studio-domain')||'';el('domainExt').value=localStorage.getItem('business-studio-extension')||'.be'}catch(e){}
