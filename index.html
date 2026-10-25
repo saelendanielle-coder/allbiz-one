@@ -218,6 +218,19 @@ input[type=file]{font-size:14px;overflow:hidden}
 .cart-remove{font-size:12px}
 .cart-summary-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .cart-summary-actions button{width:auto}
+/* Pro demo inventory & orders */
+.inventory-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
+.inventory-tools button{width:auto;padding:7px 11px;min-width:38px}
+.inventory-stock{font-size:13px;font-weight:650}
+.demo-orders{display:grid;gap:12px}
+.demo-order{border:1px solid #ddd4f2;border-radius:14px;padding:15px;background:#fff}
+.demo-order h3{font-size:16px;margin:0 0 8px}
+.demo-order .order-meta{font-size:12px;color:#6a607a}
+.demo-order .order-status{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.demo-order select{width:auto;margin:0;max-width:220px;flex:1}
+.demo-summary{display:flex;gap:12px;flex-wrap:wrap;margin:12px 0 18px}
+.demo-summary div{background:#f1edff;border-radius:12px;padding:12px 15px;flex:1;min-width:120px}
+.demo-summary strong{font-size:22px;display:block}
 </style>
 </head>
 <body class="splash-open">
@@ -248,6 +261,7 @@ input[type=file]{font-size:14px;overflow:hidden}
 <button type="button" data-tab="import" data-nav-i18n="import">🚚 Producten importeren</button>
 <button type="button" data-tab="site" data-nav-i18n="site">🎨 Website & domein</button>
 <button type="button" data-tab="shop" data-nav-i18n="shop">🏪 Mijn webshop</button>
+<button type="button" data-tab="orders">📦 Voorraad & testbestellingen</button>
 <button type="button" data-tab="video" data-nav-i18n="video">🎬 YouTube video's</button>
 <button type="button" data-tab="affiliate" data-nav-i18n="affiliate">🔗 Affiliate marketing</button>
 <button type="button" data-tab="radar" data-nav-i18n="radar">🔥 Productradar</button>
@@ -319,6 +333,24 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 </div>
 <div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
+<section id="orders" class="panel">
+<div class="card">
+<h2>📦 Voorraad & testbestellingen (Pro)</h2>
+<p class="notice"><b>Uitsluitend een demo:</b> bestellingen zijn verzonnen testrecords die alleen op dit toestel worden bewaard. Er zijn geen echte kopers, betalingen of verzendingen. Gebruik hier geen echte klantgegevens.</p>
+<h3>📊 Overzicht</h3>
+<div class="demo-summary">
+<div><strong id="demoOrderCount">0</strong><span>Testbestellingen</span></div>
+<div><strong id="demoOrderAmount">€ 0</strong><span>Testomzet (niet echt verdiend)</span></div>
+<div><strong id="demoStockWarning">0</strong><span>Producten met lage voorraad</span></div>
+</div>
+<p class="muted">Ga naar <b>🛍️ Producten</b> om de voorraad handmatig aan te passen. Als je een testbestelling maakt via <b>Test afrekenen</b>, vermindert de ingestelde testvoorraad automatisch.</p>
+<div class="import-buttons"><button type="button" data-goto="products" class="secondary">🛍️ Beheer producten & voorraad</button><button type="button" data-goto="shop" class="secondary">🏪 Naar webshop</button></div>
+<h3 style="margin-top:22px">Testbestellingen beheren</h3>
+<div id="demoOrderList" class="demo-orders"></div>
+<p class="muted" id="demoOrderMessage" role="status">Nog geen testbestellingen op dit toestel.</p>
+<button type="button" class="secondary" id="clearDemoOrders">🗑️ Verwijder alle testbestellingen</button>
+</div>
+</section>
 <section id="video" class="panel">
   <div class="card">
     <h2>🎬 YouTube Video Maker</h2>
@@ -534,7 +566,7 @@ try{const next=JSON.parse(localStorage.getItem(storeKey)||'null');if(Array.isArr
 function save(){try{localStorage.setItem(storeKey,JSON.stringify(items));return true}catch(e){return false}}
 /* The frontend gate merely guides people through the demo.
    Any paid server function must separately verify the live subscription with Supabase. */
-const allbizRequiredTier={products:1,site:1,builder:1,shop:2,import:2,video:2,affiliate:2,radar:3,ads:3};
+const allbizRequiredTier={products:1,site:1,builder:1,shop:2,orders:2,import:2,video:2,affiliate:2,radar:3,ads:3};
 const allbizTierRank={starter:1,pro:2,business:3};
 const allbizTierLabel=['Gratis','Starter','Pro','Business'];
 let allbizLiveTier=0,allbizSandboxTier=0;
