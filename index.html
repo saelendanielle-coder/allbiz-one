@@ -396,6 +396,28 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <button type="button" id="sellerConnectStatus" class="secondary">🔍 Controleer Stripe Connect</button>
 <button type="button" id="sellerConnectStart">🔗 Koppel mijn Stripe-testverkoper</button>
 <p id="sellerConnectMessage" role="status" class="toast">Nog geen Connect-sandboxstatus gecontroleerd.</p>
+<script>
+/* Immediate feedback even when the deferred Supabase login module has not loaded. */
+(function(){
+  const msg=document.getElementById('sellerConnectMessage');
+  function onClick(buttonId,waitingMessage){
+    document.getElementById(buttonId)?.addEventListener('click',()=>{
+      if(!window.allbizAuth){
+        msg.textContent='⚠️ Stripe-controle is nog niet geladen. Vernieuw deze pagina, log in bij Mijn account en probeer opnieuw.';
+        return;
+      }
+      msg.textContent=waitingMessage;
+      setTimeout(()=>{
+        if(msg.textContent===waitingMessage){
+          msg.textContent='⚠️ Er komt geen antwoord op de Stripe-controle. Vernieuw de pagina en probeer opnieuw.';
+        }
+      },12000);
+    });
+  }
+  onClick('sellerConnectStatus','⏳ Stripe Connect-teststatus controleren...');
+  onClick('sellerConnectStart','⏳ Beveiligde Stripe-testkoppeling voorbereiden...');
+})();
+</script>
 </div>
 <div class="shop-studio">
 <h3>🎨 Ontwerp je winkel</h3>
