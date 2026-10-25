@@ -183,6 +183,33 @@ input[type=file]{font-size:14px;overflow:hidden}
 #allbizAccessNotice{border-color:#c9baf3;background:#f8f5ff}
 #allbizSandboxBanner{padding:10px 14px;border-radius:12px;background:#fff8e7;border:1px solid #e9d8a1;color:#604815;font-size:14px;margin:10px 0}
 #allbizAccessNotice button{margin-top:8px}
+/* AllBiz One Pro – customizable storefront demo */
+.shop-studio{background:#fbfaff;border:1px solid #e3dcf6;border-radius:16px;padding:17px;margin:12px 0 20px}
+.shop-studio h3{font-size:18px;margin:0 0 8px}
+.shop-studio p{font-size:14px;color:#635979;margin:0 0 10px}
+.shop-studio .fields{margin-top:10px}
+.shop-hero{position:relative;overflow:hidden;padding:clamp(25px,6vw,55px) 22px;background:linear-gradient(125deg,#32205f,#8464eb 62%,#d6bfff);color:#fff;min-height:255px;display:flex;flex-direction:column;justify-content:center}
+.shop-hero.shop-with-image{background-size:cover;background-position:center}
+.shop-hero.shop-with-image::before{content:"";position:absolute;inset:0;background:#171127a8}
+.shop-hero>*{z-index:1;position:relative}
+.shop-hero .eyebrow{font-size:11px;letter-spacing:1.8px;text-transform:uppercase;font-weight:800;opacity:.92}
+.shop-hero h2{font-size:clamp(27px,5vw,42px);margin:8px 0;max-width:580px;line-height:1.12;color:inherit}
+.shop-hero p{font-size:clamp(14px,2.5vw,17px);max-width:560px;margin:8px 0 18px;color:inherit}
+.shop-hero .shop-cta{width:fit-content;background:#fff;color:#382474;padding:11px 18px;border:0;border-radius:9px;font-weight:800;cursor:pointer}
+.shop-announcement{background:#271a5c;color:#fff;font-size:12px;font-weight:750;letter-spacing:.2px;text-align:center;padding:10px 15px}
+.shop-preview-top{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:14px 18px;background:var(--shop-surface,#fff);border-bottom:1px solid #e3def1}
+.shop-preview-top strong{font-size:18px;overflow-wrap:anywhere}
+.shop-preview-top span{font-size:12px;color:var(--shop-text,#44345e)}
+.shop-controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;padding:12px;background:var(--shop-surface,#fff)}
+.shop-controls input{flex:1;min-width:145px;margin:0!important;width:auto}
+.shop-controls select{width:auto;max-width:165px;flex:1;margin:0!important}
+.shop-intro{padding:22px 15px 7px}
+.shop-intro h3{font-size:21px}
+.shop-category-chips{display:flex;gap:8px;overflow-x:auto;padding:4px 15px 13px}
+.shop-category-chips button{border:1px solid var(--shop-primary,#6245d1);color:var(--shop-text,#281e43);background:var(--shop-surface,#fff);padding:7px 12px;border-radius:999px;font-size:12px;cursor:pointer;white-space:nowrap;width:auto}
+.shop-category-chips button.chosen{background:var(--shop-primary,#6245d1);color:#fff}
+.shop-collection-count{color:var(--shop-text,#281e43);font-size:13px;padding:0 15px;opacity:.8}
+@media(max-width:600px){.shop-controls{display:grid;grid-template-columns:minmax(0,1fr)}.shop-controls select{max-width:none}.shop-hero{min-height:235px;padding:35px 20px}}
 </style>
 </head>
 <body class="splash-open">
@@ -234,6 +261,7 @@ input[type=file]{font-size:14px;overflow:hidden}
 <div id="physicalFields"><div class="fields"><div><label for="cost">Inkoopprijs (€), optioneel</label><input id="cost" type="number" min="0" step="0.01" placeholder="12,00"></div><div><label for="shipping">Verzendkosten (€), optioneel</label><input id="shipping" type="number" min="0" step="0.01" placeholder="4,95"></div></div><label for="supplier">Link naar leverancier, optioneel</label><input id="supplier" type="url" placeholder="https://..." autocomplete="url"><span class="fieldhelp">Bijvoorbeeld de productlink van je dropshippingleverancier. Bestellingen worden nog niet doorgestuurd.</span><label for="stock">Voorraad of beschikbaar aantal, optioneel</label><input id="stock" type="number" min="0" step="1" placeholder="Bijv. 100"><span class="fieldhelp">Bij dropshipping is dit een handmatige inschatting, geen live leveranciersvoorraad.</span></div>
 <div id="digitalFields" class="hidden"><label for="file">Digitaal bestand (alleen bestandsnaam in demo)</label><input id="file" type="file"><span class="fieldhelp">Echte veilige downloads werken pas na aansluiting van online opslag en betalingen.</span></div>
 <label for="photo">Productfoto, optioneel</label><input id="photo" type="file" accept="image/*"><span class="fieldhelp">Kleine foto's worden op dit toestel opgeslagen voor de demo (maximaal 450 KB).</span>
+<label for="productCategory">Categorie (optioneel)</label><input id="productCategory" list="allbizCategoryIdeas" maxlength="35" placeholder="Bijv. Kleding"><datalist id="allbizCategoryIdeas"><option value="Kleding"><option value="Schoenen"><option value="Beauty"><option value="Wonen"><option value="Elektronica"><option value="Accessoires"></datalist>
 <button type="submit">+ Product toevoegen</button><p id="productStatus" class="toast" role="status"></p></form></div><div class="card"><div class="row"><h2>Mijn producten</h2><span class="pill" id="listCount">0 producten</span></div><div id="productsList" class="products"></div></div></section>
 
 <section id="import" class="panel">
@@ -271,7 +299,17 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
-<section id="shop" class="panel"><div class="card"><h2>🏪 Jouw webshop</h2><p class="muted">Zo zien klanten straks jouw producten. Voeg producten toe om je winkel te vullen.</p><div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><button type="button" id="checkout" style="margin-top:12px">Test afrekenen</button><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
+<section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p>
+<div class="shop-studio">
+<h3>🎨 Ontwerp je winkel</h3>
+<p>Verander de teksten en zie het resultaat meteen hieronder. De instellingen worden op dit toestel bewaard.</p>
+<label for="shopHeroTitle">Grote titel op je startpagina</label><input id="shopHeroTitle" maxlength="90" placeholder="Bijv. Nieuwe collectie – ontdek jouw stijl">
+<label for="shopHeroText">Tekst onder de titel</label><textarea id="shopHeroText" maxlength="220" placeholder="Bijv. Mode voor elke dag"></textarea>
+<div class="fields"><div><label for="shopPromoText">Bovenste aanbiedingsbalk</label><input id="shopPromoText" maxlength="100" placeholder="Bijv. Welkom bij onze winkel"></div><div><label for="shopHeroImage">Bannerfoto via https-link (optioneel)</label><input type="url" id="shopHeroImage" placeholder="https://voorbeeld.nl/foto.jpg"></div></div>
+<div class="import-buttons"><button id="shopSaveDesign" type="button">💾 Bewaar webshopontwerp</button><button id="shopDemoProducts" type="button" class="secondary">🧪 Voeg 3 voorbeeldproducten toe</button></div>
+<p id="shopDesignStatus" class="toast" role="status">Er worden geen echte bestellingen of betalingen gedaan.</p>
+</div>
+<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><button type="button" id="checkout" style="margin-top:12px">Test afrekenen</button><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
 <section id="video" class="panel">
   <div class="card">
@@ -520,9 +558,132 @@ document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',(
 function toggleType(){const physical=document.querySelector('input[name="type"]:checked').value==='physical';el('physicalFields').classList.toggle('hidden',!physical);el('digitalFields').classList.toggle('hidden',physical)}
 document.querySelectorAll('input[name="type"]').forEach(r=>r.addEventListener('change',toggleType));
 function element(tag,cls,text){const n=document.createElement(tag);if(cls)n.className=cls;if(text!==undefined)n.textContent=text;return n}
-function productCard(x,forShop=false){const d=element('div','product');if(x.photo||x.imageUrl){const image=element('img','product-photo');image.src=x.photo||x.imageUrl;image.referrerPolicy='no-referrer';image.alt='Foto van '+x.name;d.append(image)}else{d.append(element('div','placeholder',x.type==='physical'?'📦':'📥'))}d.append(element('span','pill',x.type==='physical'?'Fysiek / dropshipping':'Digitaal'));d.append(element('h3','',x.name));if(x.description)d.append(element('p','small muted',x.description));d.append(element('div','price',money(x.price)));if(x.type==='physical'){if(x.cost!==''&&x.cost!=null){const margin=Number(x.price)-Number(x.cost)-(Number(x.shipping)||0);d.append(element('p','small muted','Geschatte marge: '+money(margin)+' (vóór overige kosten)'))}if(x.stock!==''&&x.stock!=null)d.append(element('p','small muted','Beschikbaar (handmatig): '+x.stock));if(!forShop&&x.supplier){try{const url=new URL(x.supplier);if(['https:','http:'].includes(url.protocol)){const a=element('a','small','Bekijk leverancier ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';d.append(a)}}catch(e){}}}else if(x.fileName){d.append(element('p','small muted','Bestand: '+x.fileName))}const actions=element('div','actions');const b=element('button',forShop?'':'danger',forShop?'🛒 In mandje':'Verwijderen');b.type='button';b.addEventListener('click',()=>{if(forShop){cart.push(x.id);renderShop();el('checkoutStatus').textContent='Toegevoegd aan jouw testmandje.'}else if(confirm('Dit product verwijderen?')){items=items.filter(p=>p.id!==x.id);cart=cart.filter(id=>id!==x.id);save();renderAll()}});actions.append(b);d.append(actions);return d}
+function productCard(x,forShop=false){const d=element('div','product');if(x.photo||x.imageUrl){const image=element('img','product-photo');image.src=x.photo||x.imageUrl;image.referrerPolicy='no-referrer';image.alt='Foto van '+x.name;d.append(image)}else{d.append(element('div','placeholder',x.emoji|| (x.type==='physical'?'📦':'📥')))}d.append(element('span','pill',x.type==='physical'?'Fysiek / dropshipping':'Digitaal'));if(x.category)d.append(element('span','pill',String(x.category)));d.append(element('h3','',x.name));if(x.description)d.append(element('p','small muted',x.description));d.append(element('div','price',money(x.price)));if(x.type==='physical'){if(x.cost!==''&&x.cost!=null){const margin=Number(x.price)-Number(x.cost)-(Number(x.shipping)||0);d.append(element('p','small muted','Geschatte marge: '+money(margin)+' (vóór overige kosten)'))}if(x.stock!==''&&x.stock!=null)d.append(element('p','small muted','Beschikbaar (handmatig): '+x.stock));if(!forShop&&x.supplier){try{const url=new URL(x.supplier);if(['https:','http:'].includes(url.protocol)){const a=element('a','small','Bekijk leverancier ↗');a.href=url.href;a.target='_blank';a.rel='noopener noreferrer';d.append(a)}}catch(e){}}}else if(x.fileName){d.append(element('p','small muted','Bestand: '+x.fileName))}const actions=element('div','actions');const b=element('button',forShop?'':'danger',forShop?'🛒 In mandje':'Verwijderen');b.type='button';b.addEventListener('click',()=>{if(forShop){cart.push(x.id);renderShop();el('checkoutStatus').textContent='Toegevoegd aan jouw testmandje.'}else if(confirm('Dit product verwijderen?')){items=items.filter(p=>p.id!==x.id);cart=cart.filter(id=>id!==x.id);save();renderAll()}});actions.append(b);d.append(actions);return d}
 function renderAll(){el('count').textContent=items.length;el('digitalCount').textContent=items.filter(x=>x.type!=='physical').length;el('physicalCount').textContent=items.filter(x=>x.type==='physical').length;el('listCount').textContent=items.length+' producten';const l=el('productsList');l.replaceChildren();if(!items.length)l.append(element('p','empty','Nog geen producten. Voeg je eerste product toe!'));else items.forEach(x=>l.append(productCard(x)));renderShop();renderSite()}
-function renderShop(){const p=el('shopPreview');p.replaceChildren();p.className='store-skin theme-'+activeTheme;const heading=element('div','preview-banner');heading.append(element('h2','',el('brand').value.trim()||'Mijn webshop'));heading.append(element('p','',el('description').value.trim()||'Welkom in mijn winkel!'));p.append(heading);const list=element('div','products');if(!items.length)list.append(element('p','empty','Je winkel is nog leeg. Ga naar Producten om iets toe te voegen.'));else items.forEach(x=>list.append(productCard(x,true)));p.append(list);appendAffiliatePreview(p);const c=el('cartList');c.replaceChildren();cart=cart.filter(id=>items.some(x=>x.id===id));if(!cart.length)c.append(element('p','muted','Je mandje is leeg.'));else{const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);Object.entries(counts).forEach(([id,count])=>{const x=items.find(p=>p.id===id);if(!x)return;const line=element('div','row');line.append(element('span','',count+' × '+x.name+' — '+money(Number(x.price)*count)));const rm=element('button','secondary','−');rm.type='button';rm.addEventListener('click',()=>{const pos=cart.indexOf(id);if(pos>-1)cart.splice(pos,1);renderShop()});line.append(rm);c.append(line)})}el('cartCount').textContent=cart.length;el('cartTotal').textContent='Totaal: '+money(cart.reduce((sum,id)=>sum+Number(items.find(x=>x.id===id)?.price||0),0));el('checkout').disabled=!cart.length}
+const shopDesignKey='allbiz-pro-storefront-v1';
+let shopQuery='',shopCategory='Alle';
+function shopPrefs(){
+ return {title:el('shopHeroTitle').value.trim(),subtitle:el('shopHeroText').value.trim(),
+ promo:el('shopPromoText').value.trim(),image:el('shopHeroImage').value.trim()};
+}
+function saveShopPrefs(){
+ try{localStorage.setItem(shopDesignKey,JSON.stringify(shopPrefs()));return true}catch(e){return false}
+}
+function getShopImage(){
+ const url=shopPrefs().image;
+ try{const parsed=new URL(url);return parsed.protocol==='https:'?parsed.href:''}catch(e){return ''}
+}
+function renderShop(){
+ const p=el('shopPreview');p.replaceChildren();p.className='store-skin theme-'+activeTheme;
+ const prefs=shopPrefs();
+ const promo=element('div','shop-announcement',prefs.promo||'✨ Welkom in onze winkel – dit is een voorbeeld');
+ p.append(promo);
+ const navigation=element('div','shop-preview-top');
+ navigation.append(element('strong','',el('brand').value.trim()||'Mijn webshop'));
+ navigation.append(element('span','','🔒 Veilige demo · geen bestellingen'));
+ p.append(navigation);
+ const hero=element('section','shop-hero');
+ const bg=getShopImage();
+ if(bg){hero.classList.add('shop-with-image');hero.style.backgroundImage='url('+JSON.stringify(bg)+')'}
+ hero.append(element('span','eyebrow','Nieuwe collectie'));
+ hero.append(element('h2','',prefs.title||'Ontdek onze nieuwste producten'));
+ hero.append(element('p','',prefs.subtitle||el('description').value.trim()||'Een stijlvolle winkel, helemaal van jou.'));
+ const cta=element('button','shop-cta','Bekijk producten');
+ cta.type='button';cta.addEventListener('click',()=>el('shopSearch').focus());
+ hero.append(cta);p.append(hero);
+ const header=element('div','shop-intro');header.append(element('h3','','Shop de collectie'));header.append(element('p','muted','Ontdek de producten van deze voorbeeldwinkel.'));p.append(header);
+ const cats=['Alle',...new Set(items.map(x=>String(x.category||'Overig').trim()||'Overig'))].slice(0,25);
+ if(!cats.includes(shopCategory))shopCategory='Alle';
+ const chips=element('div','shop-category-chips');
+ cats.forEach(cat=>{
+  const b=element('button',cat===shopCategory?'chosen':'',cat);
+  b.type='button';b.addEventListener('click',()=>{shopCategory=cat;renderShop()});
+  chips.append(b);
+ });
+ p.append(chips);
+ const controls=element('div','shop-controls');
+ const search=element('input','','');search.id='shopSearch';search.type='search';
+ search.placeholder='🔎 Zoek een product...';search.setAttribute('aria-label','Zoek producten');
+ search.value=shopQuery;
+ search.addEventListener('input',e=>{
+  shopQuery=e.target.value;
+  updateShopCollection();
+ });
+ controls.append(search);
+ const selected=element('select','','');selected.id='shopCategory';
+ selected.setAttribute('aria-label','Filter op categorie');
+ cats.forEach(cat=>{const opt=element('option','',cat);opt.value=cat;selected.append(opt)});
+ selected.value=shopCategory;
+ selected.addEventListener('change',e=>{shopCategory=e.target.value;renderShop()});
+ controls.append(selected);p.append(controls);
+ const count=element('p','shop-collection-count','');count.id='shopVisibleCount';p.append(count);
+ const list=element('div','products');list.id='shopFilteredProducts';p.append(list);
+ updateShopCollection();
+ appendAffiliatePreview(p);
+ const c=el('cartList');c.replaceChildren();
+ cart=cart.filter(id=>items.some(x=>x.id===id));
+ if(!cart.length)c.append(element('p','muted','Je mandje is leeg.'));
+ else{
+  const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
+  Object.entries(counts).forEach(([id,amount])=>{
+   const x=items.find(v=>v.id===id);if(!x)return;
+   const row=element('div','row');row.append(element('span','',amount+' × '+x.name+' — '+money(Number(x.price)*amount)));
+   const btn=element('button','secondary','−');btn.type='button';
+   btn.addEventListener('click',()=>{const pos=cart.indexOf(id);if(pos>-1)cart.splice(pos,1);renderShop()});
+   row.append(btn);c.append(row);
+  })
+ }
+ el('cartCount').textContent=cart.length;
+ el('cartTotal').textContent='Totaal: '+money(cart.reduce((sum,id)=>sum+Number(items.find(x=>x.id===id)?.price||0),0));
+ el('checkout').disabled=!cart.length;
+}
+function updateShopCollection(){
+ const list=el('shopFilteredProducts');if(!list)return;
+ list.replaceChildren();
+ const needle=shopQuery.toLocaleLowerCase();
+ const matches=items.filter(x=>(shopCategory==='Alle'||(x.category||'Overig')===shopCategory) &&
+   [x.name,x.description,x.category].some(v=>String(v||'').toLocaleLowerCase().includes(needle)));
+ el('shopVisibleCount').textContent=matches.length+' van '+items.length+' producten';
+ if(!matches.length){
+   const msg=element('div','empty',items.length?'Geen producten gevonden. Probeer een andere zoekterm of categorie.':'Je winkel is nog leeg. Voeg via Producten iets toe of gebruik hierboven de knop voor 3 voorbeeldproducten.');
+   list.append(msg);
+ } else matches.forEach(x=>list.append(productCard(x,true)));
+}
+try{
+ const saved=JSON.parse(localStorage.getItem(shopDesignKey)||'null');
+ if(saved&&typeof saved==='object'){
+  for(const [field,id] of Object.entries({title:'shopHeroTitle',subtitle:'shopHeroText',promo:'shopPromoText',image:'shopHeroImage'})){
+   el(id).value=String(saved[field]||'').slice(0,field==='subtitle'?220:field==='image'?500:100);
+  }
+ }
+}catch(e){}
+['shopHeroTitle','shopHeroText','shopPromoText','shopHeroImage'].forEach(id=>{
+ el(id).addEventListener('input',()=>{saveShopPrefs();renderShop()})
+});
+el('shopSaveDesign').addEventListener('click',()=>{
+ el('shopDesignStatus').textContent=saveShopPrefs()?
+ '✅ Webshopontwerp op dit toestel bewaard. Nog niet online gepubliceerd.':
+ 'Bewaren is niet gelukt. Controleer de opslagruimte van je toestel.';
+});
+el('shopDemoProducts').addEventListener('click',()=>{
+ const examples=[
+  {name:'Trendy winterjas',price:49.99,description:'Warme jas voor koude dagen',category:'Kleding',emoji:'🧥'},
+  {name:'Sneakers',price:39.99,description:'Comfortabele schoenen voor elke dag',category:'Schoenen',emoji:'👟'},
+  {name:'Zomerjurk',price:34.99,description:'Luchtige jurk voor een zonnige dag',category:'Kleding',emoji:'👗'}
+ ];
+ let added=0;const current=items.slice();
+ examples.forEach((x,i)=>{
+  if(items.some(p=>p.name===x.name&&p.demoProduct===true))return;
+  items.push({id:'demo-'+Date.now()+'-'+i,type:'physical',name:x.name,price:x.price,
+   description:x.description,category:x.category,stock:'',cost:'',shipping:'',supplier:'',
+   demoProduct:true,emoji:x.emoji});
+  added++;
+ });
+ if(!save()){items=current;el('shopDesignStatus').textContent='Opslaan mislukt. Maak opslagruimte vrij.';return}
+ renderAll();
+ el('shopDesignStatus').textContent=added?'✅ '+added+' voorbeeldproducten toegevoegd. Je kunt ze verwijderen via Producten. Er is niets gepubliceerd.':'De voorbeeldproducten staan al in de winkel.';
+});
+
 function renderSite(){
  const preview=el('sitePreview');preview.replaceChildren();
  preview.className='preview store-skin theme-'+activeTheme;
@@ -551,7 +712,7 @@ function renderSite(){
 }
 el('makeSite').addEventListener('click',()=>{saveSiteSettings();el('siteStatus').textContent='✅ Ontwerp op dit toestel bewaard. Een echte website publiceren komt later.';renderAll();el('sitePreview').scrollIntoView({behavior:'smooth',block:'nearest'})});
 try{el('brand').value=localStorage.getItem('business-studio-brand')||'';el('description').value=localStorage.getItem('business-studio-description')||'';el('siteAbout').value=localStorage.getItem('business-studio-about')||'';el('siteServices').value=localStorage.getItem('business-studio-services')||'';el('siteEmail').value=localStorage.getItem('business-studio-email')||''}catch(e){}
-el('productForm').addEventListener('submit',async e=>{e.preventDefault();const type=document.querySelector('input[name="type"]:checked').value,name=el('product').value.trim(),price=Number(el('price').value),status=el('productStatus');if(!name||el('price').value===''||!Number.isFinite(price)||price<0){status.textContent='Vul een productnaam en geldige prijs in.';return}const photoFile=el('photo').files[0];let photo='';if(photoFile){if(!photoFile.type.startsWith('image/')||photoFile.size>450*1024){status.textContent='Kies een afbeelding van maximaal 450 KB.';return}try{photo=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(photoFile)})}catch(err){status.textContent='Kon de afbeelding niet openen.';return}}const item={id:(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2),type,name,price,description:el('productDescription').value.trim().slice(0,1200),photo,cost:type==='physical'?el('cost').value:'',shipping:type==='physical'?el('shipping').value:'',supplier:type==='physical'?el('supplier').value.trim():'',stock:type==='physical'?el('stock').value:'',fileName:type==='digital'?(el('file').files[0]?.name||''):''};items.push(item);if(!save()){items.pop();status.textContent='Opslaan lukt niet. Probeer een kleinere foto of maak opslagruimte vrij.';return}el('productForm').reset();document.querySelector('input[name="type"][value="physical"]').checked=true;toggleType();renderAll();status.textContent='✅ '+name+' toegevoegd aan jouw webshop!';el('productsList').scrollIntoView({behavior:'smooth',block:'nearest'})});
+el('productForm').addEventListener('submit',async e=>{e.preventDefault();const type=document.querySelector('input[name="type"]:checked').value,name=el('product').value.trim(),price=Number(el('price').value),status=el('productStatus');if(!name||el('price').value===''||!Number.isFinite(price)||price<0){status.textContent='Vul een productnaam en geldige prijs in.';return}const photoFile=el('photo').files[0];let photo='';if(photoFile){if(!photoFile.type.startsWith('image/')||photoFile.size>450*1024){status.textContent='Kies een afbeelding van maximaal 450 KB.';return}try{photo=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(photoFile)})}catch(err){status.textContent='Kon de afbeelding niet openen.';return}}const item={id:(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2),type,name,price,description:el('productDescription').value.trim().slice(0,1200),category:el('productCategory').value.trim().slice(0,35)||'Overig',photo,cost:type==='physical'?el('cost').value:'',shipping:type==='physical'?el('shipping').value:'',supplier:type==='physical'?el('supplier').value.trim():'',stock:type==='physical'?el('stock').value:'',fileName:type==='digital'?(el('file').files[0]?.name||''):''};items.push(item);if(!save()){items.pop();status.textContent='Opslaan lukt niet. Probeer een kleinere foto of maak opslagruimte vrij.';return}el('productForm').reset();document.querySelector('input[name="type"][value="physical"]').checked=true;toggleType();renderAll();status.textContent='✅ '+name+' toegevoegd aan jouw webshop!';el('productsList').scrollIntoView({behavior:'smooth',block:'nearest'})});
 el('checkout').addEventListener('click',()=>{el('checkoutStatus').textContent='✅ Test geslaagd: je mandje werkt! Echte betalingen en verzending zijn nog niet aangesloten.'});
 el('getTip').addEventListener('click',()=>{el('tip').textContent=({website:'Begin met een heldere titel, goede productfoto’s en een duidelijk contactadres.',dropshipping:'Zoek betrouwbare leveranciers en controleer levertijd, kwaliteit, retourbeleid en je wettelijke verplichtingen voordat je verkoopt.',physical:'Bereken je verkoopprijs met inkoop, verzending, belastingen, retouren en andere kosten inbegrepen.',product:'Maak een digitaal product dat één duidelijk probleem van je klant oplost.',marketing:'Vertel wie je helpt en waarom jouw product voor die persoon nuttig is.',affiliate:'Meld je eerst aan bij een affiliateprogramma. Promoot daarna uitsluitend met je persoonlijke trackinglink en vermeld duidelijk dat het reclame of een affiliate-link is.'})[el('topic').value]});
 
@@ -564,7 +725,7 @@ for(const id of ['brand','description','siteAbout','siteServices','siteEmail'])e
 el('domainName').addEventListener('input',()=>{refreshDomain();saveSiteSettings()});el('domainExt').addEventListener('change',()=>{refreshDomain();saveSiteSettings()});
 function newId(){return typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2)}
 function parsePrice(v){if(v==null)return 0;const t=String(v).replace(/[^0-9.,-]/g,'').trim();if(!t)return 0;const comma=t.lastIndexOf(','),dot=t.lastIndexOf('.');let cleaned=t;if(comma>=0&&dot>=0)cleaned=comma>dot?t.replace(/\./g,'').replace(',','.'):t.replace(/,/g,'');else if(comma>=0)cleaned=t.replace(',','.');return Number(cleaned)||0}
-function makeImported(p){const name=String(p.name||p.title||'').trim().slice(0,150);if(!name)return null;return {id:newId(),type:'physical',name,price:parsePrice(p.price),description:String(p.description||'').slice(0,1500),photo:'',imageUrl:safeImage(p.imageUrl||p.image||''),cost:p.cost==null?'':String(parsePrice(p.cost)),shipping:p.shipping==null?'':String(parsePrice(p.shipping)),supplier:safeLink(p.supplier||p.url||p.link||''),stock:p.stock==null?'':String(p.stock)}}
+function makeImported(p){const name=String(p.name||p.title||'').trim().slice(0,150);if(!name)return null;return {id:newId(),type:'physical',name,category:String(p.category||'Overig').slice(0,35),price:parsePrice(p.price),description:String(p.description||'').slice(0,1500),photo:'',imageUrl:safeImage(p.imageUrl||p.image||''),cost:p.cost==null?'':String(parsePrice(p.cost)),shipping:p.shipping==null?'':String(parsePrice(p.shipping)),supplier:safeLink(p.supplier||p.url||p.link||''),stock:p.stock==null?'':String(p.stock)}}
 function safeLink(u){try{const v=new URL(String(u).trim());return ['https:','http:'].includes(v.protocol)?v.href:''}catch(e){return ''}}
 function safeImage(u){return safeLink(u)}
 function addImported(arr){const valid=arr.map(makeImported).filter(Boolean);if(!valid.length){el('importStatus').textContent='Geen herkenbare producten gevonden. Controleer of je bestand een productnaam of titel heeft.';return}const current=items.slice();items.push(...valid);if(!save()){items=current;el('importStatus').textContent='Kon niet opslaan. Probeer een kleiner bestand of minder producten.';return}renderAll();el('importStatus').textContent='✅ '+valid.length+' product(en) toegevoegd! Ga naar Producten of Mijn webshop om ze te bekijken.'}
