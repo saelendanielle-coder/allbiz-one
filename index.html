@@ -210,6 +210,14 @@ input[type=file]{font-size:14px;overflow:hidden}
 .shop-category-chips button.chosen{background:var(--shop-primary,#6245d1);color:#fff}
 .shop-collection-count{color:var(--shop-text,#281e43);font-size:13px;padding:0 15px;opacity:.8}
 @media(max-width:600px){.shop-controls{display:grid;grid-template-columns:minmax(0,1fr)}.shop-controls select{max-width:none}.shop-hero{min-height:235px;padding:35px 20px}}
+.cart-item-row{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:12px 0;border-bottom:1px solid #e8e1f2}
+.cart-item-title{flex:1;min-width:155px;overflow-wrap:anywhere}
+.cart-qty{display:flex;align-items:center;gap:6px}
+.cart-qty button{min-width:40px;width:40px;height:40px;padding:0;text-align:center;font-size:21px}
+.cart-qty span{font-weight:750;min-width:24px;text-align:center}
+.cart-remove{font-size:12px}
+.cart-summary-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
+.cart-summary-actions button{width:auto}
 </style>
 </head>
 <body class="splash-open">
@@ -309,7 +317,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button id="shopSaveDesign" type="button">💾 Bewaar webshopontwerp</button><button id="shopDemoProducts" type="button" class="secondary">🧪 Voeg 3 voorbeeldproducten toe</button></div>
 <p id="shopDesignStatus" class="toast" role="status">Er worden geen echte bestellingen of betalingen gedaan.</p>
 </div>
-<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><button type="button" id="checkout" style="margin-top:12px">Test afrekenen</button><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
+<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
 <section id="video" class="panel">
   <div class="card">
@@ -627,15 +635,31 @@ function renderShop(){
   const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
   Object.entries(counts).forEach(([id,amount])=>{
    const x=items.find(v=>v.id===id);if(!x)return;
-   const row=element('div','row');row.append(element('span','',amount+' × '+x.name+' — '+money(Number(x.price)*amount)));
-   const btn=element('button','secondary','−');btn.type='button';
-   btn.addEventListener('click',()=>{const pos=cart.indexOf(id);if(pos>-1)cart.splice(pos,1);renderShop()});
-   row.append(btn);c.append(row);
+   const row=element('div','cart-item-row');
+   const title=element('div','cart-item-title');
+   title.append(element('strong','',x.name));
+   title.append(element('p','muted',money(Number(x.price))+' per stuk · '+money(Number(x.price)*amount)+' totaal'));
+   row.append(title);
+   const actions=element('div','cart-qty');
+   const minus=element('button','secondary','−');minus.type='button';minus.setAttribute('aria-label','Eén minder: '+x.name);
+   minus.addEventListener('click',()=>{
+    const pos=cart.indexOf(id);if(pos>=0)cart.splice(pos,1);
+    el('checkoutStatus').textContent='';renderShop()
+   });
+   const count=element('span','',String(amount));count.setAttribute('aria-label',amount+' in winkelmandje');
+   const plus=element('button','secondary','+');plus.type='button';plus.setAttribute('aria-label','Eén extra: '+x.name);
+   plus.addEventListener('click',()=>{if(cart.length>=99)return;cart.push(id);el('checkoutStatus').textContent='';renderShop()});
+   plus.disabled=cart.length>=99;
+   actions.append(minus,count,plus);row.append(actions);
+   const remove=element('button','secondary cart-remove','Verwijderen');remove.type='button';
+   remove.addEventListener('click',()=>{cart=cart.filter(xid=>xid!==id);el('checkoutStatus').textContent='';renderShop()});
+   row.append(remove);c.append(row);
   })
  }
  el('cartCount').textContent=cart.length;
  el('cartTotal').textContent='Totaal: '+money(cart.reduce((sum,id)=>sum+Number(items.find(x=>x.id===id)?.price||0),0));
  el('checkout').disabled=!cart.length;
+ el('clearCart').disabled=!cart.length;
 }
 function updateShopCollection(){
  const list=el('shopFilteredProducts');if(!list)return;
@@ -714,6 +738,12 @@ el('makeSite').addEventListener('click',()=>{saveSiteSettings();el('siteStatus')
 try{el('brand').value=localStorage.getItem('business-studio-brand')||'';el('description').value=localStorage.getItem('business-studio-description')||'';el('siteAbout').value=localStorage.getItem('business-studio-about')||'';el('siteServices').value=localStorage.getItem('business-studio-services')||'';el('siteEmail').value=localStorage.getItem('business-studio-email')||''}catch(e){}
 el('productForm').addEventListener('submit',async e=>{e.preventDefault();const type=document.querySelector('input[name="type"]:checked').value,name=el('product').value.trim(),price=Number(el('price').value),status=el('productStatus');if(!name||el('price').value===''||!Number.isFinite(price)||price<0){status.textContent='Vul een productnaam en geldige prijs in.';return}const photoFile=el('photo').files[0];let photo='';if(photoFile){if(!photoFile.type.startsWith('image/')||photoFile.size>450*1024){status.textContent='Kies een afbeelding van maximaal 450 KB.';return}try{photo=await new Promise((resolve,reject)=>{const reader=new FileReader();reader.onload=()=>resolve(reader.result);reader.onerror=reject;reader.readAsDataURL(photoFile)})}catch(err){status.textContent='Kon de afbeelding niet openen.';return}}const item={id:(typeof crypto!=='undefined'&&crypto.randomUUID)?crypto.randomUUID():Date.now().toString(36)+Math.random().toString(36).slice(2),type,name,price,description:el('productDescription').value.trim().slice(0,1200),category:el('productCategory').value.trim().slice(0,35)||'Overig',photo,cost:type==='physical'?el('cost').value:'',shipping:type==='physical'?el('shipping').value:'',supplier:type==='physical'?el('supplier').value.trim():'',stock:type==='physical'?el('stock').value:'',fileName:type==='digital'?(el('file').files[0]?.name||''):''};items.push(item);if(!save()){items.pop();status.textContent='Opslaan lukt niet. Probeer een kleinere foto of maak opslagruimte vrij.';return}el('productForm').reset();document.querySelector('input[name="type"][value="physical"]').checked=true;toggleType();renderAll();status.textContent='✅ '+name+' toegevoegd aan jouw webshop!';el('productsList').scrollIntoView({behavior:'smooth',block:'nearest'})});
 el('checkout').addEventListener('click',()=>{el('checkoutStatus').textContent='✅ Test geslaagd: je mandje werkt! Echte betalingen en verzending zijn nog niet aangesloten.'});
+el('clearCart').addEventListener('click',()=>{
+ if(!cart.length)return;
+ if(!confirm('Het volledige testwinkelmandje leegmaken?'))return;
+ cart=[];renderShop();
+ el('checkoutStatus').textContent='✅ Winkelmandje leeggemaakt. Er is niets besteld of betaald.';
+});
 el('getTip').addEventListener('click',()=>{el('tip').textContent=({website:'Begin met een heldere titel, goede productfoto’s en een duidelijk contactadres.',dropshipping:'Zoek betrouwbare leveranciers en controleer levertijd, kwaliteit, retourbeleid en je wettelijke verplichtingen voordat je verkoopt.',physical:'Bereken je verkoopprijs met inkoop, verzending, belastingen, retouren en andere kosten inbegrepen.',product:'Maak een digitaal product dat één duidelijk probleem van je klant oplost.',marketing:'Vertel wie je helpt en waarom jouw product voor die persoon nuttig is.',affiliate:'Meld je eerst aan bij een affiliateprogramma. Promoot daarna uitsluitend met je persoonlijke trackinglink en vermeld duidelijk dat het reclame of een affiliate-link is.'})[el('topic').value]});
 
 function saveSiteSettings(){try{localStorage.setItem('business-studio-brand',el('brand').value);localStorage.setItem('business-studio-description',el('description').value);localStorage.setItem('business-studio-about',el('siteAbout').value);localStorage.setItem('business-studio-services',el('siteServices').value);localStorage.setItem('business-studio-email',el('siteEmail').value);localStorage.setItem('business-studio-theme',activeTheme);localStorage.setItem('business-studio-domain',el('domainName').value);localStorage.setItem('business-studio-extension',el('domainExt').value)}catch(e){}}
