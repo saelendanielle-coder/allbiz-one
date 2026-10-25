@@ -1341,6 +1341,24 @@ try {
   window.allbizAuth = client.auth;
   // Account-private product catalog backups. Never publishes products.
   const catalogStatus=document.getElementById('productBackupStatus');
+  const photoBucket='allbiz-private-product-photos';
+  async function backupPhoto(imageData,userId,productId){
+    if(!/^data:image\/(jpeg|png|webp);base64,/.test(imageData))return '';
+    const response=await fetch(imageData),blob=await response.blob();
+    if(blob.size>524288)throw new Error('Een productfoto is te groot voor de privéback-up.');
+    const ext=blob.type==='image/png'?'png':blob.type==='image/webp'?'webp':'jpg';
+    const safeId=String(productId).replace(/[^a-zA-Z0-9_-]/g,'-').slice(0,90);
+    const path=userId+'/'+safeId+'-'+Date.now()+'.'+ext;
+    const {error}=await client.storage.from(photoBucket).upload(path,blob,{contentType:blob.type,upsert:false});
+    if(error)throw new Error('Foto opslaan mislukt: '+error.message);
+    return path;
+  }
+  async function loadPrivatePhoto(path){
+    if(!path||typeof path!=='string')return '';
+    const {data,error}=await client.storage.from(photoBucket).download(path);
+    if(error||!data)return '';
+    return await new Promise(resolve=>{const reader=new FileReader();reader.onload=()=>resolve(String(reader.result||''));reader.onerror=()=>resolve('');reader.readAsDataURL(data)});
+  }
   const catalogSave=document.getElementById('saveProductBackup');
   const catalogLoad=document.getElementById('loadProductBackup');
   async function catalogUser(){
@@ -1354,7 +1372,14 @@ try {
     try{
       const user=await catalogUser();
       if(items.length>200)throw new Error('Maximaal 200 producten per back-up.');
-      const clean=items.map(x=>({
+      const clean=[];
+      for(const x of items){
+        let photoPath=String(x.photoPath||'');
+        if(typeof x.photo==='string'&&x.photo.startsWith('data:image/')){
+          catalogStatus.textContent='Privé foto opslaan voor '+x.name+'...';
+          photoPath=await backupPhoto(x.photo,user.id,x.id);
+        }
+        clean.push({
         id:String(x.id||'').slice(0,100),
         type:x.type==='digital'?'digital':'physical',
         name:String(x.name||'').slice(0,150),
@@ -1365,17 +1390,17 @@ try {
         cost:String(x.cost??'').slice(0,50),
         shipping:String(x.shipping??'').slice(0,50),
         supplier:String(x.supplier||'').slice(0,800),
-        imageUrl:String(x.imageUrl||'').slice(0,800),
+        imageUrl:String(x.imageUrl||'').slice(0,800),photoPath,
         fileName:String(x.fileName||'').slice(0,140),
         visibility:x.visibility==='draft'?'draft':'active',
         demoProduct:!!x.demoProduct,
         emoji:String(x.emoji||'').slice(0,12)
-      }));
+      });}
       const {error}=await client.from('allbiz_product_backups').upsert({
         user_id:user.id,products:clean,updated_at:new Date().toISOString()
       },{onConflict:'user_id'});
       if(error)throw new Error(error.message);
-      catalogStatus.textContent='✅ Producten privé in je account bewaard. Lokaal geüploade foto’s worden niet mee overgezet.';
+      catalogStatus.textContent='✅ Producten en aanwezige privéfoto’s in je account bewaard. Er is niets gepubliceerd.';
     }catch(error){catalogStatus.textContent='Opslaan mislukt: '+(error.message||'onbekende fout')}
     finally{catalogSave.disabled=false}
   });
@@ -1400,16 +1425,17 @@ try {
         cost:String(x.cost??'').slice(0,50),
         shipping:String(x.shipping??'').slice(0,50),
         supplier:String(x.supplier||'').slice(0,800),
-        imageUrl:safeImage(x.imageUrl)||'',
+        imageUrl:safeImage(x.imageUrl)||'',photoPath:String(x.photoPath||''),
         fileName:String(x.fileName||'').slice(0,140),
         visibility:x.visibility==='draft'?'draft':'active',
         demoProduct:!!x.demoProduct,
         emoji:String(x.emoji||'').slice(0,12)
       })):[];
+      for(const product of restored){if(product.photoPath){product.photo=await loadPrivatePhoto(product.photoPath)}}
       items=restored;cart=[];
       if(!save()){items=oldItems;cart=oldCart;throw new Error('Opslaan op dit toestel mislukt.')}
       renderAll();
-      catalogStatus.textContent='✅ '+items.length+' producten uit je account geopend. Er is niets gepubliceerd.';
+      catalogStatus.textContent='✅ '+items.length+' producten en beschikbare privéfoto’s uit je account geopend. Er is niets gepubliceerd.';
     }catch(error){catalogStatus.textContent='Ophalen mislukt: '+(error.message||'onbekende fout')}
     finally{catalogLoad.disabled=false}
   });
