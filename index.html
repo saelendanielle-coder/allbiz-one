@@ -221,6 +221,18 @@ input[type=file]{font-size:14px;overflow:hidden}
 .cart-remove{font-size:12px}
 .cart-summary-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-top:12px}
 .cart-summary-actions button{width:auto}
+/* Accessible sandbox checkout review. No real payment or personal data capture. */
+.test-checkout-panel{padding:20px;margin:17px 0;background:#f7f4ff;border:2px solid #947cf0;border-radius:17px}
+.test-checkout-panel[hidden]{display:none}
+.test-checkout-panel h3{font-size:21px;margin-bottom:12px}
+.test-checkout-panel h4{margin:19px 0 9px;color:#2a1b51}
+.test-checkout-review{display:grid;gap:8px}
+.test-checkout-line{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #ddd5ee}
+.test-checkout-line>strong{white-space:nowrap}
+.test-checkout-total{font-size:20px;color:#4b31b4;font-weight:800;text-align:right;margin:12px 0}
+.test-checkout-placeholder{display:grid;gap:9px;background:#fff;padding:13px;border-radius:12px}
+.test-checkout-placeholder span{display:block;font-size:14px}
+@media(max-width:650px){.test-checkout-panel{padding:15px 12px}.test-checkout-panel .cart-summary-actions{display:grid;grid-template-columns:1fr}}
 /* Pro demo inventory & orders */
 .inventory-tools{display:flex;align-items:center;gap:7px;flex-wrap:wrap;margin-top:10px}
 .inventory-tools button{width:auto;padding:7px 11px;min-width:38px}
@@ -432,7 +444,19 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="builderStatus" class="toast" role="status">Nog niets aangepast. Je bouwt uitsluitend een webshopdemo.</p>
 </details>
 </div>
-<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div><div class="cart-summary-actions"><button type="button" id="checkout">Test afrekenen</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div><p id="checkoutStatus" class="toast" role="status"></p><button type="button" class="secondary" data-goto="orders" style="margin:10px 0 14px;width:100%">📦 Bekijk mijn testbestellingen</button><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
+<div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div>
+<div class="cart-summary-actions"><button type="button" id="checkout">🧾 Naar afrekenen (test)</button><button type="button" id="clearCart" class="secondary">🗑️ Winkelmandje leegmaken</button></div>
+<div id="testCheckoutPanel" class="test-checkout-panel" hidden>
+ <h3>🧾 Afrekenpagina — TEST</h3>
+ <p class="notice"><b>Alleen een simulatie.</b> Vul geen echte klant- of bankgegevens in. Er wordt niets betaald, besteld of verzonden.</p>
+ <h4>1. Controleer je bestelling</h4>
+ <div id="testCheckoutReview" class="test-checkout-review"></div>
+ <h4>2. Voorbeeld van klant- en betaalgegevens</h4>
+ <div class="test-checkout-placeholder"><span>👤 Testklant</span><span>✉️ test@example.com</span><span>📦 Testlevering — geen echt adres</span><span>🔒 Testbetaling — zonder bankkaart</span></div>
+ <p class="small muted">Dit zijn alleen fictieve voorbeeldgegevens. Ze worden niet naar een echte verkoper of betaalprovider verstuurd.</p>
+ <div class="cart-summary-actions"><button type="button" id="confirmDemoCheckout">✅ Testbestelling bevestigen</button><button type="button" class="secondary" id="cancelDemoCheckout">Annuleren</button></div>
+</div>
+<p id="checkoutStatus" class="toast" role="status"></p><button type="button" class="secondary" data-goto="orders" style="margin:10px 0 14px;width:100%">📦 Bekijk mijn testbestellingen</button><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
 
 <section id="orders" class="panel">
 <div class="card">
@@ -1167,23 +1191,49 @@ function renderDemoOrders(){
  if(!demoOrders.length)holder.append(element('p','muted','Nog geen testbestellingen. Gebruik Test afrekenen in Mijn webshop.'));
 }
 el('clearDemoOrders').addEventListener('click',()=>{if(!demoOrders.length||!confirm('Alle lokale testbestellingen verwijderen?'))return;demoOrders=[];saveDemoOrders();renderDemoOrders();el('demoOrderMessage').textContent='✅ Testbestellingen gewist.'});
+const checkoutPanel=el('testCheckoutPanel');
+function closeTestCheckout(){checkoutPanel.hidden=true;}
+function renderTestCheckoutReview(){
+ const review=el('testCheckoutReview');review.replaceChildren();
+ const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
+ let total=0;
+ for(const [id,qty] of Object.entries(counts)){
+  const item=items.find(x=>x.id===id&&x.visibility!=='draft');if(!item)continue;
+  const price=Number(item.price)||0;total+=price*qty;
+  const line=element('div','test-checkout-line');
+  line.append(element('span','',qty+' × '+item.name),element('strong','',money(qty*price)));
+  review.append(line);
+ }
+ review.append(element('div','test-checkout-total','Totaal: '+money(total)+' · test'));
+}
 el('checkout').addEventListener('click',()=>{
  if(!cart.length)return;
+ renderTestCheckoutReview();
+ checkoutPanel.hidden=false;
+ el('checkoutStatus').textContent='Controleer de testbestelling hieronder. Er wordt geen geld afgeschreven.';
+ checkoutPanel.scrollIntoView({behavior:'smooth',block:'start'});
+});
+el('cancelDemoCheckout').addEventListener('click',()=>{
+ closeTestCheckout();el('checkoutStatus').textContent='Afrekenen geannuleerd. Je testwinkelmandje is bewaard.';
+});
+el('confirmDemoCheckout').addEventListener('click',()=>{
+ if(checkoutPanel.hidden||!cart.length)return;
  const counts={};cart.forEach(id=>counts[id]=(counts[id]||0)+1);
- const lines=Object.entries(counts).map(([id,qty])=>{const item=items.find(x=>x.id===id);return item?{id,name:item.name,qty,price:Number(item.price)||0}:null}).filter(Boolean);
+ const lines=Object.entries(counts).map(([id,qty])=>{const item=items.find(x=>x.id===id&&x.visibility!=='draft');return item?{id,name:item.name,qty,price:Number(item.price)||0}:null}).filter(Boolean);
+ if(!lines.length){el('checkoutStatus').textContent='Geen geldige producten in het testwinkelmandje.';return}
  for(const line of lines){const item=items.find(x=>x.id===line.id);if(item.stock!==''&&item.stock!=null&&Number(item.stock)<line.qty){el('checkoutStatus').textContent='Niet genoeg voorraad voor '+item.name+'.';return}}
- if(!confirm('Alleen een TESTbestelling aanmaken? Er gaat geen echt geld af en er wordt niets verzonden.'))return;
  const prior=items.map(x=>({...x}));const oldOrders=demoOrders.slice();
  lines.forEach(line=>{const x=items.find(p=>p.id===line.id);if(x.stock!==''&&x.stock!=null)x.stock=String(Math.max(0,Number(x.stock)-line.qty))});
  const order={number:String(Date.now()).slice(-8),when:new Date().toLocaleString('nl-BE'),lines,total:lines.reduce((sum,line)=>sum+line.price*line.qty,0),status:'Nieuw'};
  demoOrders.push(order);if(demoOrders.length>100)demoOrders.shift();
  if(!save()||!saveDemoOrders()){items=prior;demoOrders=oldOrders;save();saveDemoOrders();el('checkoutStatus').textContent='De testbestelling kon niet bewaard worden.';return}
- cart=[];renderAll();el('checkoutStatus').textContent='✅ Testbestelling gemaakt. Geen echt geld afgeschreven. Bekijk 📦 Voorraad & testbestellingen.';
+ cart=[];closeTestCheckout();renderAll();
+ el('checkoutStatus').textContent='✅ Testbestelling #'+order.number+' gemaakt voor '+money(order.total)+'. Geen echte betaling. Bekijk 📦 Voorraad & testbestellingen.';
 });
 el('clearCart').addEventListener('click',()=>{
  if(!cart.length)return;
  if(!confirm('Het volledige testwinkelmandje leegmaken?'))return;
- cart=[];renderShop();
+ cart=[];closeTestCheckout();renderShop();
  el('checkoutStatus').textContent='✅ Winkelmandje leeggemaakt. Er is niets besteld of betaald.';
 });
 el('getTip').addEventListener('click',()=>{el('tip').textContent=({website:'Begin met een heldere titel, goede productfoto’s en een duidelijk contactadres.',dropshipping:'Zoek betrouwbare leveranciers en controleer levertijd, kwaliteit, retourbeleid en je wettelijke verplichtingen voordat je verkoopt.',physical:'Bereken je verkoopprijs met inkoop, verzending, belastingen, retouren en andere kosten inbegrepen.',product:'Maak een digitaal product dat één duidelijk probleem van je klant oplost.',marketing:'Vertel wie je helpt en waarom jouw product voor die persoon nuttig is.',affiliate:'Meld je eerst aan bij een affiliateprogramma. Promoot daarna uitsluitend met je persoonlijke trackinglink en vermeld duidelijk dat het reclame of een affiliate-link is.'})[el('topic').value]});
