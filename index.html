@@ -265,6 +265,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <label for="allbizSiteSlug">Naam voor je toekomstige website-link</label>
 <input id="allbizSiteSlug" type="text" minlength="3" maxlength="64" pattern="[a-z0-9-]{3,64}" placeholder="bijv. mijn-bedrijf" autocapitalize="off" spellcheck="false">
 <label style="display:flex;align-items:flex-start;gap:9px"><input id="allbizPublishConsent" type="checkbox" style="width:auto;margin:4px 0">Ik bevestig dat mijn website en ingevulde contactgegevens openbaar op internet mogen komen.</label>
+<div class="import-buttons"><button type="button" class="secondary" id="allbizCheckPublishButton">🧪 Controleer publicatiekoppeling (zonder publiceren)</button></div>
 <div class="import-buttons"><button type="button" id="allbizPublishButton">🌍 Website echt publiceren</button><button type="button" class="secondary" id="allbizUnpublishButton">Website offline halen</button></div>
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
@@ -994,6 +995,7 @@ try {
   const publishStatus = document.getElementById('allbizPublishStatus');
   const publishButton = document.getElementById('allbizPublishButton');
   const offlineButton = document.getElementById('allbizUnpublishButton');
+  const checkPublishButton = document.getElementById('allbizCheckPublishButton');
   const publicationEndpoint = SUPABASE_URL + '/functions/v1/allbiz-site-publish';
   const publicationCall = async payload => {
     const {data:{session}} = await client.auth.getSession();
@@ -1011,6 +1013,24 @@ try {
     publishStatus.replaceChildren(document.createTextNode(message));
     if(link){const a=document.createElement('a');a.href=link;a.textContent=' Open de website';a.target='_blank';a.rel='noopener noreferrer';publishStatus.append(a)}
   };
+  checkPublishButton.addEventListener('click',async()=>{
+    checkPublishButton.disabled=true;
+    publicationMessage('Beveiligde koppeling wordt gecontroleerd... Er wordt niets gepubliceerd.');
+    try{
+      const d=await publicationCall({action:'status'});
+      const details=d.published
+        ? 'Er staat al een website online onder de link '+d.slug+'.'
+        : 'Er staat geen website online via dit account.';
+      const billing=d.hasLiveSubscription
+        ? 'Er is een echt betaald abonnement geregistreerd.'
+        : 'Je hebt geen echt betaald abonnement; je gratis testbetaling blijft een test.';
+      publicationMessage('✅ Publicatiekoppeling bereikbaar. '+details+' '+billing+' Deze controle heeft niets gepubliceerd.');
+    }catch(error){
+      publicationMessage('Controle niet gelukt: '+(error?.message||'onbekende fout')+'. Er is niets gepubliceerd door deze controle.');
+    }finally{
+      checkPublishButton.disabled=false;
+    }
+  });
   publishButton.addEventListener('click',async()=>{
     if(!document.getElementById('allbizPublishConsent').checked){publicationMessage('Vink eerst de toestemming aan. Je website wordt niet vanzelf openbaar.');return}
     const slug=document.getElementById('allbizSiteSlug').value.trim().toLowerCase();
