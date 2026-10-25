@@ -1339,6 +1339,80 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  // Account-private product catalog backups. Never publishes products.
+  const catalogStatus=document.getElementById('productBackupStatus');
+  const catalogSave=document.getElementById('saveProductBackup');
+  const catalogLoad=document.getElementById('loadProductBackup');
+  async function catalogUser(){
+    const {data,error}=await client.auth.getUser();
+    if(error||!data?.user)throw new Error('Log eerst in bij Mijn account.');
+    return data.user;
+  }
+  catalogSave.addEventListener('click',async()=>{
+    catalogSave.disabled=true;
+    catalogStatus.textContent='Producten worden privé bewaard...';
+    try{
+      const user=await catalogUser();
+      if(items.length>200)throw new Error('Maximaal 200 producten per back-up.');
+      const clean=items.map(x=>({
+        id:String(x.id||'').slice(0,100),
+        type:x.type==='digital'?'digital':'physical',
+        name:String(x.name||'').slice(0,150),
+        price:Number(x.price)||0,
+        description:String(x.description||'').slice(0,1200),
+        category:String(x.category||'Overig').slice(0,35),
+        stock:String(x.stock??'').slice(0,20),
+        cost:String(x.cost??'').slice(0,50),
+        shipping:String(x.shipping??'').slice(0,50),
+        supplier:String(x.supplier||'').slice(0,800),
+        imageUrl:String(x.imageUrl||'').slice(0,800),
+        fileName:String(x.fileName||'').slice(0,140),
+        visibility:x.visibility==='draft'?'draft':'active',
+        demoProduct:!!x.demoProduct,
+        emoji:String(x.emoji||'').slice(0,12)
+      }));
+      const {error}=await client.from('allbiz_product_backups').upsert({
+        user_id:user.id,products:clean,updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
+      if(error)throw new Error(error.message);
+      catalogStatus.textContent='✅ Producten privé in je account bewaard. Lokaal geüploade foto’s worden niet mee overgezet.';
+    }catch(error){catalogStatus.textContent='Opslaan mislukt: '+(error.message||'onbekende fout')}
+    finally{catalogSave.disabled=false}
+  });
+  catalogLoad.addEventListener('click',async()=>{
+    catalogLoad.disabled=true;
+    catalogStatus.textContent='Bewaarde producten ophalen...';
+    try{
+      const user=await catalogUser();
+      const {data,error}=await client.from('allbiz_product_backups').select('products').eq('user_id',user.id).maybeSingle();
+      if(error)throw new Error(error.message);
+      if(!data){catalogStatus.textContent='Je hebt nog geen productback-up in je account.';return}
+      if(!confirm('Je producten op dit toestel vervangen door je privé bewaarde producten? Dit wist je huidige lokale productlijst.')){catalogStatus.textContent='Je huidige producten zijn niet gewijzigd.';return}
+      const oldItems=items.slice(),oldCart=cart.slice();
+      const restored=Array.isArray(data.products)?data.products.slice(0,200).filter(x=>x&&typeof x==='object'&&String(x.name||'').trim()).map(x=>({
+        id:String(x.id||'').slice(0,100)||newId(),
+        type:x.type==='digital'?'digital':'physical',
+        name:String(x.name||'').slice(0,150),
+        price:Number(x.price)||0,
+        description:String(x.description||'').slice(0,1200),
+        category:String(x.category||'Overig').slice(0,35),
+        stock:String(x.stock??'').slice(0,20),
+        cost:String(x.cost??'').slice(0,50),
+        shipping:String(x.shipping??'').slice(0,50),
+        supplier:String(x.supplier||'').slice(0,800),
+        imageUrl:safeImage(x.imageUrl)||'',
+        fileName:String(x.fileName||'').slice(0,140),
+        visibility:x.visibility==='draft'?'draft':'active',
+        demoProduct:!!x.demoProduct,
+        emoji:String(x.emoji||'').slice(0,12)
+      })):[];
+      items=restored;cart=[];
+      if(!save()){items=oldItems;cart=oldCart;throw new Error('Opslaan op dit toestel mislukt.')}
+      renderAll();
+      catalogStatus.textContent='✅ '+items.length+' producten uit je account geopend. Er is niets gepubliceerd.';
+    }catch(error){catalogStatus.textContent='Ophalen mislukt: '+(error.message||'onbekende fout')}
+    finally{catalogLoad.disabled=false}
+  });
   const orderBackupStatus=document.getElementById('demoOrdersCloudStatus');
   const backupBtn=document.getElementById('backupDemoOrders');
   const restoreBtn=document.getElementById('restoreDemoOrders');
