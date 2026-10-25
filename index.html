@@ -1344,6 +1344,58 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  // Private webshop design storage: only the logged-in owner can read/write via RLS.
+  const shopCloudStatus=document.getElementById('shopCloudStatus');
+  const shopCloudSave=document.getElementById('shopCloudSave');
+  const shopCloudLoad=document.getElementById('shopCloudLoad');
+  async function shopCloudUser(){
+    const {data,error}=await client.auth.getUser();
+    if(error||!data?.user)throw new Error('Log eerst in bij Mijn account.');
+    return data.user;
+  }
+  shopCloudSave.addEventListener('click',async()=>{
+    shopCloudSave.disabled=true;shopCloudStatus.textContent='Webshopontwerp privé opslaan...';
+    try{
+      const user=await shopCloudUser();
+      const image=document.getElementById('shopHeroImage').value.trim();
+      if(image&&!/^https:\/\/[^\s]+$/i.test(image))throw new Error('Gebruik een https-link voor de bannerfoto of laat het veld leeg.');
+      const theme=document.getElementById('shopThemeSelect').value;
+      const row={
+        user_id:user.id,brand:document.getElementById('brand').value.trim().slice(0,100),
+        business_tagline:document.getElementById('description').value.trim().slice(0,250),
+        hero_title:document.getElementById('shopHeroTitle').value.trim().slice(0,90),
+        hero_subtitle:document.getElementById('shopHeroText').value.trim().slice(0,220),
+        announcement:document.getElementById('shopPromoText').value.trim().slice(0,100),
+        banner_image_url:image.slice(0,1000),
+        theme:['classic','luxe','nature','pop'].includes(theme)?theme:'classic',
+        updated_at:new Date().toISOString()
+      };
+      const {error}=await client.from('allbiz_shop_designs').upsert(row,{onConflict:'user_id'});
+      if(error)throw new Error(error.message);
+      shopCloudStatus.textContent='✅ Webshopontwerp privé bewaard. Er is niets gepubliceerd.';
+    }catch(e){shopCloudStatus.textContent='Opslaan mislukt: '+(e.message||'onbekende fout')}
+    finally{shopCloudSave.disabled=false}
+  });
+  shopCloudLoad.addEventListener('click',async()=>{
+    shopCloudLoad.disabled=true;shopCloudStatus.textContent='Webshopontwerp ophalen...';
+    try{
+      const user=await shopCloudUser();
+      const {data,error}=await client.from('allbiz_shop_designs').select('brand,business_tagline,hero_title,hero_subtitle,announcement,banner_image_url,theme').eq('user_id',user.id).maybeSingle();
+      if(error)throw new Error(error.message);
+      if(!data){shopCloudStatus.textContent='Er is nog geen webshopontwerp privé bewaard.';return}
+      if(!confirm('Je huidige webshopontwerp vervangen door het privé bewaarde ontwerp? Producten en bestellingen blijven ongewijzigd.')){shopCloudStatus.textContent='Je huidige webshopontwerp is niet gewijzigd.';return}
+      const fields={brand:'brand',business_tagline:'description',hero_title:'shopHeroTitle',hero_subtitle:'shopHeroText',announcement:'shopPromoText',banner_image_url:'shopHeroImage'};
+      for(const [key,id] of Object.entries(fields)){
+        const input=document.getElementById(id);input.value=String(data[key]||'');
+        input.dispatchEvent(new Event('input',{bubbles:true}));
+      }
+      const theme=['classic','luxe','nature','pop'].includes(data.theme)?data.theme:'classic';
+      document.querySelector('[data-theme="'+theme+'"]')?.click();
+      document.getElementById('shopThemeSelect').value=theme;
+      shopCloudStatus.textContent='✅ Je privé bewaarde webshopontwerp is geopend. Er is niets gepubliceerd.';
+    }catch(e){shopCloudStatus.textContent='Ophalen mislukt: '+(e.message||'onbekende fout')}
+    finally{shopCloudLoad.disabled=false}
+  });
   // Account-private product catalog backups. Never publishes products.
   const catalogStatus=document.getElementById('productBackupStatus');
   const photoBucket='allbiz-private-product-photos';
