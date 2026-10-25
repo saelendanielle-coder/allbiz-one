@@ -671,9 +671,60 @@ window.allbizApplyAccess=(kind,plan)=>{
  banner.hidden=!(allbizSandboxTier>0&&allbizLiveTier===0);
  if(!banner.hidden)banner.textContent='🧪 Testmodus · '+allbizTierLabel[allbizSandboxTier]+': je kunt de bijbehorende lokale demo-onderdelen proberen. Dit is GEEN echt betaald abonnement.';
  const current=document.querySelector('.panel.active')?.id;
- if(current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account');
+ if(current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account',{automatic:true});
 };
-function switchTab(tab){
+// Remember where the user was, including the scroll position of each section.
+const navProgressKey='allbiz-navigation-progress-v1';
+const navAllowed=new Set([...document.querySelectorAll('nav.nav [data-tab]')].map(b=>b.dataset.tab));
+let navProgress={tab:'account',positions:{}};
+try{
+ const saved=JSON.parse(localStorage.getItem(navProgressKey)||'null');
+ if(saved&&navAllowed.has(saved.tab)&&saved.positions&&typeof saved.positions==='object'){
+  navProgress.tab=saved.tab;navProgress.positions=saved.positions;
+ }
+}catch(e){}
+let navUserInteracted=false,navRestored=false,navChanging=false,scrollSaveTimer=null;
+function persistNavigation(){
+ try{localStorage.setItem(navProgressKey,JSON.stringify(navProgress))}catch(e){}
+}
+function rememberScrollPosition(){
+ if(navChanging)return;
+ const active=document.querySelector('.panel.active')?.id;
+ if(!active||!navAllowed.has(active))return;
+ navProgress.positions[active]=Math.max(0,Math.round(window.scrollY||0));
+ persistNavigation();
+}
+function restoreScrollPosition(tab){
+ const stored=Math.max(0,Math.min(100000,Number(navProgress.positions[tab])||0));
+ navChanging=true;
+ // Content can move when switching tabs; apply after it is visible and laid out.
+ requestAnimationFrame(()=>requestAnimationFrame(()=>{
+  window.scrollTo(0,stored);
+  setTimeout(()=>{window.scrollTo(0,stored);navChanging=false},120);
+ }));
+}
+window.addEventListener('scroll',()=>{
+ if(navChanging)return;
+ if(scrollSaveTimer)return;
+ scrollSaveTimer=setTimeout(()=>{scrollSaveTimer=null;rememberScrollPosition()},170);
+},{passive:true});
+window.addEventListener('pagehide',rememberScrollPosition);
+document.addEventListener('visibilitychange',()=>{if(document.visibilityState==='hidden')rememberScrollPosition()});
+window.allbizResumeLastSection=()=>{
+ if(navRestored||navUserInteracted)return;
+ const requested=window.allbizRequestedSection;
+ const tab=navAllowed.has(requested)?requested:navProgress.tab;
+ navRestored=true;
+ if(!navAllowed.has(tab))return;
+ const required=allbizRequiredTier[tab]||0;
+ if(required&&Math.max(allbizLiveTier,allbizSandboxTier)<required)return; // Never bypass subscription checks
+ switchTab(tab,{automatic:true});
+};
+function switchTab(tab,options={}){
+ if(!navAllowed.has(tab))return;
+ const previous=document.querySelector('.panel.active')?.id;
+ if(previous!==tab)rememberScrollPosition();
+ if(!options.automatic)navUserInteracted=true;
  const required=allbizRequiredTier[tab]||0;
  const notice=el('allbizAccessNotice');
  if(required&&Math.max(allbizLiveTier,allbizSandboxTier)<required){
@@ -684,7 +735,8 @@ function switchTab(tab){
  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab));
  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
  if(tab==='shop')renderShop();
- window.scrollTo({top:0,behavior:'smooth'});
+ navProgress.tab=tab;persistNavigation();
+ if(previous!==tab||options.automatic)restoreScrollPosition(tab);
 }
 document.querySelectorAll('[data-tab]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.tab)));
 document.querySelectorAll('[data-goto]').forEach(b=>b.addEventListener('click',()=>switchTab(b.dataset.goto)));
@@ -1475,13 +1527,15 @@ document.getElementById('openApp').addEventListener('click',openApp);
 translate(lang);
 // The splash appears on launch, and can be skipped immediately by tapping the button.
 // On repeat visits, fade after a brief introduction while preserving the user's selected language.
-if(safeStore.get('allbiz-welcome-complete')==='yes'){setTimeout(openApp,1450)}
+if(safeStore.get('allbiz-welcome-complete')==='yes'){openApp()}
 function openRequestedSection(){
- const section = window.location.hash.slice(1);
- if(['plans','account','orders'].includes(section)){
-   openApp();
-   document.querySelector('nav.nav button[data-tab="'+section+'"]')?.click();
- }
+ const section=window.location.hash.slice(1);
+ const target=document.querySelector('nav.nav button[data-tab="'+section+'"]');
+ if(!target)return;
+ openApp();
+ window.allbizRequestedSection=section;
+ if(['plans','account'].includes(section))target.click();
+ else if(window.allbizNavigationReady)target.click();
 }
 window.addEventListener('hashchange', openRequestedSection);
 openRequestedSection();
@@ -1957,8 +2011,10 @@ try {
       a.href = user ? original + '?client_reference_id=' + encodeURIComponent(user.id) : '#account';
       a.target = user ? '_blank' : '_self';
     });
-    void refreshSubscriptionStatus(user);
-    void refreshSandboxStatus(user);
+    Promise.allSettled([refreshSubscriptionStatus(user),refreshSandboxStatus(user)]).then(()=>{
+      window.allbizNavigationReady=true;
+      window.allbizResumeLastSection?.();
+    });
   };
   document.querySelectorAll('a.subscription-pay-link').forEach(a => a.addEventListener('click', async ev => {
     const {data} = await client.auth.getSession();
