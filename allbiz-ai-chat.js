@@ -34,7 +34,7 @@
  const check=async()=>{
   try{
    const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
-   const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey},body:JSON.stringify({message:'Is de AI actief?'}),signal:controller.signal});
+   const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey},body:JSON.stringify({action:'status'}),signal:controller.signal});
    clearTimeout(timeout);
    const data=await res.json();
    const available=data.available===true;
