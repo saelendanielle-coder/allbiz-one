@@ -13,7 +13,8 @@
     '.abo-check button{margin:4px 8px 4px 0}' +
     '.abo-order-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:12px 0}' +
     '.abo-order-actions select{width:auto;margin:0}.abo-order-actions button{padding:10px 13px}' +
-    '.abo-demo-badge{font-weight:700;font-size:13px;color:#77502b}';
+    '.abo-demo-badge{font-weight:700;font-size:13px;color:#77502b}' +
+    '.abo-check .abo-next{width:auto;max-width:100%;padding:9px 13px;font-size:14px;margin:9px 0 0;white-space:normal}';
   document.head.append(css);
 
   const make = (tag, text, cls) => {
@@ -52,29 +53,86 @@
   if (studio) studio.before(checker);
   else shop.querySelector('.card')?.append(checker);
 
-  checkBtn.addEventListener('click', () => {
-    const pages = savedPages().filter(p => p.visible && String(p.text || '').trim());
-    const hasPage = expression => pages.some(p => expression.test(String(p.title || '')));
-    const ownProducts = validProducts().filter(p => p.visibility !== 'draft' && !p.demoProduct && p.name && Number(p.price) > 0);
+  // De controle doet geen betalingen en publiceert niets: hij helpt alleen het ontwerp nalopen.
+  const shippingTitle = /verzend|lever|shipping/i;
+  const returnsTitle = /retour|return|terugstuur|herroep/i;
+  const unfinishedText = /\[(?:vul in|controleer)\]|^\s*CONCEPT\b|verwijder alle invulvragen|vul onderstaande gegevens in/i;
+  const inspectPage = title => {
+    const candidates = savedPages().filter(p => title.test(String(p.title || '')));
+    if (!candidates.length) return {ready:false, state:'missing'};
+    if (candidates.some(p => p.visible && String(p.text || '').trim().length >= 30 &&
+        !unfinishedText.test(String(p.text || '')))) return {ready:true, state:'visible'};
+    return {ready:false, state:'draft'};
+  };
+  const goToField = (tab, field) => {
+    if (typeof switchTab !== 'function') return;
+    switchTab(tab);  // gebruikt de bestaande abonnementscontrole
+    window.setTimeout(() => {
+      if (!$(tab)?.classList.contains('active')) return;
+      $(field)?.scrollIntoView({behavior:'smooth', block:'center'});
+    }, 300);
+  };
+  const openPageEditor = pattern => {
+    const matching = savedPages().find(p => pattern.test(String(p.title || '')));
+    if (!matching) {
+      starterPagesBtn.click();  // maakt uitsluitend verborgen, bewerkbare concepten
+      return;
+    }
+    const details = $('shopBuilderDetails');
+    if (details) details.open = true;
+    const select = $('builderPageChoose');
+    if (select) {
+      select.value = matching.id;
+      select.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    window.setTimeout(() => $('builderPageText')?.scrollIntoView({behavior:'smooth',block:'center'}),80);
+  };
+  const runShopCheck = () => {
+    const ownProducts = validProducts().filter(p => p.visibility !== 'draft' &&
+      !p.demoProduct && p.name && Number(p.price) > 0);
     const contact = $('siteEmail')?.value?.trim() || '';
+    const shipping = inspectPage(shippingTitle), returns = inspectPage(returnsTitle);
+    const pageHint = (check, label) => check.state === 'draft'
+      ? 'Er is al een concept voor '+label+'. Controleer en vul alle tekst in voordat je het in de demo zichtbaar maakt.'
+      : 'Maak of open een verborgen concept voor '+label+' in de geavanceerde webshopbouwer.';
     const checks = [
-      [Boolean($('brand')?.value?.trim()), 'Bedrijfsnaam', 'Vul je bedrijfsnaam in bij Website & domein.'],
-      [ownProducts.length > 0, 'Eigen producten en prijzen', 'Voeg een echt product met een prijs toe; voorbeeldproducten tellen niet mee.'],
-      [/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact), 'Contact-e-mailadres', 'Vul een geldig contact-e-mailadres in bij Website & domein.'],
-      [hasPage(/verzend|lever|shipping/i), 'Pagina over verzending', 'Maak onder de geavanceerde webshopbouwer een zichtbare verzendpagina.'],
-      [hasPage(/retour|return|terugstuur/i), 'Pagina over retouren', 'Maak onder de geavanceerde webshopbouwer een zichtbare retourpagina.'],
-      [false, 'Echte betalingen en orderverwerking', 'Stripe Connect voor klantwebshops is nog niet live. Gebruik alleen testbestellingen.'],
-      [false, 'Webshop openbaar publiceren', 'De webshopbouwer is momenteel een privé-ontwerp en geen openbare verkoopwinkel.']
+      {ready:Boolean($('brand')?.value?.trim()),name:'Bedrijfsnaam',
+        hint:'Vul je bedrijfsnaam in bij Website & domein.',action:'✏️ Bedrijfsnaam invullen',
+        go:()=>goToField('site','brand')},
+      {ready:ownProducts.length > 0,name:'Eigen producten en prijzen',
+        hint:'Voeg een echt product met een prijs toe; voorbeeldproducten tellen niet mee.',
+        action:'🛍️ Product toevoegen',go:()=>goToField('products','product')},
+      {ready:/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(contact),name:'Contact-e-mailadres',
+        hint:'Vul een geldig contact-e-mailadres in bij Website & domein.',
+        action:'✉️ E-mailadres invullen',go:()=>goToField('site','siteEmail')},
+      {ready:shipping.ready,name:'Pagina over verzending',
+        hint:pageHint(shipping,'verzending'),action:shipping.state==='draft'?'📄 Verzendconcept openen':'📄 Concept maken',
+        go:()=>openPageEditor(shippingTitle)},
+      {ready:returns.ready,name:'Pagina over retouren',
+        hint:pageHint(returns,'retouren'),action:returns.state==='draft'?'📄 Retourconcept openen':'📄 Concept maken',
+        go:()=>openPageEditor(returnsTitle)},
+      {ready:false,name:'Echte betalingen en orderverwerking',
+        hint:'Stripe Connect voor klantwebshops is nog niet live. Gebruik alleen testbestellingen.'},
+      {ready:false,name:'Webshop openbaar publiceren',
+        hint:'Dit is een privé-ontwerp. De checklist zet geen winkel openbaar.'}
     ];
     checkList.replaceChildren();
-    checks.forEach(([ready, title, missing]) => {
+    for (const check of checks) {
       const li = make('li');
-      li.append(make('strong', (ready ? '✅ ' : '⬜ ') + title));
-      li.append(make('small', ready ? 'Aanwezig in de demo.' : missing));
+      li.append(make('strong', (check.ready?'✅ ':'⬜ ')+check.name));
+      li.append(make('small', check.ready?'Aanwezig in de demo (niet juridisch of technisch gecertificeerd).':check.hint));
+      if (!check.ready && check.go) {
+        const button = make('button', check.action, 'secondary abo-next');
+        button.type='button';
+        button.addEventListener('click', check.go);
+        li.append(button);
+      }
       checkList.append(li);
-    });
-    status.textContent = checks.filter(c => c[0]).length + ' van ' + checks.length + ' punten aanwezig. Dit geeft geen toestemming voor echte verkoop.';
-  });
+    }
+    status.textContent=checks.filter(x=>x.ready).length+' van '+checks.length+
+      ' controlepunten aanwezig. Echte verkoop blijft uitgeschakeld; controleer de inhoud voordat je iets zichtbaar maakt.';
+  };
+  checkBtn.addEventListener('click', runShopCheck);
 
   // Maak bewerkbare CONCEPT-pagina's. Nooit bestaande teksten vervangen of automatisch publiceren.
   const starterPagesBtn = make('button', '📄 Maak verzend- en retourconcepten', 'secondary');
