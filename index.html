@@ -1860,8 +1860,27 @@ try {
       const {data,error}=await client.from('allbiz_shop_designs').select('builder_data').eq('user_id',user.id).maybeSingle();
       if(error||!data)return;
       const remote=cleanBuilder(data.builder_data);
-      if(builderData.pages.length||builderData.collections.length||builderData.promo.title)return;
-      builderData=remote;saveBuilder();builderRefreshForms();renderShop();
+      // Combineer privé opgeslagen pagina's met lokale ontwerpen, zonder bestaande edits te vervangen.
+      // Dit haalt ook verborgen verzend- en retourconcepten op na opnieuw inloggen.
+      const oldCount=builderData.pages.length;
+      let added=0;
+      for(const page of remote.pages){
+        const existing=builderData.pages.some(local=>
+          local.id===page.id||local.title.trim().toLowerCase()===page.title.trim().toLowerCase());
+        if(!existing && builderData.pages.length<12){builderData.pages.push(page);added++}
+      }
+      for(const collection of remote.collections){
+        const exists=builderData.collections.some(local=>
+          local.id===collection.id||local.label.trim().toLowerCase()===collection.label.trim().toLowerCase());
+        if(!exists && builderData.collections.length<12)builderData.collections.push(collection);
+      }
+      if(!builderData.promo.title&&!builderData.promo.text&&!builderData.promo.button)builderData.promo=remote.promo;
+      if(!saveBuilder())return;
+      builderRefreshForms();renderShop();
+      if(added>0){
+        const names=builderData.pages.slice(oldCount).map(p=>p.title).join(' en ');
+        el('shopCloudStatus').textContent='✅ '+names+' uit je privé opgeslagen ontwerp opgehaald. Bestaande pagina’s blijven bewaard.';
+      }
     }catch(e){}
   })();
   // Private webshop design storage: only the logged-in owner can read/write via RLS.
