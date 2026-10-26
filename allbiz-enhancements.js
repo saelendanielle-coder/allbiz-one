@@ -14,7 +14,12 @@
     '.abo-order-actions{display:flex;flex-wrap:wrap;gap:9px;align-items:center;margin:12px 0}' +
     '.abo-order-actions select{width:auto;margin:0}.abo-order-actions button{padding:10px 13px}' +
     '.abo-demo-badge{font-weight:700;font-size:13px;color:#77502b}' +
-    '.abo-check .abo-next{width:auto;max-width:100%;padding:9px 13px;font-size:14px;margin:9px 0 0;white-space:normal}';
+    '.abo-check .abo-next{width:auto;max-width:100%;padding:9px 13px;font-size:14px;margin:9px 0 0;white-space:normal}' +
+    '.abo-mobile-guide{border:1px solid #dcd3f3;background:#faf8ff;border-radius:15px;padding:16px;margin:14px 0}' +
+    '.abo-mobile-guide h3{margin:0 0 8px}.abo-mobile-actions{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin:12px 0}' +
+    '.abo-mobile-actions button{min-height:48px;width:100%;padding:10px;font-size:14px;white-space:normal}' +
+    '.abo-product-draft-note{margin:9px 0;font-size:13px}' +
+    '@media(max-width:650px){.abo-mobile-actions{grid-template-columns:1fr}.abo-mobile-guide{padding:13px}.abo-mobile-actions button{font-size:15px}#productForm button[type="submit"]{width:100%;min-height:48px}#productForm input,#productForm textarea{font-size:16px}}';
   document.head.append(css);
 
   const make = (tag, text, cls) => {
@@ -133,6 +138,112 @@
       ' controlepunten aanwezig. Echte verkoop blijft uitgeschakeld; controleer de inhoud voordat je iets zichtbaar maakt.';
   };
   checkBtn.addEventListener('click', runShopCheck);
+
+  // Mobiele snelstart: bestaande opslag- en navigatieknoppen hergebruiken.
+  const mobileGuide = make('section', undefined, 'abo-mobile-guide');
+  mobileGuide.id = 'allbizMobileShopGuide';
+  mobileGuide.append(
+    make('h3', '📱 Snel verder met je webshop'),
+    make('p', 'Voeg een product toe of bewaar je ontwerp zonder te zoeken. De winkel blijft een demo.', 'muted')
+  );
+  const mobileActions = make('div', undefined, 'abo-mobile-actions');
+  const mobileMessage = make('p', 'Tip: bewerk je een extra pagina of collectie? Druk daar eerst op Bewaren.', 'muted');
+  mobileMessage.setAttribute('role', 'status');
+  mobileMessage.setAttribute('aria-live', 'polite');
+  const addMobileAction = (text, action) => {
+    const button = make('button', text, 'secondary');
+    button.type = 'button';
+    button.addEventListener('click', action);
+    mobileActions.append(button);
+    return button;
+  };
+  addMobileAction('➕ Product toevoegen', () => {
+    if (typeof switchTab !== 'function') return;
+    switchTab('products'); // behoudt de bestaande abonnementstoegang
+    window.setTimeout(() => {
+      if (!$('products')?.classList.contains('active')) return;
+      $('product')?.scrollIntoView({behavior:'smooth', block:'center'});
+      mobileMessage.textContent = 'Vul je productnaam en prijs in. Je tekstconcept blijft in dit tabblad bewaard.';
+    }, 260);
+  });
+  addMobileAction('💾 Op dit toestel bewaren', () => {
+    const button = $('shopSaveDesign');
+    if (!button) return;
+    button.click();
+    mobileMessage.textContent = $('shopDesignStatus')?.textContent || 'Controleer de opslagmelding bij je ontwerp.';
+    $('shopDesignStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  addMobileAction('☁️ Privé in mijn account bewaren', () => {
+    const button = $('shopCloudSave');
+    if (!button || button.disabled) {
+      mobileMessage.textContent = 'Privé opslaan is nog bezig. Controleer de melding bij Bewaar webshopontwerp privé.';
+      return;
+    }
+    button.click(); // bestaande beveiligde Supabase-opslag en RLS blijven ongewijzigd
+    mobileMessage.textContent = 'Controleer hieronder of privé opslaan gelukt is. Log eerst in als daarom gevraagd wordt.';
+    $('shopCloudStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
+  });
+  mobileGuide.append(mobileActions, mobileMessage);
+  checker.before(mobileGuide);
+
+  // Ingevulde productteksten blijven alleen in het huidige browsertabblad.
+  // GEEN bestanden, foto's, leverancierslinks of betaal-/accountgegevens bewaren.
+  const productForm = $('productForm');
+  if (productForm && typeof sessionStorage !== 'undefined') {
+    const draftKey = 'allbiz-one-product-concept-tab-v1';
+    const fieldIds = ['product','price','productDescription','productCategory','cost','shipping','stock'];
+    const draftStatus = make('p',
+      '📝 Productconcept: tekst wordt tijdelijk in dit tabblad bewaard. Foto’s en bestanden moet je opnieuw kiezen.',
+      'muted abo-product-draft-note');
+    draftStatus.setAttribute('role','status');
+    draftStatus.setAttribute('aria-live','polite');
+    const saveButton = productForm.querySelector('button[type="submit"]');
+    if (saveButton) saveButton.before(draftStatus);
+    const currentType = () => document.querySelector('input[name="type"]:checked')?.value === 'digital'
+      ? 'digital' : 'physical';
+    const persistDraft = () => {
+      try {
+        const fields = {};
+        for (const id of fieldIds) fields[id] = String($(id)?.value || '').slice(0,1200);
+        const hasText = Object.values(fields).some(v => v.trim().length);
+        if (!hasText) {
+          sessionStorage.removeItem(draftKey);
+          return;
+        }
+        sessionStorage.setItem(draftKey, JSON.stringify({type:currentType(), fields}));
+        draftStatus.textContent = '✅ Concept tijdelijk bewaard in dit tabblad. Foto’s, bestanden en leverancierlinks worden niet onthouden.';
+      } catch {
+        draftStatus.textContent = '⚠️ Dit toestel kan het concept niet tijdelijk bewaren. Bewaar je product nu.';
+      }
+    };
+    try {
+      const data = JSON.parse(sessionStorage.getItem(draftKey) || 'null');
+      if (data && data.fields && typeof data.fields === 'object') {
+        for (const id of fieldIds) {
+          if (typeof data.fields[id] === 'string' && $(id)) $(id).value = data.fields[id].slice(0,1200);
+        }
+        const radio = document.querySelector('input[name="type"][value="'+
+          (data.type === 'digital' ? 'digital' : 'physical')+'"]');
+        if (radio) {
+          radio.checked = true;
+          radio.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+        draftStatus.textContent = '✅ Je vorige productconcept is teruggezet. Selecteer foto’s en bestanden opnieuw.';
+      }
+    } catch {
+      draftStatus.textContent = 'Je kunt opnieuw een product invullen. Oude tijdelijke gegevens zijn niet leesbaar.';
+    }
+    productForm.addEventListener('input', persistDraft);
+    productForm.addEventListener('change', persistDraft);
+    document.querySelectorAll('input[name="type"]').forEach(radio =>
+      radio.addEventListener('change', persistDraft));
+    // De bestaande product-opslag roept reset() alleen na een geslaagde opslag aan.
+    // Zo wissen we het concept NIET bij een fout, maar wel nadat het product bewaard is.
+    productForm.addEventListener('reset', () => {
+      try { sessionStorage.removeItem(draftKey); } catch {}
+      draftStatus.textContent = '✅ Productformulier geleegd. Je kunt nu een nieuw product toevoegen.';
+    });
+  }
 
   // Maak bewerkbare CONCEPT-pagina's. Nooit bestaande teksten vervangen of automatisch publiceren.
   const starterPagesBtn = make('button', '📄 Maak verzend- en retourconcepten', 'secondary');
