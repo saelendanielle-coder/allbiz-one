@@ -75,6 +75,82 @@
     });
     status.textContent = checks.filter(c => c[0]).length + ' van ' + checks.length + ' punten aanwezig. Dit geeft geen toestemming voor echte verkoop.';
   });
+
+  // Maak bewerkbare CONCEPT-pagina's. Nooit bestaande teksten vervangen of automatisch publiceren.
+  const starterPagesBtn = make('button', '📄 Maak verzend- en retourconcepten', 'secondary');
+  starterPagesBtn.type = 'button';
+  starterPagesBtn.setAttribute('aria-describedby', 'aboTemplateNotice');
+  const templateNote = make('p', 'Er worden alleen verborgen concepten gemaakt. Vul zelf de juiste gegevens in en zet ze daarna zichtbaar in de webshopdemo. Dit zijn geen juridisch gecontroleerde voorwaarden.', 'muted');
+  templateNote.id = 'aboTemplateNotice';
+  checker.insertBefore(starterPagesBtn, status);
+  checker.insertBefore(templateNote, status);
+  starterPagesBtn.addEventListener('click', () => {
+    if (typeof builderData === 'undefined' || !Array.isArray(builderData.pages) ||
+        typeof builderChanged !== 'function' || typeof newId !== 'function') {
+      status.textContent = 'De webshopbouwer is nog niet geladen. Vernieuw de pagina en probeer opnieuw.';
+      return;
+    }
+    const templates = [
+      {
+        title: 'Verzending',
+        exists: /verzend|lever|shipping/i,
+        text: [
+          'CONCEPT — vul onderstaande gegevens in voordat je deze pagina toont.',
+          'Vanuit welk land worden producten verzonden? [vul in]',
+          'In welke landen lever je? [vul in]',
+          'Wat zijn je werkelijke verwerkings- en levertijden? [vul in]',
+          'Wat kost standaard- en eventuele expressverzending? [vul in]',
+          'Hoe kan een klant de bestelling volgen? [vul in]',
+          'Wat gebeurt er bij vertraging of een niet ontvangen pakket? [vul in]',
+          'Contact voor vragen over verzending: [vul in]',
+          'Verwijder alle invulvragen voordat je dit publiceert.'
+        ].join('\n')
+      },
+      {
+        title: 'Retouren en herroepingsrecht',
+        exists: /retour|return|terugstuur|herroep/i,
+        text: [
+          'CONCEPT — pas dit aan jouw producten en de toepasselijke consumentenregels aan.',
+          'Hoe meldt een klant een retour of herroeping? [vul in]',
+          'Naar welk adres kan een retour worden gestuurd? [vul in]',
+          'Wie betaalt de retourkosten en in welke gevallen? [vul in]',
+          'Wanneer en via welke betaalmethode wordt een terugbetaling verwerkt? [vul in]',
+          'Welke productcategorieën vereisen speciale informatie of wettelijke uitzonderingen? [controleer]',
+          'Vermeld de wettelijk toepasselijke termijnen en voorwaarden pas na controle.',
+          'Contact bij problemen: [vul in]',
+          'Verwijder alle invulvragen en laat je beleid juridisch controleren voordat je verkoopt.'
+        ].join('\n')
+      }
+    ];
+    const missing = templates.filter(t => !builderData.pages.some(p => t.exists.test(String(p.title || ''))));
+    if (!missing.length) {
+      status.textContent = 'Je hebt al verzend- en retourpagina’s. Open de geavanceerde webshopbouwer om ze na te kijken.';
+    } else if (builderData.pages.length + missing.length > 12) {
+      status.textContent = 'Je hebt het maximum van 12 extra pagina’s bereikt. Verwijder eerst ongebruikte concepten.';
+      return;
+    } else {
+      const created = missing.map(t => ({id:newId(),title:t.title,text:t.text,visible:false}));
+      builderData.pages.push(...created);
+      try {
+        builderChanged('✅ Verborgen conceptpagina’s voor verzending en retouren toegevoegd.');
+      } catch (error) {
+        builderData.pages.splice(-created.length);
+        status.textContent = 'Concepten konden niet worden opgeslagen. Probeer opnieuw.';
+        return;
+      }
+      status.textContent = created.length + ' verborgen conceptpagina(’s) toegevoegd. Pas de tekst aan en zet ze zichtbaar in het menu wanneer ze volledig kloppen.';
+    }
+    const details = $('shopBuilderDetails');
+    if (details) details.open = true;
+    const chooser = $('builderPageChoose');
+    const match = builderData.pages.find(p => /verzend|lever|shipping/i.test(p.title)) || builderData.pages[0];
+    if (chooser && match) {
+      chooser.value = match.id;
+      chooser.dispatchEvent(new Event('change', {bubbles:true}));
+    }
+    details?.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+
   askBtn.addEventListener('click', () => {
     if (typeof switchTab === 'function') switchTab('help');
     if (typeof answerHelp === 'function') answerHelp('Hoe maak ik een webshop?');
