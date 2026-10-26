@@ -84,6 +84,34 @@
     el('p','Voor echte handel moeten we nog een toegelaten broker en een beveiligde koppeling toevoegen, transacties afzonderlijk testen en de geldende regels controleren. Je kunt hier niet storten, kopen, verkopen of opnemen.','small muted'));
   trading.querySelector('.card')?.after(trade);
 
+  // Saxo OpenAPI: gereedheid tonen, geen tokens of klantgegevens in publieke GitHub-code.
+  const broker=el('section',undefined,'abo-tools');broker.id='aboBrokerSetup';
+  broker.append(el('h3','🏦 Brokerkoppeling voorbereiden — Saxo OpenAPI'),
+    el('p','Verbindingsstatus: NIET GEKOPPELD. Geen handelsrechten, geen saldo en geen automatische orders.','abo-output'));
+  const brokerSteps=el('ol');
+  [
+    'Vraag bij Saxo een eigen developeraccount en Simulation (SIM) applicatie aan.',
+    'Registreer de juiste OAuth-terugkeer-URL en verkrijg toepassingsgegevens. Zet AppSecret nooit in een openbaar bestand.',
+    'Bouw eerst een beveiligde serverkoppeling met OAuth-toestemming, privésessies en veilig tokenbeheer.',
+    'Test alleen lezen en gesimuleerde orders in SIM; geen bankgegevens invoeren in AllBiz One.',
+    'Vraag Saxo apart goedkeuring voor gebruik door externe klanten en voor LIVE. Controleer ook de toepasselijke Belgische regels.'
+  ].forEach(t=>brokerSteps.append(el('li',t)));
+  const brokerLinks=el('div',undefined,'abo-actions');
+  const link=(label,url)=>{
+    const a=el('a',label,'secondary');
+    a.href=url;a.target='_blank';a.rel='noopener noreferrer';
+    a.style.cssText='display:inline-block;padding:12px 16px;border-radius:10px;text-decoration:none;border:1px solid #b8a7dc;font-weight:650';
+    return a;
+  };
+  brokerLinks.append(
+    link('🔗 Saxo ontwikkelaarsportaal','https://developer.saxobank.com/openapi/'),
+    link('🧪 Saxo SIM en LIVE uitleg','https://developer.saxobank.com/openapi/learn/environments'),
+    link('🔒 Saxo API-beveiliging','https://developer.saxobank.com/openapi/learn/security')
+  );
+  broker.append(brokerSteps,brokerLinks,
+    el('p','Let op: de testcalculator hierboven gebruikt fictieve gegevens en heeft GEEN koppeling met Saxo. De gebruiker verleent pas later afzonderlijke toestemming binnen een beveiligde broker-login.','small muted'));
+  trade.after(broker);
+
   // Affiliate: campagnevoorstellen met expliciete reclamemelding en linkcontrole.
   const aff=el('section',undefined,'abo-tools');aff.id='aboAffiliateCampaign';
   aff.append(el('h3','📣 Affiliatecampagne maken'),
