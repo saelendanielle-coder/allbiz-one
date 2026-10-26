@@ -157,17 +157,91 @@
     if (typeof addHelpMessage === 'function') addHelpMessage('Stap 1: Open Mijn webshop en controleer de checklist.\nStap 2: Vul producten, contactinformatie, verzend- en retourpagina in.\nStap 3: Probeer Test afrekenen. Een echte webshopcheckout is nog niet beschikbaar.', false);
   });
 
+  // AllBiz Free Help v2: vaste, gratis antwoorden. Geen externe AI of betaalde API.
   if (typeof helpTopics !== 'undefined' && Array.isArray(helpTopics)) {
-    helpTopics.unshift({
-      keys: ['retour','terugsturen','terugbetaling','verzending','levering','pakket'],
-      name: 'Verzending en retour', tab: 'shop',
-      reply: 'Voorlopig zijn er alleen testbestellingen. Maak via de geavanceerde webshopbouwer zichtbare pagina’s voor verzending en retouren. Echte zendingen, retouren en terugbetalingen zijn nog niet beschikbaar.'
-    });
+    helpTopics.unshift(...[
+      {
+        keys: ['wachtwoord vergeten','wachtwoord resetten','herstelmail','kan niet inloggen','inloggen lukt niet'],
+        name: 'Wachtwoord herstellen', tab: 'account',
+        reply: 'Open Mijn account. Vul je e-mailadres in en kies Wachtwoord vergeten of Wachtwoord herstellen. Controleer je inbox en je spammap. Open de herstelmail en kies een nieuw wachtwoord. Deel geen wachtwoorden of herstelcodes.'
+      },
+      {
+        keys: ['testbestellingen','testbestelling','mijn bestellingen bekijken','bestelstatus','testorder','test afrekenen'],
+        name: 'Testbestellingen bekijken', tab: 'orders',
+        reply: 'Open Voorraad & testbestellingen. Daar vind je je TEST-bestellingen en hun status. Je kunt de status aanpassen en testgegevens exporteren. Het gaat niet om echte betalingen, leveringen of klantbestellingen.'
+      },
+      {
+        keys: ['webshop controleren','controleer mijn webshop','webshop checklist','klaar voor klanten','webshop klaar'],
+        name: 'Webshop controleren', tab: 'shop',
+        reply: 'Open Mijn webshop en kies Controleer mijn webshop. Controleer je bedrijfsnaam, eigen producten, prijzen, contact-e-mailadres en informatiepagina’s. Ook wanneer de checklist grotendeels groen is, blijven echte webshopbetalingen en publicatie nog uitgeschakeld.'
+      },
+      {
+        keys: ['product toevoegen','producten toevoegen','product aanmaken','prijs instellen','productprijs'],
+        name: 'Product toevoegen', tab: 'products',
+        reply: 'Open Producten. Voeg een productnaam, beschrijving en prijs toe en bewaar de wijzigingen. Controleer daarna de weergave in Mijn webshop. Dit is een demo: er worden geen echte bestellingen naar leveranciers gestuurd.'
+      },
+      {
+        keys: ['verzendkosten','verzendpagina','verzendbeleid','levertijd','bezorging','verzendinformatie'],
+        name: 'Verzendinformatie', tab: 'shop',
+        reply: 'Open Mijn webshop → Geavanceerde webshopbouwer en kijk bij extra pagina’s naar Verzending. Vul alleen verzendkosten, landen en levertijden in die je daadwerkelijk kunt aanbieden. Houd de pagina verborgen totdat je gegevens kloppen. De webshop verstuurt nog geen echte pakketten.'
+      },
+      {
+        keys: ['retourtermijn','retourpagina','herroepingsrecht','retourbeleid','omruilen','geld terug'],
+        name: 'Retourinformatie', tab: 'shop',
+        reply: 'Open Mijn webshop → Geavanceerde webshopbouwer → extra pagina’s en bewerk de verborgen retourpagina. Controleer je werkelijke retourprocedure en toepasselijke consumentenregels voordat je publiceert. De demo verwerkt geen echte retouren of terugbetalingen.'
+      },
+      {
+        keys: ['domeinnaam','eigen domein','dns','website publiceren','site publiceren','website online zetten'],
+        name: 'Domein en publicatie', tab: 'site',
+        reply: 'Ga naar Website & domein, vul je bedrijfsgegevens in en bewaar het ontwerp. Een domeinnaam invoeren reserveert die naam niet. De voorbeeldwebsite is niet automatisch een openbaar gepubliceerde klantensite. Controleer domein, hosting en publicatie apart.'
+      },
+      {
+        keys: ['gegevens verdwenen','ontwerp kwijt','wijzigingen kwijt','pagina opnieuw','alles opnieuw invullen','ontwerp bewaren','gegevens opslaan'],
+        name: 'Ontwerp bewaren', tab: 'shop',
+        reply: 'Bewaar je webshopontwerp eerst via de opslagknoppen in Mijn webshop. Sommige voorbeeldgegevens staan alleen op het huidige toestel of in deze browser. Gebruik Open bewaard webshopontwerp voor een eerder opgeslagen privéontwerp. Wis je browsergegevens niet voordat je weet dat alles bewaard is.'
+      },
+      {
+        keys: ['abonnement niet actief','geen betaald abonnement','testabonnement','betaling gelukt','betaalstatus','mijn abonnement controleren'],
+        name: 'Abonnementsstatus', tab: 'account',
+        reply: 'Ga naar Mijn account en controleer je abonnementsstatus. Een geslaagde TEST-betaling is geen echt betaald abonnement. Staat er geen betaald abonnement, betaal dan niet opnieuw zonder eerst de status en Stripe-betaling te controleren.'
+      },
+      {
+        keys: ['welk abonnement','verschil tussen starter','verschil tussen pro','verschil tussen business','abonnement kiezen'],
+        name: 'Abonnement kiezen', tab: 'plans',
+        reply: 'Open Abonnementen voor de actuele pakketten en prijzen. Vergelijk de functies per pakket en kijk welke onderdelen al echt werken. Een testabonnement en een echt betaald abonnement zijn verschillend. De externe AI-chat is nog niet actief.'
+      },
+      {
+        keys: ['youtube video maken','youtube-video maken','shorts maken','video uploaden','video downloaden'],
+        name: 'YouTube-video maken', tab: 'video',
+        reply: 'Open YouTube-video’s, maak een concept met tekst en eigen materiaal en bekijk het voorbeeld. Download het resultaat wanneer deze optie beschikbaar is. Upload je video daarna zelf op YouTube. AllBiz One plaatst nog geen video’s automatisch.'
+      },
+      {
+        keys: ['google ads campagne','facebook reclame','tiktok advertentie','advertentiebudget','advertentie plaatsen','reclame maken'],
+        name: 'Gratis marketinghulp', tab: 'ads',
+        reply: 'Open Advertenties & groei. Je kunt advertentieteksten en campagnevoorstellen voorbereiden zonder een betaalde AI-koppeling. Publiceren op Google, Meta of TikTok gebeurt niet automatisch. Controleer je budget vóór je een advertentie live zet.'
+      },
+      {
+        keys: ['api sleutel','api-sleutel','gratis ai','echte ai','ai chat','ai-chat','waarom werkt ai niet'],
+        name: 'AI zonder extra kosten', tab: 'help',
+        reply: 'De gewone AllBiz Hulp-assistent met vaste antwoorden is gratis te gebruiken. De aparte echte AI-chat is nog uitgeschakeld omdat daarvoor een beveiligde API-koppeling met mogelijke kosten nodig is. Deel nooit een API-sleutel in de chat of op een openbare pagina.'
+      },
+      {
+        keys: ['bestellen als klant','kan klant betalen','echte webshopbetaling','checkout live','stripe connect'],
+        name: 'Echte webshopbetalingen', tab: 'shop',
+        reply: 'De winkelwagen en afrekenstappen in Mijn webshop zijn momenteel demonstraties. Echte webshopbetalingen en automatische orderverwerking zijn niet actief. Gebruik alleen testbestellingen tot de betaalstroom gecontroleerd en veilig gepubliceerd is.'
+      }
+    ]);
   }
   const quick = $('allbizHelpQuick');
   if (quick) [
     ['📦 Verzending & retour', 'Hoe werken verzending en retouren?'],
-    ['🧾 Testbestellingen', 'Waar kan ik mijn bestellingen bekijken?']
+    ['🧾 Testbestellingen', 'Waar kan ik mijn testbestellingen bekijken?'],
+    ['🔑 Wachtwoord vergeten', 'Ik ben mijn wachtwoord vergeten'],
+    ['🛍️ Product toevoegen', 'Hoe kan ik een product toevoegen?'],
+    ['✅ Webshopcheck', 'Hoe kan ik mijn webshop controleren?'],
+    ['💾 Ontwerp bewaren', 'Hoe kan ik mijn ontwerp bewaren?'],
+    ['🌐 Domein & publiceren', 'Hoe kan ik mijn website publiceren?'],
+    ['✨ Gratis AI-hulp', 'Waarom werkt echte AI nog niet?']
   ].forEach(([label, question]) => {
     const button = make('button', label, 'secondary');
     button.type = 'button';
