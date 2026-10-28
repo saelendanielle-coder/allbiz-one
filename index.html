@@ -951,6 +951,15 @@ function cleanBuilder(raw){
 }
 let builderData=emptyBuilder(),builderScreen='home';
 try{builderData=cleanBuilder(JSON.parse(localStorage.getItem(builderKey)||'null'))}catch(e){}
+const shopViewKey='allbiz-shop-view-v1';
+// Hervat de laatst bekeken pagina in het webshopvoorbeeld, zonder verborgen pagina's te tonen.
+try{
+ const savedView=localStorage.getItem(shopViewKey)||'home';
+ if(['home','products','collections'].includes(savedView) ||
+    (savedView.startsWith('page:') && builderData.pages.some(p=>p.id===savedView.slice(5)&&p.visible))){
+  builderScreen=savedView;
+ }
+}catch(e){}
 function saveBuilder(){try{localStorage.setItem(builderKey,JSON.stringify(builderData));return true}catch(e){return false}}
 function builderMessage(msg){el('builderStatus').textContent=msg}
 function builderRefreshForms(){
@@ -1075,6 +1084,10 @@ function getShopImage(){
  try{const parsed=new URL(url);return parsed.protocol==='https:'?parsed.href:''}catch(e){return ''}
 }
 function renderShop(){
+ // Ook bij verversen blijft het webshopvoorbeeld op dezelfde zichtbare pagina.
+ if(builderScreen.startsWith('page:') &&
+    !builderData.pages.some(p=>p.id===builderScreen.slice(5)&&p.visible))builderScreen='home';
+ try{localStorage.setItem(shopViewKey,builderScreen)}catch(e){}
  const p=el('shopPreview');p.replaceChildren();p.className='store-skin theme-'+activeTheme;
  const prefs=shopPrefs();
  const promo=element('div','shop-announcement',prefs.promo||'✨ Welkom in onze winkel – dit is een voorbeeld');
