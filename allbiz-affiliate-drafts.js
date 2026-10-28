@@ -74,7 +74,7 @@
       'Er is GEEN echte affiliatelink gekoppeld. Dit voorbeeld levert GEEN commissie op.',
       'Advertentie / affiliate: als ik later een geldige partnerlink plaats, kan ik commissie ontvangen bij een aankoop.',
       'Om echt te publiceren: voeg eerst een bestaand product en je eigen goedgekeurde partnerlink toe.'
-    ].join('\\n\\n');
+    ].join('\n\n');
     const fillDemo = (automatic = false) => {
       if (draft.value.trim()) {
         if (automatic) return;
