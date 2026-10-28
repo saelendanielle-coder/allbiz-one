@@ -6,6 +6,15 @@
     if (!panel || document.getElementById('allbizGuidedHelp')) return;
 
     const flows = {
+      trading: {
+        label: '📈 Trading oefenen',
+        about: 'Leer hoe de tradingdemo werkt. Alleen fictieve bedragen: er zijn geen live koersen, geen brokerverbinding en geen echte orders.',
+        steps: [
+          {title:'Open de tradingdemo', detail:'Ga naar Live trading. Je ziet testonderdelen en een calculator voor fictieve handelsresultaten. Er is geen echte handelsrekening verbonden.', tab:'trading', action:'Open Trading'},
+          {title:'Bereken een oefenscenario', detail:'Vul een fictief handelsbedrag, een koersverandering en kosten in. Kies Bereken fictief resultaat. Dit koopt of verkoopt niets.', tab:'trading', action:'Open de testcalculator'},
+          {title:'Bekijk het risico', detail:'Probeer ook een scenario met 100% verlies. Beleggen kan geld kosten en winst is nooit gegarandeerd. Echte handel blijft uit tot er een veilige, toegelaten brokerkoppeling is.', tab:'trading', action:'Bekijk de tradingrisico’s'}
+        ]
+      },
       website: {
         label: '🌐 Website maken',
         about: 'Bouw je bedrijfswebsite stap voor stap.',
@@ -31,15 +40,6 @@
           {title:'Kies wat je promoot', detail:'Ga naar Advertenties & groei. Kies je kanaal en product of dienst.', tab:'ads', action:'Open Advertenties & groei'},
           {title:'Schrijf je advertentie', detail:'Vul de gevraagde informatie in en maak een tekstvoorstel. Controleer alle claims voordat je de tekst gebruikt.', tab:'ads', action:'Maak een advertentieconcept'},
           {title:'Controleer je budget', detail:'Bekijk het budget en download of kopieer je voorstel. AllBiz One plaatst nog geen echte advertenties en geeft geen gegarandeerde resultaten.', tab:'ads', action:'Bekijk het advertentieplan'}
-        ]
-      },
-      trading: {
-        label: '📈 Trading oefenen',
-        about: 'Leer hoe de tradingdemo werkt. Alleen fictieve bedragen: er zijn geen live koersen, geen brokerverbinding en geen echte orders.',
-        steps: [
-          {title:'Open de tradingdemo', detail:'Ga naar Live trading. Je ziet testonderdelen en een calculator voor fictieve handelsresultaten. Er is geen echte handelsrekening verbonden.', tab:'trading', action:'Open Trading'},
-          {title:'Bereken een oefenscenario', detail:'Vul een fictief handelsbedrag, een koersverandering en kosten in. Kies Bereken fictief resultaat. Dit koopt of verkoopt niets.', tab:'trading', action:'Open de testcalculator'},
-          {title:'Bekijk het risico', detail:'Probeer ook een scenario met 100% verlies. Beleggen kan geld kosten en winst is nooit gegarandeerd. Echte handel blijft uit tot er een veilige, toegelaten brokerkoppeling is.', tab:'trading', action:'Bekijk de tradingrisico’s'}
         ]
       },
       affiliate: {
@@ -102,7 +102,13 @@
     const key='allbiz-guided-help-v1';
     let saved=null;
     try { saved=JSON.parse(localStorage.getItem(key)||'null'); } catch {}
-    let chosen=saved&&Object.prototype.hasOwnProperty.call(flows,saved.flow)?saved.flow:'website';
+    const urlGuide = (() => {
+      try {
+        const requested = new URLSearchParams(window.location.search).get('guide');
+        return Object.prototype.hasOwnProperty.call(flows,requested)?requested:null;
+      } catch { return null; }
+    })();
+    let chosen=urlGuide||(saved&&Object.prototype.hasOwnProperty.call(flows,saved.flow)?saved.flow:'website');
     let steps=saved&&typeof saved.steps==='object'&&saved.steps?{...saved.steps}:{};
     const save=()=>{
       try { localStorage.setItem(key,JSON.stringify({flow:chosen,steps})); } catch {}
@@ -151,6 +157,21 @@
       else document.querySelector('[data-tab="'+tab+'"]')?.click();
     });
     draw();
+    // Rechtstreekse links tonen de gekozen gratis stappenhulp ook na navigatieherstel.
+    if (urlGuide && window.location.hash==='#help') {
+      const reveal=()=>{
+        if (window.location.hash!=='#help') return;
+        if (typeof switchTab==='function' && !panel.classList.contains('active'))
+          switchTab('help',{automatic:true});
+        if (!panel.classList.contains('active')) return;
+        const nav=document.querySelector('.mobile-feature-picker');
+        const offset=(nav && getComputedStyle(nav).display!=='none'
+          ?nav.getBoundingClientRect().height:0)+16;
+        const top=Math.max(0,window.scrollY+block.getBoundingClientRect().top-offset);
+        window.scrollTo({top:Math.round(top),behavior:'auto'});
+      };
+      [250,900,1800,3200].forEach(ms=>window.setTimeout(reveal,ms));
+    }
   };
   if (document.readyState==='loading') document.addEventListener('DOMContentLoaded',init,{once:true});
   else init();
