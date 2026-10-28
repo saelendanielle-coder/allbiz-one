@@ -84,6 +84,26 @@
       saveDraft();
       update('🧪 Fictief voorbeeld ingevuld en op dit toestel bewaard. Er is geen echt affiliateproduct of partnerlink toegevoegd.');
     };
+    // Zichtbaar testvoorbeeld direct bovenaan Affiliate marketing.
+    // Dit is bewust geen echt product of affiliate-link en wordt niet gepubliceerd.
+    const demoPanel=document.createElement('section');
+    demoPanel.id='aboAffiliateDemoPreview';
+    demoPanel.className='card';
+    demoPanel.style.cssText='border:2px solid #ac9ce9;background:#faf8ff;scroll-margin-top:160px';
+    const demoHeading=document.createElement('h3');
+    demoHeading.textContent='🎧 Voorbeeld: zo werkt affiliate marketing';
+    const demoInfo=document.createElement('p');
+    demoInfo.textContent='Dit is een fictief promotiebericht. Je hoeft niets in te vullen of te betalen.';
+    const demoPreview=document.createElement('p');
+    demoPreview.style.cssText='white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.7;background:white;border:1px solid #d7ccf6;border-radius:12px;padding:12px';
+    demoPreview.textContent='🧪 TEST — GEEN ECHTE AFFILIATE-LINK\\n\\n🎧 Draadloze koptelefoon\\n\\nOntdek een draadloze koptelefoon en vergelijk het aanbod van verschillende winkels.\\n\\nOm commissie te verdienen, heb je later een eigen goedgekeurde partnerlink nodig. Dit voorbeeld verdient niets.';
+    const demoAction=makeButton('aboAffUseExample','✨ Zet voorbeeld in mijn promotietekst',()=>{
+      fillDemo();
+      draft.scrollIntoView({behavior:'smooth',block:'center'});
+    });
+    demoPanel.append(demoHeading,demoInfo,demoPreview,demoAction);
+    const affiliatePage=document.getElementById('affiliate');
+    if (affiliatePage) affiliatePage.insertBefore(demoPanel,affiliatePage.firstElementChild);
     actions.prepend(makeButton('aboAffTryExample', '🧪 Test voorbeeldbericht', () => fillDemo()));
     actions.append(
       makeButton('aboAffSaveDraft', '💾 Bewaar concept', () => saveDraft(true)),
@@ -115,6 +135,18 @@
     try {
       if (new URLSearchParams(window.location.search).get('affiliateDemo') === '1')
         fillDemo(true);
+    } catch {}
+    // De directe voorbeeldlink springt naar de zichtbare uitleg in plaats van een leeg tekstvak.
+    try {
+      if (new URLSearchParams(location.search).get('affiliateDemo')==='1') {
+        const jump=()=>{
+          if(!affiliatePage?.classList.contains('active'))return;
+          const top=Math.max(0,window.scrollY+demoPanel.getBoundingClientRect().top-170);
+          window.scrollTo({top,behavior:'auto'});
+        };
+        setTimeout(jump,1200);
+        setTimeout(jump,2200);
+      }
     } catch {}
     const privacy = document.createElement('p');
     privacy.className = 'small muted';
