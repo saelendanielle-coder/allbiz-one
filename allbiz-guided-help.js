@@ -33,6 +33,15 @@
           {title:'Controleer je budget', detail:'Bekijk het budget en download of kopieer je voorstel. AllBiz One plaatst nog geen echte advertenties en geeft geen gegarandeerde resultaten.', tab:'ads', action:'Bekijk het advertentieplan'}
         ]
       },
+      trading: {
+        label: '📈 Trading oefenen',
+        about: 'Leer hoe de tradingdemo werkt. Alleen fictieve bedragen: er zijn geen live koersen, geen brokerverbinding en geen echte orders.',
+        steps: [
+          {title:'Open de tradingdemo', detail:'Ga naar Live trading. Je ziet testonderdelen en een calculator voor fictieve handelsresultaten. Er is geen echte handelsrekening verbonden.', tab:'trading', action:'Open Trading'},
+          {title:'Bereken een oefenscenario', detail:'Vul een fictief handelsbedrag, een koersverandering en kosten in. Kies Bereken fictief resultaat. Dit koopt of verkoopt niets.', tab:'trading', action:'Open de testcalculator'},
+          {title:'Bekijk het risico', detail:'Probeer ook een scenario met 100% verlies. Beleggen kan geld kosten en winst is nooit gegarandeerd. Echte handel blijft uit tot er een veilige, toegelaten brokerkoppeling is.', tab:'trading', action:'Bekijk de tradingrisico’s'}
+        ]
+      },
       affiliate: {
         label: '🔗 Affiliate marketing',
         about: 'Maak een promotietekst met je eigen partnerlink.',
