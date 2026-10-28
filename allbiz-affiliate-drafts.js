@@ -66,6 +66,25 @@
     };
     const generate = [...actions.querySelectorAll('button')].find(b => b.textContent.includes('Maak affiliatebericht'));
     generate?.addEventListener('click', () => { if (draft.value.trim()) saveDraft(); });
+    // De test maakt alleen een fictief concept. Geen nep-partnerlink in echte productlijsten.
+    const demoText = [
+      '🧪 TESTVOORBEELD — FICTIEF PRODUCT — NIET PUBLICEREN',
+      '🎧 Draadloze koptelefoon (fictief voorbeeld)',
+      'Een voorbeeld van een korte Instagram-post over een draadloze koptelefoon. Vergelijk altijd de echte eigenschappen en prijs bij de verkoper.',
+      'Er is GEEN echte affiliatelink gekoppeld. Dit voorbeeld levert GEEN commissie op.',
+      'Advertentie / affiliate: als ik later een geldige partnerlink plaats, kan ik commissie ontvangen bij een aankoop.',
+      'Om echt te publiceren: voeg eerst een bestaand product en je eigen goedgekeurde partnerlink toe.'
+    ].join('\\n\\n');
+    const fillDemo = (automatic = false) => {
+      if (draft.value.trim()) {
+        if (automatic) return;
+        if (!window.confirm('Je bestaande promotietekst vervangen door een fictief testvoorbeeld?')) return;
+      }
+      draft.value = demoText;
+      saveDraft();
+      update('🧪 Fictief voorbeeld ingevuld en op dit toestel bewaard. Er is geen echt affiliateproduct of partnerlink toegevoegd.');
+    };
+    actions.prepend(makeButton('aboAffTryExample', '🧪 Test voorbeeldbericht', () => fillDemo()));
     actions.append(
       makeButton('aboAffSaveDraft', '💾 Bewaar concept', () => saveDraft(true)),
       makeButton('aboAffDownloadDraft', '⬇️ Download tekst', () => {
@@ -92,6 +111,11 @@
         update('Concept gewist op dit toestel. Je affiliateproducten zijn behouden.');
       })
     );
+    // Alleen op expliciet geopende demokoppeling, zonder bestaande inhoud te overschrijven.
+    try {
+      if (new URLSearchParams(window.location.search).get('affiliateDemo') === '1')
+        fillDemo(true);
+    } catch {}
     const privacy = document.createElement('p');
     privacy.className = 'small muted';
     privacy.textContent = 'Je concept wordt alleen in deze browser bewaard. Op een andere gsm of laptop is het niet automatisch beschikbaar. Publicatie en commissie-uitbetaling gebeuren niet via deze knoppen.';
