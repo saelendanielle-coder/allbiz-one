@@ -2525,6 +2525,32 @@ try {
   unavailable.hidden = true;
   $('authSubmit').disabled = false;
   $('authReset').disabled = false;
+  // Statistieken komen uitsluitend via een serverfunctie die de eigenaarsrol verifieert.
+  const summaryHost=$('allbizOwnerDashboard');
+  if(summaryHost && !$('allbizOwnerMetrics')){
+    const section=document.createElement('section');
+    section.id='allbizOwnerMetrics';
+    section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
+    summaryHost.append(section);
+  }
+  const refreshOwnerStats=async()=>{
+    const status=$('aboStatsStatus');
+    if(status)status.textContent='Statistieken ophalen…';
+    try {
+      const {data,error}=await client.auth.getSession();
+      if(error||!data?.session?.access_token)throw Error('Log eerst in.');
+      const resp=await fetch(SUPABASE_URL+'/functions/v1/allbiz-owner-overview',{
+        headers:{Authorization:'Bearer '+data.session.access_token,apikey:SUPABASE_PUBLIC_KEY},
+        cache:'no-store'
+      });
+      const json=await resp.json().catch(()=>({}));
+      if(!resp.ok)throw Error(json.error||'Server geeft geen toegang.');
+      const fields=[['aboUsers','registered_accounts'],['aboSubscriptions','active_subscriptions'],['aboSites','saved_websites'],['aboShops','saved_webshops'],['aboPublic','published_websites']];
+      for(const [id,key] of fields){const el=$(id);if(el)el.textContent=Number.isFinite(json[key])?String(json[key]):'—';}
+      if(status)status.textContent='✅ Actuele totalen opgehaald; er worden geen persoonlijke klantgegevens getoond.';
+    }catch(error){if(status)status.textContent='Kan cijfers nog niet laden: '+String(error.message||'onbekende fout');}
+  };
+  $('aboReloadStats')?.addEventListener('click',()=>{void refreshOwnerStats()});
   let allbizOwnerRoleCheck=0;
   const ownerAccessStatus=$('allbizOwnerAccessStatus');
   const ownerSignInButton=$('allbizOwnerSignIn');
@@ -2549,6 +2575,7 @@ try {
         if(ownerSignInButton)ownerSignInButton.hidden=false;
       }else if(user.app_metadata?.allbiz_role==='owner'){
         setOwnerVisible(true);
+        void refreshOwnerStats();
         if(ownerSignInButton)ownerSignInButton.hidden=true;
         if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Tik op Open mijn beheerdersdashboard.';
       }else{
