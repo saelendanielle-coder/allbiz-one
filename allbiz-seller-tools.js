@@ -10,12 +10,15 @@ function init(){
  '<form id="allbizSellerForm"><div class="fields">'+
  '<label>Officiële bedrijfsnaam<input name="legal_name" maxlength="160" autocomplete="organization"></label>'+
  '<label>Ondernemingsnummer<input name="business_number" maxlength="40"></label>'+
- '<label>Bedrijfsadres<input name="business_address" maxlength="300" autocomplete="street-address"></label>'+
+ '<label>Bedrijfsadres<input name="business_address" maxlength="300" autocomplete="street-address"></label>'+ 
+ '<label>Telefoonnummer voor klanten<input name="phone" type="tel" maxlength="40"></label>'+ 
+ '<label>BTW-nummer (indien van toepassing)<input name="vat_number" maxlength="40"></label>'+
  '<label>Contact-e-mail<input name="contact_email" type="email" maxlength="160"></label>'+
  '<label>Klantenservice-e-mail<input name="support_email" type="email" maxlength="160"></label>'+
  '<label>Link naar retourbeleid<input name="return_policy_url" type="url" maxlength="400" placeholder="https://..."></label>'+
  '<label>Link naar privacybeleid<input name="privacy_url" type="url" maxlength="400" placeholder="https://..."></label>'+
- '<label>Link naar algemene voorwaarden<input name="terms_url" type="url" maxlength="400" placeholder="https://..."></label>'+
+ '<label>Link naar algemene voorwaarden<input name="terms_url" type="url" maxlength="400" placeholder="https://..."></label>'+ 
+ '<label>Link naar verzendinformatie<input name="shipping_policy_url" type="url" maxlength="400" placeholder="https://..."></label>'+
  '</div><button type="submit">💾 Bewaar bedrijfsgegevens</button> <button type="button" class="secondary" id="allbizSellerReload">↻ Gegevens ophalen</button></form>'+
  '<p id="allbizSellerStatus" role="status" class="small muted">Log in bij Mijn account om je gegevens te beheren.</p>'+
  '<hr style="margin:22px 0;border:0;border-top:1px solid #e5dff0">'+
@@ -24,7 +27,7 @@ function init(){
  '<button type="button" id="allbizDigitalSave">🔒 Bestand privé opslaan</button> <button type="button" class="secondary" id="allbizDigitalRefresh">↻ Bestanden bekijken</button>'+
  '<p id="allbizDigitalStatus" role="status" class="small muted">Nog geen bestanden opgehaald.</p><div id="allbizDigitalList"></div>';
  const near=host.querySelector('.card');if(near)near.after(section);else host.prepend(section);
- const $=id=>section.querySelector('#'+id),fields=['legal_name','business_number','business_address','contact_email','support_email','return_policy_url','privacy_url','terms_url'];
+ const $=id=>section.querySelector('#'+id),fields=['legal_name','business_number','business_address','phone','vat_number','contact_email','support_email','return_policy_url','privacy_url','terms_url','shipping_policy_url'];
  const form=$('allbizSellerForm'),status=$('allbizSellerStatus'),fileStatus=$('allbizDigitalStatus');
  const bucket='allbiz-digital-products';
  async function auth(){
@@ -49,7 +52,7 @@ function init(){
   try{
    const {client,user}=await auth(),row={user_id:user.id,updated_at:new Date().toISOString()};
    for(const field of fields)row[field]=String(form.elements.namedItem(field).value||'').trim();
-   for(const key of ['return_policy_url','privacy_url','terms_url']){
+   for(const key of ['return_policy_url','privacy_url','terms_url','shipping_policy_url']){
     if(row[key]&&!/^https:\/\/[^\s]+$/i.test(row[key]))throw Error('Gebruik voor '+key+' een volledige https-link.');
    }
    const {error}=await client.from('allbiz_seller_profiles').upsert(row,{onConflict:'user_id'});
