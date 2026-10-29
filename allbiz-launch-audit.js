@@ -18,8 +18,8 @@
     panel.append(intro);
     const checks = [
       ['✅', 'Account en database', 'Supabase-authenticatie en privé-opslag zijn aanwezig. Test ook registratie en wachtwoordherstel met een nieuw account.'],
-      ['✅', 'Stripe testmodus', 'De webhook en testabonnementen bestaan. Een testbetaling is geen echte omzet.'],
-      ['⚠️', 'Live abonnement → klanttoegang', 'Nog geen volledige succesvolle live eindtest bevestigd. Test een echte betaling, activatie, verlenging, opzegging en terugbetaling.'],
+      ['✅', 'Stripe testmodus', 'Stripe Sandbox-betalingen en automatische testabonnementen zijn eerder gecontroleerd, inclusief Pro-toegang. Niet opnieuw testen; er is geen echt geld afgeschreven.'],
+      ['⚠️', 'Echte betalingen', 'De sandbox-flow is getest. Een volledige live-betaalcyclus is nog niet aangetoond; daarom blijven betaalbuttons voor nieuwe klanten voorlopig dicht.'],
       ['⚠️', 'Website online publiceren', 'Publicatie is serverbeveiligd en vereist een echt actief abonnement. Controleer de volledige klantreis.'],
       ['⚠️', 'Webshop en digitale levering', 'Afrekenen en bestellingen zijn momenteel demo. Er is nog geen echte checkout, veilige digitale levering of automatische verzending.'],
       ['⚠️', 'Trading met echt geld', 'Nog niet beschikbaar. Er is geen toegelaten, werkende brokerkoppeling voor echte orders.'],
@@ -90,8 +90,8 @@
         : '.';
       serverStatus.textContent = '✅ Server bereikbaar: ' + count +
         ' echte actieve abonnementen' + suffix +
-        (count === 0 ? ' Een echte betaal- en toegangstest moet nog plaatsvinden.' :
-          ' Controleer nog altijd de volledige betaling, toegang en opzegging.');
+        (count === 0 ? ' De Stripe Sandbox-tests zijn al uitgevoerd. Er is nog geen live-abonnement geregistreerd.' :
+          ' Live betalingen, verlenging en opzegging zijn nog niet definitief bevestigd.');
     });
     const note = document.createElement('p');
     note.className = 'small';
