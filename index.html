@@ -663,6 +663,12 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
  <div class="card" id="allbizDigitalMarketingHub">
   <h2>📣 Digitale marketing</h2>
   <p>Maak je bedrijf zichtbaar met sociale media, reclamevoorstellen, affiliate marketing en vindbaarheid in Google. Kies hieronder wat je wilt maken.</p>
+  <p style="font-weight:700;margin:14px 0 7px">Direct naar jouw marketingtools:</p>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:15px" aria-label="Ga direct naar marketingtool">
+    <button type="button" class="secondary" data-marketing-jump="aboMarketingPlanner" style="flex:1 1 145px;padding:11px 8px;font-size:14px">🗓️ Campagnes</button>
+    <button type="button" class="secondary" data-marketing-jump="aboMarketingSavedPosts" style="flex:1 1 145px;padding:11px 8px;font-size:14px">📚 Berichten</button>
+    <button type="button" class="secondary" data-marketing-jump="aboMarketingSEO" style="flex:1 1 145px;padding:11px 8px;font-size:14px">🔎 SEO-controle</button>
+  </div>
   <div class="import-buttons">
     <button type="button" class="secondary" data-goto="video">🎬 YouTube-video's</button>
     <button type="button" class="secondary" data-goto="affiliate">🔗 Affiliate marketing</button>
@@ -2979,6 +2985,25 @@ try {
      status.textContent = 'Selecteer de tekst en kies Kopiëren op je toestel.';
    }
  });
+})();
+</script>
+<script>
+/* Directe navigatie naar onderdelen op de marketingpagina, ook op mobiele schermen. */
+(() => {
+  'use strict';
+  document.querySelectorAll('#marketing [data-marketing-jump]').forEach(button => {
+    button.addEventListener('click', () => {
+      const id = button.dataset.marketingJump;
+      const target = document.getElementById(id) ||
+        document.getElementById('allbizMarketingFallback');
+      if (!target) return;
+      const picker = document.querySelector('.mobile-feature-picker');
+      const pickerVisible = picker && getComputedStyle(picker).display !== 'none';
+      const offset = pickerVisible ? picker.getBoundingClientRect().height + 12 : 16;
+      const targetTop = window.scrollY + target.getBoundingClientRect().top - offset;
+      window.scrollTo({top:Math.max(0,Math.round(targetTop)),behavior:'smooth'});
+    });
+  });
 })();
 </script>
 <script id="allbizMarketingEmbedded">
