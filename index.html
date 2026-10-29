@@ -732,6 +732,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <button type="button" class="secondary" data-goto="help">🤖 Hulp nodig?</button>
   </div>
   <p class="small muted">Sommige ontwerpen zijn nog lokaal op dit toestel opgeslagen. Gebruik de privé-bewaarknoppen en reservekopieën. Bewaar geen gevoelige klantgegevens in de demo.</p>
+  <button type="button" id="allbizOpenOwnerDashboard" hidden style="width:100%;margin-top:12px;background:#40318f;color:white">🛡️ Open mijn beheerdersdashboard</button>
 </div>
 <div class="card" id="allbizOwnerDashboard" hidden>
   <h2>🛡️ Beheerdersdashboard</h2>
@@ -2515,6 +2516,13 @@ try {
   unavailable.hidden = true;
   $('authSubmit').disabled = false;
   $('authReset').disabled = false;
+  let allbizOwnerRoleCheck=0;
+  const ownerDashboardJump=$('allbizOpenOwnerDashboard');
+  ownerDashboardJump?.addEventListener('click',()=>{
+    const panel=$('allbizOwnerDashboard');
+    if(!panel || panel.hidden)return;
+    panel.scrollIntoView({behavior:'smooth',block:'start'});
+  });
   const renderUser = (user) => {
     window.allbizAccessChecking=true;
     window.allbizApplyAccess?.('reset');
@@ -2529,9 +2537,21 @@ try {
     if(customerPlan) customerPlan.textContent=user
       ? 'Je persoonlijke abonnementsstatus staat hieronder bij Mijn account.'
       : 'Je abonnement wordt zichtbaar zodra je ingelogd bent.';
-    // Een verborgen beheerdersplaceholder is géén toegang tot klantgegevens.
+    // Beheerdersrechten worden opnieuw gecontroleerd bij de Auth-server,
+    // omdat een al ingelogde sessie de recent gewijzigde rol nog niet hoeft te bevatten.
     const ownerBox=$('allbizOwnerDashboard');
-    if(ownerBox) ownerBox.hidden=!(user?.app_metadata?.allbiz_role==='owner');
+    if(ownerBox) ownerBox.hidden=true;
+    const ownerJump=$('allbizOpenOwnerDashboard');
+    if(ownerJump) ownerJump.hidden=true;
+    if(user) {
+      const roleCheck=++allbizOwnerRoleCheck;
+      void client.auth.getUser().then(({data,error})=>{
+        if(roleCheck!==allbizOwnerRoleCheck || error || data?.user?.id!==user.id) return;
+        const isOwner=data.user.app_metadata?.allbiz_role==='owner';
+        if(ownerBox) ownerBox.hidden=!isOwner;
+        if(ownerJump) ownerJump.hidden=!isOwner;
+      }).catch(()=>{});
+    } else ++allbizOwnerRoleCheck;
     document.querySelectorAll('a.subscription-pay-link').forEach(a => {
       const original = a.dataset.baseHref || a.getAttribute('href');
       a.dataset.baseHref = original;
