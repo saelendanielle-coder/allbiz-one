@@ -716,6 +716,26 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p class="notice" style="margin-top:15px"><b>Testversie:</b> dit zijn automatische antwoorden op veelgestelde vragen, geen echte AI-chat of menselijke klantenservice. De assistent kan geen betalingen uitvoeren, accounts wijzigen of bestellingen verwerken. Deel geen wachtwoorden, bank- of identiteitsgegevens.</p>
 </div></section>
 <section class="panel active" id="account" aria-label="Mijn account">
+
+<div class="card" id="allbizCustomerDashboard" aria-label="Mijn klantendashboard">
+  <h2>👤 Mijn klantendashboard</h2>
+  <p id="allbizCustomerWelcome" role="status">Log in bij Mijn account om je eigen projecten te openen.</p>
+  <p id="allbizCustomerPlan" class="muted">Je abonnement wordt zichtbaar zodra je ingelogd bent.</p>
+  <div class="import-buttons" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px">
+    <button type="button" class="secondary" data-goto="site">🎨 Mijn website</button>
+    <button type="button" class="secondary" data-goto="shop">🏪 Mijn webshop</button>
+    <button type="button" class="secondary" data-goto="products">📦 Mijn producten</button>
+    <button type="button" class="secondary" data-goto="plans">💎 Mijn abonnement</button>
+    <button type="button" class="secondary" data-goto="dashboard">💾 Reservekopie</button>
+    <button type="button" class="secondary" data-goto="help">🤖 Hulp nodig?</button>
+  </div>
+  <p class="small muted">Sommige ontwerpen zijn nog lokaal op dit toestel opgeslagen. Gebruik de privé-bewaarknoppen en reservekopieën. Bewaar geen gevoelige klantgegevens in de demo.</p>
+</div>
+<div class="card" id="allbizOwnerDashboard" hidden>
+  <h2>🛡️ Beheerdersdashboard</h2>
+  <p>Het beheerdersdashboard is voorlopig in voorbereiding. Klanteninformatie en betalingen zijn hier niet beschikbaar. Je eigenaarsrol moet eerst veilig op de server worden ingesteld.</p>
+</div>
+
 <div class="card account-card">
 <h2>🔐 Mijn account</h2>
 <p>Maak een account aan of log in. Hierna kun je via <b>Overzicht</b> de andere onderdelen van AllBiz One gebruiken.</p>
@@ -797,7 +817,7 @@ function rememberScrollPosition(){
  persistNavigation();
 }
 function restoreScrollPosition(tab){
- const stored=Math.max(0,Math.min(100000,Number(navProgress.positions[tab])||0));
+ const stored=(tab==='account' && window.location.hash==='#account') ? 0 : Math.max(0,Math.min(100000,Number(navProgress.positions[tab])||0));
  navChanging=true;
  // Help should always open at its question form, not at a saved position far down the page.
  const applyPosition=()=>{
@@ -2499,6 +2519,17 @@ try {
     guest.hidden = !!user;
     signedIn.hidden = !user;
     $('authUserEmail').textContent = user?.email || '';
+    const customerWelcome=$('allbizCustomerWelcome');
+    if(customerWelcome) customerWelcome.textContent=user
+      ? '✅ Ingelogd met '+(user.email||'jouw account')
+      : 'Log in bij Mijn account om je eigen projecten te openen.';
+    const customerPlan=$('allbizCustomerPlan');
+    if(customerPlan) customerPlan.textContent=user
+      ? 'Je persoonlijke abonnementsstatus staat hieronder bij Mijn account.'
+      : 'Je abonnement wordt zichtbaar zodra je ingelogd bent.';
+    // Een verborgen beheerdersplaceholder is géén toegang tot klantgegevens.
+    const ownerBox=$('allbizOwnerDashboard');
+    if(ownerBox) ownerBox.hidden=!(user?.app_metadata?.allbiz_role==='owner');
     document.querySelectorAll('a.subscription-pay-link').forEach(a => {
       const original = a.dataset.baseHref || a.getAttribute('href');
       a.dataset.baseHref = original;
