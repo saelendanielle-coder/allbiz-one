@@ -285,7 +285,7 @@ input[type=file]{font-size:14px;overflow:hidden}
 .shop-builder-campaign p{color:#fff;opacity:.94;white-space:pre-line}
 .shop-builder-campaign button{width:auto;background:#fff;color:#38226c;margin-top:8px}
 /* Make customer help easily accessible on small screens. */
-body.allbiz-help-active #allbizFloatingHelp{display:none}
+body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #allbizFloatingHelp{display:none}
 #allbizHelpQuick button{width:100%;min-width:0;padding:10px 6px;font-size:clamp(12px,3.5vw,15px);min-height:46px;white-space:normal}
 @media(max-width:650px){
  body.allbiz-help-active .mobile-shortcuts{display:none}
@@ -726,7 +726,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <button type="button" id="allbizOwnerSignIn" class="secondary">🔐 Naar inloggen</button>
 </div>
 <div id="allbizOwnerDashboard" hidden style="margin:12px 0 0;padding-top:14px;border-top:1px solid #ddd3f1">
-<p class="small muted">Dit overzicht is alleen zichtbaar voor de geverifieerde eigenaar. De cijfers komen van de beveiligde server; omzetrapportage is nog niet aangesloten.</p>
+<p class="small muted">Dit is jouw beveiligde overzicht. De aantallen komen van de server. Je testaccount telt ook mee bij Accounts. Omzetrapportage is nog niet aangesloten.</p>
 </div>
 <p class="small muted" id="allbizOwnerPrivacyHint">Andere klanten kunnen deze cijfers niet ophalen. Er worden geen bankgegevens getoond of betalingen aangepast.</p>
 </div>
@@ -2526,7 +2526,7 @@ try {
   if(summaryHost && !$('allbizOwnerMetrics')){
     const section=document.createElement('section');
     section.id='allbizOwnerMetrics';
-    section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
+    section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts (inclusief eigenaar)</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
     summaryHost.append(section);
   }
   const refreshOwnerStats=async()=>{
