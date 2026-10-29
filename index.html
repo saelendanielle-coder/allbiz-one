@@ -2815,6 +2815,8 @@ try {
     panel.scrollIntoView({behavior:'smooth',block:'start'});
   });
   const renderUser = (user) => {
+    window.allbizCurrentUserId = user?.id || null;
+    window.dispatchEvent(new Event('allbiz-user-changed'));
     window.allbizAccessChecking=true;
     window.allbizApplyAccess?.('reset');
     guest.hidden = !!user;
@@ -3014,9 +3016,12 @@ try {
   const $ = id => document.getElementById(id);
   const hub = $('allbizDigitalMarketingHub');
   if (!hub || $('aboMarketingPlanner')) return;
-  const canEdit = () => window.allbizMarketingUnlocked === true;
-  const marketingKey = 'allbiz-marketing-campaigns-v1';
-  const postsKey = 'allbiz-marketing-posts-v1';
+  // Lokale concepten zijn aan het ingelogde account gekoppeld, niet aan het toestel als geheel.
+  const canEdit = () => window.allbizMarketingUnlocked === true && !!currentUserId;
+  const legacyMarketingKey = 'allbiz-marketing-campaigns-v1';
+  const legacyPostsKey = 'allbiz-marketing-posts-v1';
+  const marketingKey = () => currentUserId ? 'allbiz-marketing-campaigns-v2:' + currentUserId : null;
+  const postsKey = () => currentUserId ? 'allbiz-marketing-posts-v2:' + currentUserId : null;
   const MAX_CAMPAIGNS = 40;
   const MAX_POSTS = 40;
   const today = () => new Date().toISOString().slice(0,10);
@@ -3067,9 +3072,11 @@ try {
       channel:String(raw.channel || '').slice(0,30), content,
       savedAt:String(raw.savedAt || '').slice(0,24)};
   }
-  let campaigns = load(marketingKey,MAX_CAMPAIGNS,normalizeCampaign);
-  let posts = load(postsKey,MAX_POSTS,normalizePost);
+  let campaigns = [];
+  let posts = [];
+  let currentUserId;
   const store = (key, value, status) => {
+    if (!key) { status.textContent = 'Log eerst in bij Mijn account.'; return false; }
     try { localStorage.setItem(key,JSON.stringify(value)); return true; }
     catch { status.textContent = 'Opslaan mislukt. Controleer de opslagruimte van je browser.'; return false; }
   };
@@ -3093,7 +3100,7 @@ try {
   const host = text('div');
   host.id = 'aboMarketingPlanner';
   host.innerHTML = '<h3>🗓️ Mijn marketingcampagnes</h3>' +
-    '<p class="small muted">Plan campagnes en houd zelf bij wat je hebt gepubliceerd. Dit is een persoonlijke conceptlijst op dit toestel, geen echte koppeling met socialmedia- of advertentieaccounts.</p>' +
+    '<p class="small muted">Plan campagnes. Concepten worden per ingelogd account op dit toestel bewaard, niet in de cloud. Gebruik dit niet voor gevoelige gegevens; er is geen echte koppeling met advertentieaccounts.</p>' +
     '<form id="aboCampaignForm"><div class="abo-market-grid">' +
     '<div><label for="aboCampTitle">Campagnenaam</label><input id="aboCampTitle" maxlength="100" required placeholder="Bijv. Herfstactie"></div>' +
     '<div><label for="aboCampChannel">Kanaal</label><select id="aboCampChannel"></select></div>' +
@@ -3109,10 +3116,35 @@ try {
   const postSection = text('div');
   postSection.id = 'aboMarketingSavedPosts';
   postSection.innerHTML = '<h3>📚 Mijn bewaarde berichten</h3>' +
-    '<p class="small muted">Bewaar de tekst uit de socialmedia-maker en gebruik hem later opnieuw. Alleen op dit toestel.</p>' +
+    '<p class="small muted">Bewaar de tekst uit de socialmedia-maker. Concepten zijn per account gescheiden op dit toestel en worden niet naar andere apparaten gesynchroniseerd.</p>' +
     '<div class="abo-market-actions"><button type="button" class="secondary" id="aboPostSave">💾 Bewaar huidig bericht</button></div>' +
     '<p id="aboPostStatus" role="status" class="toast abo-market-status"></p><div id="aboPostList"></div>';
   host.after(postSection);
+  const legacyBox = text('div');
+  legacyBox.id = 'aboOldMarketingImport';
+  legacyBox.hidden = true;
+  legacyBox.className = 'abo-market-item';
+  legacyBox.append(text('p','Oude marketingconcepten van dit toestel gevonden. Die zijn nog niet aan een account gekoppeld. Importeer ze alleen als ze van jou zijn.','small'));
+  const legacyButton = btn('📥 Mijn oude concepten overnemen', () => {
+    if (!canEdit()) {postStatus.textContent='Log eerst in met een actief abonnement.';return;}
+    const oldCampaigns = load(legacyMarketingKey,MAX_CAMPAIGNS,normalizeCampaign);
+    const oldPosts = load(legacyPostsKey,MAX_POSTS,normalizePost);
+    if (!oldCampaigns.length && !oldPosts.length) {legacyBox.hidden=true;return;}
+    if (!window.confirm('Zijn dit jouw eigen concepten? Ze worden toegevoegd aan dit ingelogde account op dit toestel.')) return;
+    const campaignIds = new Set(campaigns.map(c=>c.id));
+    const postIds = new Set(posts.map(p=>p.id));
+    const nextCampaigns = [...campaigns,...oldCampaigns.filter(c=>!campaignIds.has(c.id))].slice(0,MAX_CAMPAIGNS);
+    const nextPosts = [...posts,...oldPosts.filter(p=>!postIds.has(p.id))].slice(0,MAX_POSTS);
+    if (store(marketingKey(),nextCampaigns,postStatus) && store(postsKey(),nextPosts,postStatus)) {
+      campaigns=nextCampaigns;posts=nextPosts;
+      localStorage.removeItem(legacyMarketingKey);
+      localStorage.removeItem(legacyPostsKey);
+      legacyBox.hidden=true;renderCampaigns();renderPosts();
+      postStatus.textContent='✅ Oude concepten aan jouw account op dit toestel toegevoegd.';
+    }
+  });
+  legacyBox.append(legacyButton);
+  postSection.append(legacyBox);
   const seo = text('div');
   seo.id = 'aboMarketingSEO';
   seo.innerHTML = '<h3>🔎 Mijn SEO-controle</h3>' +
@@ -3163,7 +3195,7 @@ try {
         if (!canEdit()) {status.textContent='Log in met een actief abonnement om te verwijderen.';return;}
         if (!window.confirm('Deze campagne van dit toestel verwijderen?')) return;
         const next=campaigns.filter(x=>x.id!==item.id);
-        if (store(marketingKey,next,status)) {
+        if (store(marketingKey(),next,status)) {
           campaigns=next;resetCampaignForm();renderCampaigns();
           status.textContent='Campagne verwijderd.';
         }
@@ -3194,7 +3226,7 @@ try {
       status.textContent='Maximaal 40 campagnes. Verwijder eerst een oud concept.';return;
     }
     const next=editing?campaigns.map(x=>x.id===editing?item:x):[...campaigns,item];
-    if(store(marketingKey,next,status)){
+    if(store(marketingKey(),next,status)){
       campaigns=next;resetCampaignForm();renderCampaigns();
       status.textContent='✅ Campagne op dit toestel bewaard. Er is niets gepubliceerd of betaald.';
     }
@@ -3245,7 +3277,7 @@ try {
         if (!canEdit()) {postStatus.textContent='Log in om te verwijderen.';return;}
         if (!window.confirm('Dit bewaarde bericht verwijderen?')) return;
         const next=posts.filter(x=>x.id!==p.id);
-        if(store(postsKey,next,postStatus)){posts=next;renderPosts();postStatus.textContent='Bericht verwijderd.';}
+        if(store(postsKey(),next,postStatus)){posts=next;renderPosts();postStatus.textContent='Bericht verwijderd.';}
       }));
       card.append(actions);postList.append(card);
     });
@@ -3260,7 +3292,7 @@ try {
       savedAt:new Date().toISOString()});
     if(!post)return;
     const next=[post,...posts];
-    if(store(postsKey,next,postStatus)){posts=next;renderPosts();postStatus.textContent='✅ Concept lokaal bewaard; niets gepubliceerd.';}
+    if(store(postsKey(),next,postStatus)){posts=next;renderPosts();postStatus.textContent='✅ Concept lokaal bewaard; niets gepubliceerd.';}
   });
   function seoReport() {
     const title=$('aboSeoTitle').value.trim(),desc=$('aboSeoDescription').value.trim();
@@ -3290,7 +3322,28 @@ try {
     $('aboSeoDescription').value=(about||slogan).slice(0,360);
     seoReport();
   });
-  renderCampaigns();renderPosts();
+  function reloadForAccount() {
+    const id = typeof window.allbizCurrentUserId === 'string' &&
+      /^[0-9a-f-]{36}$/i.test(window.allbizCurrentUserId) ? window.allbizCurrentUserId : null;
+    if (id === currentUserId) return;
+    currentUserId = id;
+    campaigns = id ? load(marketingKey(),MAX_CAMPAIGNS,normalizeCampaign) : [];
+    posts = id ? load(postsKey(),MAX_POSTS,normalizePost) : [];
+    resetCampaignForm();
+    ['marketingSubject','marketingAudience','marketingOutput','aboSeoTitle','aboSeoDescription','aboSeoKeyword']
+      .forEach(field => { const input=$(field); if(input)input.value=''; });
+    if($('marketingCopy'))$('marketingCopy').disabled=true;
+    $('aboSeoPreviewTitle').textContent='Paginatitel verschijnt hier';
+    $('aboSeoPreviewDescription').textContent='De beschrijving verschijnt hier.';
+    $('aboSeoReport').replaceChildren();
+    legacyBox.hidden = !id || !(load(legacyMarketingKey,MAX_CAMPAIGNS,normalizeCampaign).length ||
+      load(legacyPostsKey,MAX_POSTS,normalizePost).length);
+    renderCampaigns();renderPosts();
+    status.textContent = id ? 'Marketingconcepten van jouw account op dit toestel geladen.' :
+      'Log in om je marketingconcepten te bekijken.';
+  }
+  window.addEventListener('allbiz-user-changed',reloadForAccount);
+  reloadForAccount();
   document.getElementById('allbizMarketingFallback')?.remove();
 })();
 
