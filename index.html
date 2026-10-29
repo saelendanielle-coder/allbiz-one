@@ -2526,12 +2526,12 @@ try {
   if(summaryHost && !$('allbizOwnerMetrics')){
     const section=document.createElement('section');
     section.id='allbizOwnerMetrics';
-    section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts (inclusief eigenaar)</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
+    section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts (inclusief eigenaar)</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><h4 style="margin:14px 0 9px">💎 Echte actieve abonnementen per pakket</h4><div class="stats"><div class="stat"><strong id="aboStarter">—</strong><span>Starter</span></div><div class="stat"><strong id="aboPro">—</strong><span>Pro</span></div><div class="stat"><strong id="aboBusiness">—</strong><span>Business</span></div></div><p class="small muted">Deze aantallen komen uit betaalde abonnementregistraties op de server. Testabonnementen tellen niet mee. De omzet in euro is nog niet gekoppeld.</p><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
     summaryHost.append(section);
     const details=document.createElement('section');
     details.id='aboOwnerDetails';
     details.style.marginTop='20px';
-    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten & betaalbeheer</h3><p id="aboRevenueInfo" class="muted">Nog geen gekoppelde omzetrapportage. Testbetalingen tellen niet mee.</p><p class="small muted">Controleer in Stripe de echte betalingen, terugbetalingen en kosten. In AllBiz One kun je abonnementen voorlopig alleen bekijken, niet wijzigen.</p><a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener noreferrer">🔒 Bekijk echte betalingen in Stripe</a>';
+    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten & betaalbeheer</h3><p id="aboRevenueInfo" class="muted">Nog geen gekoppelde omzetrapportage. Testbetalingen tellen niet mee.</p><p class="small muted">Controleer in Stripe de echte betalingen, terugbetalingen en kosten. In AllBiz One kun je abonnementen voorlopig alleen bekijken, niet wijzigen.</p><div class="import-buttons"><a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener noreferrer">🔒 Bekijk echte betalingen in Stripe</a><a href="https://dashboard.stripe.com/payouts" target="_blank" rel="noopener noreferrer">🏦 Bekijk uitbetalingen in Stripe</a></div><p class="small muted">Stripe betaalt uit volgens het schema en de voorwaarden van jouw Stripe-account. De transactiekosten en eventuele terugbetalingen worden niet als inkomsten in dit overzicht berekend.</p>';
     summaryHost.append(details);
   }
   let ownerClientFilter='all';
@@ -2552,7 +2552,7 @@ try {
       btn.className=value===selected?'':'secondary';
       btn.style.cssText='padding:9px 11px;font-size:13px;width:auto';
       const number=customers.filter(c=>value==='all'||(value==='paying'&&['active','trialing'].includes(c.live_status))||(value==='test'&&!['active','trialing'].includes(c.live_status)&&['active','trialing'].includes(c.sandbox_status))||(value==='none'&&!['active','trialing'].includes(c.live_status)&&!['active','trialing'].includes(c.sandbox_status))).length;
-      btn.textContent=label+' ('+number+')';
+      btn.textContent=label+' ('+number+' op deze pagina)';
       btn.addEventListener('click',()=>{ownerClientFilter=value;renderOwnerSubscriptionFilters(customers)});
       controls.append(btn);
     });
@@ -2609,6 +2609,10 @@ try {
       if(!resp.ok)throw Error(json.error||'Server geeft geen toegang.');
       const fields=[['aboUsers','registered_accounts'],['aboSubscriptions','active_subscriptions'],['aboSites','saved_websites'],['aboShops','saved_webshops'],['aboPublic','published_websites']];
       for(const [id,key] of fields){const el=$(id);if(el)el.textContent=Number.isFinite(json[key])?String(json[key]):'—';}
+      const plans=json.active_plans;
+      for(const [id,key] of [['aboStarter','starter'],['aboPro','pro'],['aboBusiness','business']]){
+        const target=$(id);if(target)target.textContent=plans&&Number.isFinite(plans[key])?String(plans[key]):'—';
+      }
       if(status)status.textContent='✅ Actuele totalen opgehaald; er worden geen persoonlijke klantgegevens getoond.';
     }catch(error){if(status)status.textContent='Kan cijfers nog niet laden: '+String(error.message||'onbekende fout');}
   };
