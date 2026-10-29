@@ -746,7 +746,19 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <button type="button" id="adGenerate">✨ Maak mijn advertentieplan</button>
   <p class="toast" id="adStatus" role="status"></p>
  </div>
- <div class="card" id="adResultsCard" hidden>
+ <div class="card" id="allbizAdConnections">
+  <h2>🔗 Mijn advertentieaccounts koppelen</h2>
+  <p class="small muted">Koppel je eigen accounts veilig via officiële toestemming. Je advertentiekosten worden door het advertentieplatform aangerekend, niet door AllBiz One. Zonder afzonderlijke bevestiging worden geen campagnes gestart.</p>
+  <div class="ads-connection-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
+    <div class="plan"><h3>🔎 Google Ads</h3><p id="aboGoogleAdsState" role="status">Status controleren…</p><button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button> <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button></div>
+    <div class="plan"><h3>📘 Facebook & Instagram</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is Meta-ontwikkelaarstoegang en toestemming nodig.</p><button type="button" disabled>Meta nog niet beschikbaar</button></div>
+    <div class="plan"><h3>🎵 TikTok Ads</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is TikTok Business API-toegang nodig.</p><button type="button" disabled>TikTok nog niet beschikbaar</button></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
+  <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
+  <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
+</div>
+<div class="card" id="adResultsCard" hidden>
   <h2>📊 Budget en mogelijke winst</h2>
   <div id="adFinancial" class="ads-kpis"></div>
   <p id="adEstimate" class="small muted" aria-live="polite"></p>
@@ -3396,5 +3408,57 @@ try {
 <script src="allbiz-guided-help.js?v=20261028-trading3" defer></script>
 <script src="allbiz-local-backup.js?v=20261029-3" defer></script>
 <script src="allbiz-launch-audit.js?v=20261029-release4" defer></script>
+<script id="allbizAdsConnectClient">
+(()=>{
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const host=$('allbizAdConnections');if(!host)return;
+ const status=$('aboAdsConnectStatus'),google=$('aboGoogleAdsState'),connect=$('aboGoogleAdsConnect'),disconnect=$('aboGoogleAdsDisconnect'),refresh=$('aboAdsRefresh');
+ const endpoint='https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ads-connect';
+ async function send(action){
+  const auth=window.allbizAuth;
+  if(!auth)throw Error('Log eerst in bij Mijn account om je advertentieaccounts te beheren.');
+  const {data,error}=await auth.getSession();
+  if(error||!data?.session?.access_token)throw Error('Log eerst in bij Mijn account.');
+  const response=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+data.session.access_token,'Content-Type':'application/json','apikey':document.querySelector('meta[name="allbiz-supabase-public-key"]')?.content||window.ALLBIZ_SUPABASE_PUBLIC_KEY||''},body:JSON.stringify({action})});
+  const body=await response.json().catch(()=>({}));
+  if(!response.ok)throw Error(body.error||'Koppeling niet beschikbaar.');
+  return body;
+ }
+ async function reload(){
+  refresh.disabled=true;connect.disabled=true;disconnect.hidden=true;status.textContent='Koppelingen worden gecontroleerd…';
+  try{
+   const d=await send('status');const g=d.google||{};
+   google.textContent=g.connected?'✅ Google-account gekoppeld ('+(g.connected_at?new Date(g.connected_at).toLocaleDateString('nl-BE'):'bevestigd')+').':g.configured?'Nog niet gekoppeld.':'Nog niet beschikbaar: beheerder moet Google OAuth instellen.';
+   connect.disabled=!d.eligible||!g.configured||!!g.connected;
+   connect.textContent=g.connected?'Google-account gekoppeld':'Verbind Google Ads';
+   disconnect.hidden=!g.connected;
+   status.textContent=d.eligible?'Geen advertenties worden automatisch gepubliceerd.':'Account koppelen is beschikbaar met het Business-abonnement.';
+  }catch(e){google.textContent='Status onbekend';status.textContent=e.message||'Controle mislukt.';}
+  finally{refresh.disabled=false;}
+ }
+ refresh.addEventListener('click',reload);
+ connect.addEventListener('click',async()=>{
+  connect.disabled=true;status.textContent='Beveiligde toestemming voorbereiden…';
+  try{const d=await send('connect');if(!d.authorization_url||!d.authorization_url.startsWith('https://accounts.google.com/'))throw Error('Geen geldige autorisatielink ontvangen.');window.location.assign(d.authorization_url);}
+  catch(e){status.textContent=e.message||'Verbinden mislukt.';connect.disabled=false;}
+ });
+ disconnect.addEventListener('click',async()=>{
+  if(!confirm('Je Google Ads-account ontkoppelen van AllBiz One?'))return;
+  disconnect.disabled=true;
+  try{await send('disconnect');await reload();status.textContent='Google Ads losgekoppeld.'}
+  catch(e){status.textContent=e.message||'Ontkoppelen mislukt.'}
+  finally{disconnect.disabled=false;}
+ });
+ const result=new URLSearchParams(location.search).get('result');
+ if(new URLSearchParams(location.search).get('ads')==='google'){
+  const messages={connected:'✅ Google heeft toestemming gegeven. Controleer hieronder je koppeling.',cancelled:'Koppeling afgebroken.',expired:'De koppelingslink is verlopen.',token_error:'Google heeft geen geldige toegang gegeven.',no_refresh_token:'Geen duurzame toestemming ontvangen. Koppelen is mislukt.',storage_error:'Opslaan van de koppeling is mislukt.',error:'Koppelen is mislukt.'};
+  if(messages[result])status.textContent=messages[result];
+  history.replaceState(null,'',location.pathname+location.hash);
+ }
+ window.addEventListener('allbiz-user-changed',reload);
+ reload();
+})();
+</script>
 </body>
 </html>
