@@ -22,6 +22,128 @@
     '@media(max-width:650px){.abo-mobile-actions{grid-template-columns:1fr}.abo-mobile-guide{padding:13px}.abo-mobile-actions button{font-size:15px}#productForm button[type="submit"]{width:100%;min-height:48px}#productForm input,#productForm textarea{font-size:16px}}';
   document.head.append(css);
 
+
+  // Klanten- en beheerdersweergave. Geen gegevens van andere accounts ophalen.
+  // Dit is presentatie; alle echte rechten blijven server-side met RLS gecontroleerd.
+  const accountPanel = $('account');
+  if (accountPanel && !$('allbizCustomerDashboard')) {
+    const dashboardStyle = document.createElement('style');
+    dashboardStyle.textContent =
+      '#allbizCustomerDashboard,#allbizOwnerDashboard{margin:12px 0 18px;padding:18px;border:1px solid #ddd3f1;border-radius:16px;background:#faf8ff;color:#231a39}' +
+      '#allbizCustomerDashboard h2,#allbizOwnerDashboard h2{margin:0 0 10px;font-size:21px}' +
+      '.abo-dashboard-links{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:9px;margin:15px 0}' +
+      '.abo-dashboard-links button{min-width:0;width:100%;min-height:48px;white-space:normal}' +
+      '#allbizCustomerDashboard p,#allbizOwnerDashboard p{overflow-wrap:anywhere}' +
+      '@media(max-width:650px){#allbizCustomerDashboard,#allbizOwnerDashboard{padding:13px}.abo-dashboard-links{grid-template-columns:1fr}}';
+    document.head.append(dashboardStyle);
+
+    const customer = document.createElement('section');
+    customer.id = 'allbizCustomerDashboard';
+    customer.setAttribute('aria-label','Mijn klantendashboard');
+    const heading = document.createElement('h2');
+    heading.textContent = '👤 Mijn klantendashboard';
+    const welcome = document.createElement('p');
+    welcome.id = 'allbizCustomerWelcome';
+    welcome.setAttribute('role','status');
+    welcome.textContent = 'Log in om je persoonlijke account te bekijken.';
+    const plan = document.createElement('p');
+    plan.id = 'allbizCustomerPlan';
+    plan.textContent = 'Je abonnementsstatus verschijnt na het inloggen.';
+    const links = document.createElement('div');
+    links.className = 'abo-dashboard-links';
+    const targets = [
+      ['🎨 Mijn website','site'],
+      ['🏪 Mijn webshop','shop'],
+      ['📦 Mijn producten','products'],
+      ['💎 Abonnement','plans'],
+      ['💾 Reservekopie','dashboard'],
+      ['🤖 Hulp nodig?','help']
+    ];
+    for (const [label,tab] of targets) {
+      const button = document.createElement('button');
+      button.type='button';
+      button.className='secondary';
+      button.textContent=label;
+      button.addEventListener('click',() => {
+        if (typeof switchTab === 'function') switchTab(tab);
+        else document.querySelector('nav.nav button[data-tab="'+tab+'"]')?.click();
+        if(tab==='dashboard'){
+          window.setTimeout(()=>{
+            if(!$('dashboard')?.classList.contains('active'))return;
+            $('allbizBackupPanel')?.scrollIntoView({behavior:'smooth',block:'start'});
+          },230);
+        }
+      });
+      links.append(button);
+    }
+    const note = document.createElement('p');
+    note.className = 'small muted';
+    note.textContent = 'Let op: sommige ontwerpen zijn nog alleen op dit toestel opgeslagen en niet per account gescheiden. Gebruik privé opslaan en reservekopieën. Deel dit toestel niet met andere klanten.';
+    customer.append(heading,welcome,plan,links,note);
+    accountPanel.insertBefore(customer,accountPanel.firstElementChild);
+
+    const owner = document.createElement('section');
+    owner.id='allbizOwnerDashboard';
+    owner.hidden=true;
+    owner.setAttribute('aria-label','Beheerdersdashboard');
+    const ownerTitle=document.createElement('h2');
+    ownerTitle.textContent='🛡️ Beheerdersdashboard';
+    const ownerInfo=document.createElement('p');
+    ownerInfo.textContent='Je eigenaarsrol is herkend. Het beveiligde klanten- en omzetoverzicht is nog niet aangesloten. Er worden hier geen klantgegevens of betalingen opgehaald.';
+    const ownerNote=document.createElement('p');
+    ownerNote.className='small muted';
+    ownerNote.textContent='Beheeracties en klantstatistieken komen pas beschikbaar na afzonderlijke serverbeveiliging. In deze testversie kun je geen abonnementen van klanten wijzigen.';
+    owner.append(ownerTitle,ownerInfo,ownerNote);
+    customer.after(owner);
+
+    let authBound=false;
+    let lastView='';
+    const paint = async () => {
+      const auth=window.allbizAuth;
+      if(!auth || typeof auth.getUser!=='function')return;
+      try {
+        const {data,error}=await auth.getUser();
+        const user=error?null:data?.user;
+        welcome.textContent=user?'✅ Ingelogd met: '+(user.email||'je account'):'Log in om je persoonlijke account te bekijken.';
+        links.hidden=!user;
+        note.hidden=!user;
+        plan.textContent=user?
+          ($('accountSubscriptionStatus')?.textContent||'Je abonnementsstatus wordt gecontroleerd.'):
+          'Log eerst in om je abonnement te bekijken.';
+        // Deze claim is door de Auth-server toegekend, niet door gebruiker-aanpasbare metadata.
+        // Alleen een zichtbare beheerplaceholder; geen client-side autorisatie voor gevoelige data.
+        owner.hidden=!(user?.app_metadata?.allbiz_role==='owner');
+        lastView=user?.id||'';
+      }catch(_){
+        welcome.textContent='De inlogstatus kon niet gecontroleerd worden. Probeer opnieuw.';
+        links.hidden=true;note.hidden=true;owner.hidden=true;
+      }
+    };
+    links.hidden=true;
+    note.hidden=true;
+    // Koppel zodra de reeds aanwezige Supabase-login geladen is.
+    let attempts=0;
+    const waitForAuth=window.setInterval(()=>{
+      attempts++;
+      if(window.allbizAuth && !authBound){
+        authBound=true;
+        window.clearInterval(waitForAuth);
+        window.allbizAuth.onAuthStateChange?.(()=>{
+          // Laat de bestaande inlogstroom eerst afhandelen.
+          window.setTimeout(()=>{void paint();},250);
+        });
+        void paint();
+      }else if(attempts>=40){
+        window.clearInterval(waitForAuth);
+        welcome.textContent='Inloggen is nog niet beschikbaar. Controleer de status bij Mijn account.';
+      }
+    },350);
+    const subscription=$('accountSubscriptionStatus');
+    if(subscription) new MutationObserver(()=>{
+      if(lastView) plan.textContent=subscription.textContent;
+    }).observe(subscription,{subtree:true,childList:true,characterData:true});
+  }
+
   const make = (tag, text, cls) => {
     const n = document.createElement(tag);
     if (text !== undefined) n.textContent = text;
