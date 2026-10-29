@@ -315,6 +315,8 @@ body.allbiz-help-active #allbizFloatingHelp{display:none}
 <label for="mobileFeatureSelect" id="mobileFeatureLabel">📱 Kies wat je wilt doen</label>
 <select id="mobileFeatureSelect" aria-label="Kies een onderdeel van AllBiz One"></select>
 <div class="mobile-shortcuts" aria-label="Snel navigeren">
+<button type="button" class="secondary" data-goto="trading">📈 Trading (demo)</button>
+<button type="button" class="secondary" data-goto="affiliate">🔗 Affiliate marketing</button>
 <button type="button" id="quickOrders" class="secondary">📦 Mijn testbestellingen</button>
 <button type="button" id="quickGoBack" class="secondary">↩️ Vorige onderdeel</button>
 </div>
@@ -1862,7 +1864,13 @@ openRequestedSection();
  const title=document.getElementById('mobileFeatureLabel');
  if(!select||!nav)return;
  const titles={nl:'📱 Kies wat je wilt doen',en:'📱 Choose a feature',fr:'📱 Choisir une fonction',de:'📱 Funktion auswählen',es:'📱 Elige una función',pt:'📱 Escolha uma função',it:'📱 Scegli una funzione',ar:'📱 اختر وظيفة',hi:'📱 कोई सुविधा चुनें',zh:'📱 选择功能'};
- const navButtons=[...nav.querySelectorAll('button[data-tab]')];
+ const allNavButtons=[...nav.querySelectorAll('button[data-tab]')];
+ // Op gsm staan veelgebruikte onderdelen bovenaan in het keuzemenu.
+ const preferred=['trading','affiliate','help'];
+ const navButtons=[
+  ...preferred.map(id=>allNavButtons.find(b=>b.dataset.tab===id)).filter(Boolean),
+  ...allNavButtons.filter(b=>!preferred.includes(b.dataset.tab))
+ ];
  navButtons.forEach(b=>{const o=document.createElement('option');o.value=b.dataset.tab;select.append(o)});
  function update(){
   navButtons.forEach((b,i)=>{if(select.options[i])select.options[i].textContent=b.textContent});
