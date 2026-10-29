@@ -2661,6 +2661,11 @@ try {
       for(const [id,key] of [['aboStarter','starter'],['aboPro','pro'],['aboBusiness','business']]){
         const target=$(id);if(target)target.textContent=plans&&Number.isFinite(plans[key])?String(plans[key]):'—';
       }
+      window.dispatchEvent(new CustomEvent('allbiz-owner-stats-loaded', {detail:{
+        active_subscriptions:json.active_subscriptions,
+        published_websites:json.published_websites,
+        updated_at:json.updated_at
+      }}));
       if(status)status.textContent='✅ Actuele totalen opgehaald; er worden geen persoonlijke klantgegevens getoond.';
     }catch(error){if(status)status.textContent='Kan cijfers nog niet laden: '+String(error.message||'onbekende fout');}
   };
@@ -2845,6 +2850,6 @@ try {
 <script src="allbiz-affiliate-drafts.js?v=20261028-3" defer></script>
 <script src="allbiz-guided-help.js?v=20261028-trading3" defer></script>
 <script src="allbiz-local-backup.js?v=20261029-2" defer></script>
-<script src="allbiz-launch-audit.js?v=20261029-release1" defer></script>
+<script src="allbiz-launch-audit.js?v=20261029-release2" defer></script>
 </body>
 </html>
