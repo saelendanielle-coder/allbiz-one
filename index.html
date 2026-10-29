@@ -353,6 +353,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 <button type="button" data-tab="radar" data-nav-i18n="radar">🔥 Productradar</button>
 <button type="button" data-tab="builder" data-nav-i18n="builder">✨ Website-assistent</button>
 <button type="button" data-tab="marketing" data-nav-i18n="marketing">📣 Digitale marketing</button>
+<button type="button" data-tab="adaccounts">🔗 Mijn advertentieaccounts</button>
 <button type="button" data-tab="ads" data-nav-i18n="ads">📢 Advertentiecampagnes (Business)</button>
 <button type="button" data-tab="trading" data-nav-i18n="trading">📈 Trading oefenen</button>
 <button type="button" data-tab="guides" data-nav-i18n="guides">✅ Stappenplannen</button>
@@ -683,7 +684,8 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <button type="button" class="secondary" data-marketing-jump="aboMarketingSEO" style="flex:1 1 145px;padding:11px 8px;font-size:14px">🔎 SEO-controle</button>
   </div>
   <div class="import-buttons">
-    <button type="button" class="secondary" data-goto="video">🎬 YouTube-video's</button>
+    <button type="button" class="secondary" data-goto="adaccounts">🔗 Advertentieaccounts koppelen</button>
+<button type="button" class="secondary" data-goto="video">🎬 YouTube-video's</button>
     <button type="button" class="secondary" data-goto="affiliate">🔗 Affiliate marketing</button>
     <button type="button" class="secondary" data-goto="site">🌐 Website & SEO</button>
     <button type="button" class="secondary" data-goto="guides">✅ Marketingstappenplan</button>
@@ -716,9 +718,24 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <p>Deze drie onderdelen konden nog niet geladen worden. Vernieuw de pagina als dit bericht blijft staan.</p>
 </div>
 </section>
+<section id="adaccounts" class="panel" aria-label="Mijn advertentieaccounts">
+<div class="card" id="allbizAdConnections">
+  <h2>🔗 Mijn advertentieaccounts koppelen</h2>
+  <p class="small muted">Koppel je eigen accounts veilig via officiële toestemming. Je advertentiekosten worden door het advertentieplatform aangerekend, niet door AllBiz One. Zonder afzonderlijke bevestiging worden geen campagnes gestart.</p>
+  <div class="ads-connection-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
+    <div class="plan"><h3>🔎 Google Ads</h3><p id="aboGoogleAdsState" role="status">Status controleren…</p><button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button> <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button></div>
+    <div class="plan"><h3>📘 Facebook & Instagram</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is Meta-ontwikkelaarstoegang en toestemming nodig.</p><button type="button" disabled>Meta nog niet beschikbaar</button></div>
+    <div class="plan"><h3>🎵 TikTok Ads</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is TikTok Business API-toegang nodig.</p><button type="button" disabled>TikTok nog niet beschikbaar</button></div>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
+  <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
+  <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
+</div>
+</section>
 <section id="ads" class="panel">
  <div class="card">
   <h2>📣 Automatische advertentie-assistent</h2>
+<p><button type="button" class="secondary" data-goto="adaccounts">🔗 Bekijk mijn advertentieaccounts</button></p>
   <p>Maak in één keer reclameconcepten voor Google, Instagram, Facebook en TikTok. De assistent gebruikt je webshopnaam en gekozen product. Je kunt alles downloaden en zelf publiceren.</p>
   <div class="ads-steps"><span>1. Kies je product</span><span>2. Stel budget in</span><span>3. Maak campagnes</span><span>4. Controleer & publiceer</span></div>
   <div class="notice"><b>Testversie:</b> er worden geen advertenties geplaatst, geen kosten gemaakt en geen websites gepubliceerd. Echte publicatie vereist een online webshop, aparte advertentieaccounts en goedkeuring. Winst is nooit gegarandeerd.</div>
@@ -746,19 +763,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <button type="button" id="adGenerate">✨ Maak mijn advertentieplan</button>
   <p class="toast" id="adStatus" role="status"></p>
  </div>
- <div class="card" id="allbizAdConnections">
-  <h2>🔗 Mijn advertentieaccounts koppelen</h2>
-  <p class="small muted">Koppel je eigen accounts veilig via officiële toestemming. Je advertentiekosten worden door het advertentieplatform aangerekend, niet door AllBiz One. Zonder afzonderlijke bevestiging worden geen campagnes gestart.</p>
-  <div class="ads-connection-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
-    <div class="plan"><h3>🔎 Google Ads</h3><p id="aboGoogleAdsState" role="status">Status controleren…</p><button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button> <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button></div>
-    <div class="plan"><h3>📘 Facebook & Instagram</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is Meta-ontwikkelaarstoegang en toestemming nodig.</p><button type="button" disabled>Meta nog niet beschikbaar</button></div>
-    <div class="plan"><h3>🎵 TikTok Ads</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is TikTok Business API-toegang nodig.</p><button type="button" disabled>TikTok nog niet beschikbaar</button></div>
-  </div>
-  <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
-  <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
-  <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
-</div>
-<div class="card" id="adResultsCard" hidden>
+ <div class="card" id="adResultsCard" hidden>
   <h2>📊 Budget en mogelijke winst</h2>
   <div id="adFinancial" class="ads-kpis"></div>
   <p id="adEstimate" class="small muted" aria-live="polite"></p>
@@ -771,7 +776,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <h2>🌍 Zorg dat klanten je website vinden</h2>
   <p>De website komt niet automatisch overal online. Dit zijn de stappen om je vindbaarheid op te bouwen:</p>
   <ol><li>Publiceer je webshop met een echte domeinnaam en werkende checkout.</li><li>Voeg een goede paginatitel, beschrijving, productfoto's en contactinformatie toe (SEO).</li><li>Verifieer je website bij Google Search Console en meld productgegevens aan bij Google Merchant Center als je daarvoor in aanmerking komt.</li><li>Maak een bedrijfsprofiel en plaats regelmatig relevante video's of berichten op sociale media.</li><li>Koppel je eigen advertentieaccounts, controleer de voorstellen en bepaal zelf of je advertentiekosten maakt.</li><li>Meet echte bezoekers, bestellingen, retouren en winst voordat je je budget verhoogt.</li></ol>
-  <div class="ads-footnote"><b>Let op:</b> advertenties zijn geen garantie op verkopen of directe winst. Ook met goede reclame kun je geld verliezen. De app bewaart jouw concepten alleen op dit toestel; er zijn nog geen advertentie-API's verbonden.</div>
+  <div class="ads-footnote"><b>Let op:</b> advertenties zijn geen garantie op verkopen of directe winst. Ook met goede reclame kun je geld verliezen. De app bewaart jouw advertentieconcepten lokaal. Echte advertentie-API-toestemming en publicatiefuncties zijn nog niet actief.</div>
  </div>
 </section>
 
@@ -2020,7 +2025,7 @@ function openRequestedSection(){
  if(!target)return;
  openApp();
  window.allbizRequestedSection=section;
- if(['plans','account','marketing'].includes(section))target.click();
+ if(['plans','account','marketing','adaccounts'].includes(section))target.click();
  else if(window.allbizNavigationReady)target.click();
 }
 window.addEventListener('hashchange', openRequestedSection);
@@ -2037,7 +2042,7 @@ openRequestedSection();
  const titles={nl:'📱 Kies wat je wilt doen',en:'📱 Choose a feature',fr:'📱 Choisir une fonction',de:'📱 Funktion auswählen',es:'📱 Elige una función',pt:'📱 Escolha uma função',it:'📱 Scegli una funzione',ar:'📱 اختر وظيفة',hi:'📱 कोई सुविधा चुनें',zh:'📱 选择功能'};
  const allNavButtons=[...nav.querySelectorAll('button[data-tab]')];
  // Op gsm staan veelgebruikte onderdelen bovenaan in het keuzemenu.
- const preferred=['marketing','trading','affiliate','help'];
+ const preferred=['marketing','adaccounts','trading','affiliate','help'];
  const navButtons=[
   ...preferred.map(id=>allNavButtons.find(b=>b.dataset.tab===id)).filter(Boolean),
   ...allNavButtons.filter(b=>!preferred.includes(b.dataset.tab))
@@ -2109,6 +2114,7 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  window.allbizPublicApiKey = SUPABASE_PUBLIC_KEY;
   const connectMsg=document.getElementById('sellerConnectMessage');
   async function callConnectSandbox(action){
     const {data:{session},error}=await client.auth.getSession();
@@ -3420,7 +3426,7 @@ try {
   if(!auth)throw Error('Log eerst in bij Mijn account om je advertentieaccounts te beheren.');
   const {data,error}=await auth.getSession();
   if(error||!data?.session?.access_token)throw Error('Log eerst in bij Mijn account.');
-  const response=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+data.session.access_token,'Content-Type':'application/json','apikey':document.querySelector('meta[name="allbiz-supabase-public-key"]')?.content||window.ALLBIZ_SUPABASE_PUBLIC_KEY||''},body:JSON.stringify({action})});
+  const response=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+data.session.access_token,'Content-Type':'application/json','apikey':window.allbizPublicApiKey||''},body:JSON.stringify({action})});
   const body=await response.json().catch(()=>({}));
   if(!response.ok)throw Error(body.error||'Koppeling niet beschikbaar.');
   return body;
@@ -3454,6 +3460,7 @@ try {
  if(new URLSearchParams(location.search).get('ads')==='google'){
   const messages={connected:'✅ Google heeft toestemming gegeven. Controleer hieronder je koppeling.',cancelled:'Koppeling afgebroken.',expired:'De koppelingslink is verlopen.',token_error:'Google heeft geen geldige toegang gegeven.',no_refresh_token:'Geen duurzame toestemming ontvangen. Koppelen is mislukt.',storage_error:'Opslaan van de koppeling is mislukt.',error:'Koppelen is mislukt.'};
   if(messages[result])status.textContent=messages[result];
+  if(location.hash!=='#adaccounts') location.hash='#adaccounts';
   history.replaceState(null,'',location.pathname+location.hash);
  }
  window.addEventListener('allbiz-user-changed',reload);
