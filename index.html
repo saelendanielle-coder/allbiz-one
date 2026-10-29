@@ -2531,9 +2531,36 @@ try {
     const details=document.createElement('section');
     details.id='aboOwnerDetails';
     details.style.marginTop='20px';
-    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten</h3><p id="aboRevenueInfo" class="muted">Nog niet gekoppeld aan echte Stripe-betalingen. Testbetalingen worden niet als omzet geteld.</p>';
+    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten & betaalbeheer</h3><p id="aboRevenueInfo" class="muted">Nog geen gekoppelde omzetrapportage. Testbetalingen tellen niet mee.</p><p class="small muted">Controleer in Stripe de echte betalingen, terugbetalingen en kosten. In AllBiz One kun je abonnementen voorlopig alleen bekijken, niet wijzigen.</p><a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener noreferrer">🔒 Bekijk echte betalingen in Stripe</a>';
     summaryHost.append(details);
   }
+  let ownerClientFilter='all';
+  const renderOwnerSubscriptionFilters=(customers)=>{
+    const host=$('aboCustomerList');if(!host)return;
+    const cards=[...host.querySelectorAll('article')];
+    const selected=ownerClientFilter;
+    const groups=[['all','Alle'],['paying','Echt actief'],['test','Alleen test'],['none','Geen abonnement']];
+    let controls=$('aboSubscriptionFilters');
+    if(!controls){
+      controls=document.createElement('div');controls.id='aboSubscriptionFilters';
+      controls.style.cssText='display:flex;flex-wrap:wrap;gap:6px;margin:12px 0';
+      host.before(controls);
+    }
+    controls.replaceChildren();
+    groups.forEach(([value,label])=>{
+      const btn=document.createElement('button');btn.type='button';
+      btn.className=value===selected?'':'secondary';
+      btn.style.cssText='padding:9px 11px;font-size:13px;width:auto';
+      const number=customers.filter(c=>value==='all'||(value==='paying'&&['active','trialing'].includes(c.live_status))||(value==='test'&&!['active','trialing'].includes(c.live_status)&&['active','trialing'].includes(c.sandbox_status))||(value==='none'&&!['active','trialing'].includes(c.live_status)&&!['active','trialing'].includes(c.sandbox_status))).length;
+      btn.textContent=label+' ('+number+')';
+      btn.addEventListener('click',()=>{ownerClientFilter=value;renderOwnerSubscriptionFilters(customers)});
+      controls.append(btn);
+    });
+    cards.forEach((card,i)=>{
+      const c=customers[i];
+      card.hidden=!(selected==='all'||(selected==='paying'&&['active','trialing'].includes(c?.live_status))||(selected==='test'&&!['active','trialing'].includes(c?.live_status)&&['active','trialing'].includes(c?.sandbox_status))||(selected==='none'&&!['active','trialing'].includes(c?.live_status)&&!['active','trialing'].includes(c?.sandbox_status)));
+    });
+  };
   let ownerCustomerPage=1;
   const showOwnerCustomers=async(page=1)=>{
     const status=$('aboDetailsStatus'),container=$('aboCustomerList'),previous=$('aboPreviousCustomers'),next=$('aboNextCustomers');
@@ -2562,7 +2589,8 @@ try {
       ownerCustomerPage=page;
       if(previous)previous.disabled=page<=1;if(next)next.disabled=!payload.has_more;
       if(status)status.textContent='✅ Pagina '+page+' · '+(typeof payload.total_accounts==='number'?payload.total_accounts+' accounts in totaal.':'Klantenoverzicht geladen.');
-      if($('aboRevenueInfo'))$('aboRevenueInfo').textContent=payload.revenue_notice||'Omzetrapportage nog niet gekoppeld.';
+      if($('aboRevenueInfo'))$('aboRevenueInfo').textContent='Nog geen gekoppelde omzetrapportage. Controleer echte betalingen in Stripe. Testbetalingen zijn geen inkomsten.';
+      renderOwnerSubscriptionFilters(customers);
     }catch(error){if(status)status.textContent='Klantenlijst niet beschikbaar: '+String(error.message||'fout');}
   };
   $('aboPreviousCustomers')?.addEventListener('click',()=>{void showOwnerCustomers(Math.max(1,ownerCustomerPage-1))});
