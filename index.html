@@ -2528,7 +2528,45 @@ try {
     section.id='allbizOwnerMetrics';
     section.innerHTML='<h3>📊 Mijn cijfers</h3><p id="aboStatsStatus" role="status">Je statistieken worden geladen zodra je eigenaarsrol is bevestigd.</p><div class="stats"><div class="stat"><strong id="aboUsers">—</strong><span>Accounts (inclusief eigenaar)</span></div><div class="stat"><strong id="aboSubscriptions">—</strong><span>Actieve abonnementen</span></div><div class="stat"><strong id="aboSites">—</strong><span>Websiteontwerpen</span></div><div class="stat"><strong id="aboShops">—</strong><span>Webshopontwerpen</span></div><div class="stat"><strong id="aboPublic">—</strong><span>Gepubliceerde websites</span></div><div class="stat"><strong>—</strong><span>Omzet — nog niet gekoppeld</span></div></div><button type="button" class="secondary" id="aboReloadStats">🔄 Cijfers vernieuwen</button>';
     summaryHost.append(section);
+    const details=document.createElement('section');
+    details.id='aboOwnerDetails';
+    details.style.marginTop='20px';
+    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten</h3><p id="aboRevenueInfo" class="muted">Nog niet gekoppeld aan echte Stripe-betalingen. Testbetalingen worden niet als omzet geteld.</p>';
+    summaryHost.append(details);
   }
+  let ownerCustomerPage=1;
+  const showOwnerCustomers=async(page=1)=>{
+    const status=$('aboDetailsStatus'),container=$('aboCustomerList'),previous=$('aboPreviousCustomers'),next=$('aboNextCustomers');
+    if(!container)return;
+    if(status)status.textContent='Klanten en abonnementen worden beveiligd opgehaald…';
+    if(previous)previous.disabled=true;if(next)next.disabled=true;
+    try{
+      const {data,error}=await client.auth.getSession();
+      if(error||!data?.session?.access_token)throw Error('Log eerst in.');
+      const response=await fetch(SUPABASE_URL+'/functions/v1/allbiz-owner-overview?details=1&page='+page,{
+        headers:{Authorization:'Bearer '+data.session.access_token,apikey:SUPABASE_PUBLIC_KEY},cache:'no-store'
+      });
+      const payload=await response.json().catch(()=>({}));
+      if(!response.ok)throw Error(payload.error||'Ophalen mislukt.');
+      container.replaceChildren();
+      const customers=Array.isArray(payload.customers)?payload.customers:[];
+      const label=(value)=>value==='active'?'Actief':value==='trialing'?'Proefperiode':value==='none'?'Geen':value==='expired'?'Verlopen':value==='canceled'?'Opgezegd':value==='past_due'?'Betaling achterstallig':String(value||'Onbekend');
+      for(const record of customers){
+        const box=document.createElement('article');box.style.cssText='border:1px solid #ddd3f1;border-radius:12px;padding:12px;margin:9px 0;overflow-wrap:anywhere';
+        const heading=document.createElement('strong');heading.textContent=(record.role==='owner'?'🛡️ Eigenaar · ':'👤 Klant · ')+(record.email||'Geen e-mailadres');
+        const line=document.createElement('p');line.className='small';line.textContent='Echt abonnement: '+label(record.live_status)+(record.live_plan?' ('+record.live_plan+')':'')+' · Test: '+label(record.sandbox_status)+(record.sandbox_plan?' ('+record.sandbox_plan+')':'');
+        const date=document.createElement('p');date.className='small muted';date.textContent='Registratie: '+(record.registered_at?new Date(record.registered_at).toLocaleDateString('nl-BE'):'onbekend');
+        box.append(heading,line,date);container.append(box);
+      }
+      if(!customers.length){const empty=document.createElement('p');empty.textContent='Geen klanten in deze selectie.';container.append(empty);}
+      ownerCustomerPage=page;
+      if(previous)previous.disabled=page<=1;if(next)next.disabled=!payload.has_more;
+      if(status)status.textContent='✅ Pagina '+page+' · '+(typeof payload.total_accounts==='number'?payload.total_accounts+' accounts in totaal.':'Klantenoverzicht geladen.');
+      if($('aboRevenueInfo'))$('aboRevenueInfo').textContent=payload.revenue_notice||'Omzetrapportage nog niet gekoppeld.';
+    }catch(error){if(status)status.textContent='Klantenlijst niet beschikbaar: '+String(error.message||'fout');}
+  };
+  $('aboPreviousCustomers')?.addEventListener('click',()=>{void showOwnerCustomers(Math.max(1,ownerCustomerPage-1))});
+  $('aboNextCustomers')?.addEventListener('click',()=>{void showOwnerCustomers(ownerCustomerPage+1)});
   const refreshOwnerStats=async()=>{
     const status=$('aboStatsStatus');
     if(status)status.textContent='Statistieken ophalen…';
@@ -2574,6 +2612,7 @@ try {
         setOwnerVisible(true);
         if(ownerCheckButton)ownerCheckButton.hidden=true;
         void refreshOwnerStats();
+        void showOwnerCustomers(1);
         if(ownerSignInButton)ownerSignInButton.hidden=true;
         if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Je cijfers staan hieronder.';
       }else{
