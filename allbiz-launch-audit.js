@@ -40,6 +40,53 @@
       list.append(li);
     }
     panel.append(list);
+    // De eigenaar krijgt hier echte, alleen-lezen servercijfers. Een betaling
+    // wordt NOOIT gesimuleerd of geactiveerd vanuit dit dashboard.
+    const server = document.createElement('div');
+    server.id = 'allbizLaunchServerCheck';
+    server.style.cssText = 'padding:13px;margin:12px 0;border:1px solid #d9d0ef;border-radius:12px;background:white';
+    const serverHeading = document.createElement('strong');
+    serverHeading.textContent = '🔐 Live controle van abonnementen';
+    const serverStatus = document.createElement('p');
+    serverStatus.id = 'allbizLaunchServerStatus';
+    serverStatus.setAttribute('role', 'status');
+    serverStatus.setAttribute('aria-live', 'polite');
+    serverStatus.style.margin = '8px 0';
+    serverStatus.textContent = 'Nog niet gecontroleerd. De cijfers worden via jouw beveiligde beheerdersaccount opgehaald.';
+    const serverNote = document.createElement('p');
+    serverNote.className = 'small muted';
+    serverNote.textContent = 'Alleen-lezen controle: geen betaling, afschrijving of wijziging van abonnementen. Ook bij een actief abonnement blijft een volledige live eindtest nodig.';
+    const refresh = document.createElement('button');
+    refresh.type = 'button';
+    refresh.className = 'secondary';
+    refresh.textContent = '↻ Controleer echte abonnementen';
+    refresh.addEventListener('click', () => {
+      const existing = document.getElementById('aboReloadStats');
+      if (!existing) {
+        serverStatus.textContent = 'Het beveiligde overzicht is nog niet geladen. Controleer eerst je beheerdersrechten.';
+        return;
+      }
+      serverStatus.textContent = 'De actuele betaalstatus wordt beveiligd opgevraagd…';
+      existing.click();
+    });
+    server.append(serverHeading, serverStatus, refresh, serverNote);
+    panel.append(server);
+    window.addEventListener('allbiz-owner-stats-loaded', event => {
+      const data = event.detail || {};
+      const count = data.active_subscriptions;
+      const sites = data.published_websites;
+      if (!Number.isInteger(count) || count < 0) {
+        serverStatus.textContent = 'De server is bereikbaar, maar het aantal echte abonnementen is momenteel onbekend.';
+        return;
+      }
+      const suffix = Number.isInteger(sites) && sites >= 0
+        ? ' · ' + sites + ' gepubliceerde websites.'
+        : '.';
+      serverStatus.textContent = '✅ Server bereikbaar: ' + count +
+        ' echte actieve abonnementen' + suffix +
+        (count === 0 ? ' Een echte betaal- en toegangstest moet nog plaatsvinden.' :
+          ' Controleer nog altijd de volledige betaling, toegang en opzegging.');
+    });
     const note = document.createElement('p');
     note.className = 'small';
     note.textContent = 'Status: voorbereiding / bèta. Dit is geen bevestiging dat alle functies verkoopklaar of juridisch volledig zijn.';
