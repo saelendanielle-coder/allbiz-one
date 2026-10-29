@@ -25,6 +25,12 @@
       ['⚠️', 'Trading met echt geld', 'Nog niet beschikbaar. Er is geen toegelaten, werkende brokerkoppeling voor echte orders.'],
       ['⚠️', 'Bedrijfs- en klantinformatie', 'Controleer vóór verkoop ondernemingsgegevens, privacy, voorwaarden, herroepingsrecht, klantenservice en duidelijke abonnementsprijzen.']
     ];
+    // Exactly five launch blockers, separate from the working infrastructure.
+    const remaining = document.createElement('p');
+    remaining.className = 'small';
+    remaining.style.fontWeight = '700';
+    remaining.textContent = 'Nog 5 lanceringspunten: live betaling, websitepublicatie, webshopbestellingen, brokerkoppeling en bedrijfsinformatie.';
+    panel.append(remaining);
     const list = document.createElement('ul');
     list.style.cssText = 'list-style:none;padding:0;display:grid;gap:8px;margin:12px 0';
     for (const [mark, title, description] of checks) {
