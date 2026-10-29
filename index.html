@@ -137,6 +137,7 @@ input[type=file]{font-size:14px;overflow:hidden}
  .mobile-feature-picker select{font-size:16px;min-height:48px;padding:10px 13px;margin:0;background:#fff;border:2px solid #6951db;box-shadow:0 2px 6px #b8a5ec24}
  .mobile-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
  .mobile-shortcuts button{width:100%;min-height:39px;padding:8px 7px;border-radius:11px;font-size:13px;line-height:1.25}
+ #quickCustomerDashboard{background:#4230a2;color:#fff;border:2px solid #4230a2;font-weight:800}
  #demoOrderList{scroll-margin-top:170px}
  .nav{display:none}
  .stats{grid-template-columns:repeat(2,minmax(0,1fr))}
@@ -315,6 +316,7 @@ body.allbiz-help-active #allbizFloatingHelp{display:none}
 <label for="mobileFeatureSelect" id="mobileFeatureLabel">📱 Kies wat je wilt doen</label>
 <select id="mobileFeatureSelect" aria-label="Kies een onderdeel van AllBiz One"></select>
 <div class="mobile-shortcuts" aria-label="Snel navigeren">
+<button type="button" id="quickCustomerDashboard" data-goto="account">👤 Mijn klantendashboard</button>
 <button type="button" class="secondary" data-goto="trading">📈 Live trading</button>
 <button type="button" class="secondary" data-goto="affiliate">🔗 Affiliate marketing</button>
 <button type="button" id="quickOrders" class="secondary">📦 Mijn testbestellingen</button>
@@ -817,7 +819,7 @@ function rememberScrollPosition(){
  persistNavigation();
 }
 function restoreScrollPosition(tab){
- const stored=(tab==='account' && window.location.hash==='#account') ? 0 : Math.max(0,Math.min(100000,Number(navProgress.positions[tab])||0));
+ const stored=tab==='account' ? 0 : Math.max(0,Math.min(100000,Number(navProgress.positions[tab])||0));
  navChanging=true;
  // Help should always open at its question form, not at a saved position far down the page.
  const applyPosition=()=>{
