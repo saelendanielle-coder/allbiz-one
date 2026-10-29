@@ -2420,8 +2420,10 @@ try {
   const refreshSandboxStatus = async user => {
     const requestId = ++sandboxRequestId;
     const target = $('sandboxSubscriptionStatus');
-    if (!user) {
-      target.textContent = 'Log in om je sandbox-testbetaling te controleren.';
+    if (!user || user.app_metadata?.allbiz_role !== 'owner') {
+      // Alleen het geverifieerde beheerdersaccount kan sandboxdemo's gebruiken.
+      window.allbizApplyAccess?.('sandbox',null);
+      target.textContent = user ? 'Testfuncties zijn alleen voor de beheerder.' : 'Log in om je sandbox-testbetaling te controleren.';
       return;
     }
     target.textContent = 'Sandbox-testbetaling wordt gecontroleerd...';
@@ -2482,14 +2484,57 @@ try {
       } else {
         showSubscriptionMessage('Er is nog geen betaald abonnement aan dit account gekoppeld.');
       }
+      return active?.plan || null;
     } catch (error) {
       if (requestId === subscriptionRequestId) {
         showSubscriptionMessage('Je abonnementsstatus kan momenteel niet worden opgehaald. Probeer opnieuw; betaal niet om dit op te lossen.');
       }
       window.allbizApplyAccess?.('live',null);
       console.error('AllBiz One subscription lookup:', error);
+      return null;
     }
   };
+  // Na een Stripe-redirect: bewijs de betaalstatus via Supabase, nooit via URL-parameters.
+  // Gebruik op de terugkeerpagina geen session_id als toegangscontrole.
+  if (new URLSearchParams(window.location.search).get('checkout') === 'complete') {
+    const target = document.createElement('div');
+    target.id = 'allbizCheckoutReturnNotice';
+    target.className = 'notice';
+    target.setAttribute('role','status');
+    target.setAttribute('aria-live','polite');
+    target.textContent = '💳 Je komt terug van Stripe. We controleren of je abonnement al is geactiveerd...';
+    const accountCard = document.querySelector('#account .account-card');
+    if (accountCard) accountCard.prepend(target);
+    let attempts = 0;
+    const delays = [1000,2500,4500,7000,10000,15000];
+    const verify = async () => {
+      let user = null;
+      try {
+        const response = await client.auth.getUser();
+        user = response.data?.user || null;
+      } catch (error) {
+        console.warn('Terugkeercontrole account:',error);
+      }
+      if (!user) {
+        target.textContent = '🔐 Log in met hetzelfde AllBiz One-account waarmee je de betaling bent begonnen. Klik daarna op Controleer mijn abonnement.';
+        return;
+      }
+      const plan = await refreshSubscriptionStatus(user);
+      if (plan) {
+        target.textContent = '✅ Je ' + (planLabels[plan] || plan) + '-abonnement is door het accountsysteem bevestigd. Je functies zijn toegankelijk.';
+        window.history.replaceState(null,'',window.location.pathname + window.location.hash);
+        return;
+      }
+      if (attempts < delays.length) {
+        const wait = delays[attempts++];
+        target.textContent = '⏳ We wachten op de bevestiging van Stripe. Betaal niet opnieuw; de controle gebeurt automatisch.';
+        window.setTimeout(verify,wait);
+      } else {
+        target.textContent = '⚠️ Je betaling is hier nog niet bevestigd. Betaal niet opnieuw. Klik op Controleer mijn abonnement of neem contact op met de ondersteuning.';
+      }
+    };
+    window.setTimeout(verify,750);
+  }
   $('refreshSubscription').addEventListener('click', async () => {
     const { data, error } = await client.auth.getUser();
     if (error) { showSubscriptionMessage('Log eerst opnieuw in om je abonnement te controleren.'); return; }
