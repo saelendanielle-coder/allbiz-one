@@ -723,10 +723,41 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <h2>🔗 Mijn advertentieaccounts koppelen</h2>
   <p class="small muted">Koppel je eigen accounts veilig via officiële toestemming. Je advertentiekosten worden door het advertentieplatform aangerekend, niet door AllBiz One. Zonder afzonderlijke bevestiging worden geen campagnes gestart.</p>
   <div class="ads-connection-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
-    <div class="plan"><h3>🔎 Google Ads</h3><p id="aboGoogleAdsState" role="status">Status controleren…</p><button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button> <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button></div>
-    <div class="plan"><h3>📘 Facebook & Instagram</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is Meta-ontwikkelaarstoegang en toestemming nodig.</p><button type="button" disabled>Meta nog niet beschikbaar</button></div>
-    <div class="plan"><h3>🎵 TikTok Ads</h3><p>API-koppeling nog niet geconfigureerd. Hiervoor is TikTok Business API-toegang nodig.</p><button type="button" disabled>TikTok nog niet beschikbaar</button></div>
+    <div class="plan">
+  <h3>🔎 Google Ads</h3>
+  <p id="aboGoogleAdsState" role="status">Status controleren…</p>
+  <button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button>
+  <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button>
+  <p class="small muted">Nog nodig: een Google Cloud-project met Google Ads API-toegang en OAuth-instellingen.</p>
+  <a href="https://console.cloud.google.com/apis/library/googleads.googleapis.com" target="_blank" rel="noopener noreferrer">Open Google Cloud voor Google Ads</a>
+</div>
+    <div class="plan">
+  <h3>📘 Facebook & Instagram</h3>
+  <p>Verbinden is nog niet beschikbaar. Maak eerst een Meta-ontwikkelaarsapp aan en vraag de nodige rechten aan, waaronder <code>ads_read</code> en <code>ads_management</code>.</p>
+  <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer">Open Meta for Developers</a>
+  <p class="small muted">Daarna moet de beveiligde aanmeldkoppeling nog worden afgewerkt en getest. Deel nooit je App Secret.</p>
+</div>
+    <div class="plan">
+  <h3>🎵 TikTok Ads</h3>
+  <p>Verbinden is nog niet beschikbaar. Registreer AllBiz One in de <strong>TikTok API for Business</strong> en maak daar een ontwikkelaarsapp voor de <strong>Marketing API</strong>.</p>
+  <a href="https://business-api.tiktok.com/portal" target="_blank" rel="noopener noreferrer">Open TikTok API for Business</a>
+  <p class="small muted">Na goedkeuring volgt de toestemming van het advertentieaccount. Het koppelen van gewone TikTok-profielen is iets anders.</p>
+</div>
   </div>
+  <details id="aboAdsOwnerSetup" style="border:1px solid #e3ddf0;border-radius:13px;padding:12px 14px;margin:14px 0">
+    <summary style="font-weight:700;cursor:pointer">⚙️ Instellingen voor de beheerder van AllBiz One</summary>
+    <p class="small">Voor echte koppelingen is een aparte ontwikkelaarsapp bij elk platform nodig. Deze instellingen zijn nog niet voltooid.</p>
+    <ol class="small">
+      <li>Google Ads: maak een Google Cloud-project en OAuth-client voor een webapp. Schakel de Google Ads API in en vraag passende API-toegang aan.</li>
+      <li>Meta: maak een ontwikkelaarsapp met advertentierechten en laat die waar nodig beoordelen.</li>
+      <li>TikTok: registreer een ontwikkelaarsapp voor de Marketing API en configureer de adverteerdersautorisatie.</li>
+    </ol>
+    <label for="aboAdsGoogleCallback">Google Ads OAuth-redirect-URL voor de Google Cloud-instellingen</label>
+    <input type="text" id="aboAdsGoogleCallback" readonly value="https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ads-connect">
+    <button type="button" class="secondary" id="aboAdsCopyGoogleCallback">📋 Kopieer Google callback-URL</button>
+    <p id="aboAdsCopyCallbackStatus" class="small" role="status"></p>
+    <p class="small muted">Meta en TikTok hebben nog geen volledig werkende callback. Vul daarvoor nog geen willekeurige URL in. Bewaar App Secrets en tokens alleen in de beveiligde serverinstellingen, nooit in GitHub of deze chat.</p>
+  </details>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
   <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
   <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
@@ -3420,6 +3451,12 @@ try {
  const $=id=>document.getElementById(id);
  const host=$('allbizAdConnections');if(!host)return;
  const status=$('aboAdsConnectStatus'),google=$('aboGoogleAdsState'),connect=$('aboGoogleAdsConnect'),disconnect=$('aboGoogleAdsDisconnect'),refresh=$('aboAdsRefresh');
+ const copyCallback=$('aboAdsCopyGoogleCallback');
+ copyCallback?.addEventListener('click',async()=>{
+   const url=$('aboAdsGoogleCallback')?.value||'';
+   try{await navigator.clipboard.writeText(url);$('aboAdsCopyCallbackStatus').textContent='✅ Callback-URL gekopieerd.';}
+   catch{const input=$('aboAdsGoogleCallback');input?.focus();input?.select();$('aboAdsCopyCallbackStatus').textContent='Selecteer en kopieer de URL hierboven.';}
+ });
  const endpoint='https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ads-connect';
  async function send(action){
   const auth=window.allbizAuth;
@@ -3440,7 +3477,10 @@ try {
    connect.textContent=g.connected?'Google-account gekoppeld':'Verbind Google Ads';
    disconnect.hidden=!g.connected;
    status.textContent=d.eligible?'Geen advertenties worden automatisch gepubliceerd.':'Account koppelen is beschikbaar met het Business-abonnement.';
-  }catch(e){google.textContent='Status onbekend';status.textContent=e.message||'Controle mislukt.';}
+  }catch(e){
+   google.textContent='Je accountstatus is nog niet gecontroleerd.';
+   status.textContent=e.message==='Log eerst in bij Mijn account.'?'Log in bij Mijn account voor jouw verbindingsstatus. De ontwikkelaarslinks hierboven werken al.':(e.message||'Controle mislukt.');
+  }
   finally{refresh.disabled=false;}
  }
  refresh.addEventListener('click',reload);
