@@ -718,6 +718,15 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p class="notice" style="margin-top:15px"><b>Testversie:</b> dit zijn automatische antwoorden op veelgestelde vragen, geen echte AI-chat of menselijke klantenservice. De assistent kan geen betalingen uitvoeren, accounts wijzigen of bestellingen verwerken. Deel geen wachtwoorden, bank- of identiteitsgegevens.</p>
 </div></section>
 <section class="panel active" id="account" aria-label="Mijn account">
+<div class="card" id="allbizAdminAccess" style="border:2px solid #d9d0f4">
+<h2>🛡️ Mijn beheerdersdashboard</h2>
+<p id="allbizOwnerAccessStatus" role="status" aria-live="polite">Je accountstatus wordt gecontroleerd…</p>
+<div class="import-buttons">
+<button type="button" id="allbizCheckOwnerAccess">🔄 Controleer mijn beheerdersrechten</button>
+<button type="button" id="allbizOwnerSignIn" class="secondary">🔐 Naar inloggen</button>
+</div>
+<p class="small muted">Alleen de eigenaar kan het beheerdersgedeelte openen. Klantgegevens en betalingen zijn nog niet gekoppeld.</p>
+</div>
 
 <div class="card" id="allbizCustomerDashboard" aria-label="Mijn klantendashboard">
   <h2>👤 Mijn klantendashboard</h2>
@@ -736,7 +745,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 </div>
 <div class="card" id="allbizOwnerDashboard" hidden>
   <h2>🛡️ Beheerdersdashboard</h2>
-  <p>Het beheerdersdashboard is voorlopig in voorbereiding. Klanteninformatie en betalingen zijn hier niet beschikbaar. Je eigenaarsrol moet eerst veilig op de server worden ingesteld.</p>
+  <p>Je eigenaarsrol is bevestigd. Dit is de basis van je beheerdersdashboard. Het beveiligde overzicht van klanten, abonnementen en omzet wordt nog aangesloten.</p>
 </div>
 
 <div class="card account-card">
@@ -2517,6 +2526,47 @@ try {
   $('authSubmit').disabled = false;
   $('authReset').disabled = false;
   let allbizOwnerRoleCheck=0;
+  const ownerAccessStatus=$('allbizOwnerAccessStatus');
+  const ownerSignInButton=$('allbizOwnerSignIn');
+  const ownerCheckButton=$('allbizCheckOwnerAccess');
+  const ownerBox=$('allbizOwnerDashboard');
+  const setOwnerVisible=allowed=>{
+    if(ownerBox)ownerBox.hidden=!allowed;
+    const jump=$('allbizOpenOwnerDashboard');
+    if(jump)jump.hidden=!allowed;
+  };
+  const checkOwnerAccess=async()=>{
+    const id=++allbizOwnerRoleCheck;
+    if(ownerAccessStatus)ownerAccessStatus.textContent='Beveiligd controleren…';
+    setOwnerVisible(false);
+    try{
+      const {data,error}=await client.auth.getUser();
+      if(id!==allbizOwnerRoleCheck)return;
+      if(error)throw error;
+      const user=data?.user;
+      if(!user){
+        if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent hier niet ingelogd. Tik op Naar inloggen en gebruik je bestaande testaccount.';
+        if(ownerSignInButton)ownerSignInButton.hidden=false;
+      }else if(user.app_metadata?.allbiz_role==='owner'){
+        setOwnerVisible(true);
+        if(ownerSignInButton)ownerSignInButton.hidden=true;
+        if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Tik op Open mijn beheerdersdashboard.';
+      }else{
+        if(ownerSignInButton)ownerSignInButton.hidden=true;
+        if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent ingelogd, maar dit account heeft geen beheerdersrechten.';
+      }
+    }catch(err){
+      if(id!==allbizOwnerRoleCheck)return;
+      if(ownerAccessStatus)ownerAccessStatus.textContent='Controle niet gelukt. Probeer opnieuw of controleer je internetverbinding.';
+    }
+  };
+  ownerCheckButton?.addEventListener('click',()=>{void checkOwnerAccess()});
+  ownerSignInButton?.addEventListener('click',()=>{
+    const guest=$('authGuest');
+    if(guest&&!guest.hidden){guest.scrollIntoView({behavior:'smooth',block:'center'});$('authEmail')?.focus()}
+    else if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent al ingelogd. Tik op Controleer mijn beheerdersrechten.';
+  });
+
   const ownerDashboardJump=$('allbizOpenOwnerDashboard');
   ownerDashboardJump?.addEventListener('click',()=>{
     const panel=$('allbizOwnerDashboard');
@@ -2537,21 +2587,14 @@ try {
     if(customerPlan) customerPlan.textContent=user
       ? 'Je persoonlijke abonnementsstatus staat hieronder bij Mijn account.'
       : 'Je abonnement wordt zichtbaar zodra je ingelogd bent.';
-    // Beheerdersrechten worden opnieuw gecontroleerd bij de Auth-server,
-    // omdat een al ingelogde sessie de recent gewijzigde rol nog niet hoeft te bevatten.
-    const ownerBox=$('allbizOwnerDashboard');
-    if(ownerBox) ownerBox.hidden=true;
-    const ownerJump=$('allbizOpenOwnerDashboard');
-    if(ownerJump) ownerJump.hidden=true;
-    if(user) {
-      const roleCheck=++allbizOwnerRoleCheck;
-      void client.auth.getUser().then(({data,error})=>{
-        if(roleCheck!==allbizOwnerRoleCheck || error || data?.user?.id!==user.id) return;
-        const isOwner=data.user.app_metadata?.allbiz_role==='owner';
-        if(ownerBox) ownerBox.hidden=!isOwner;
-        if(ownerJump) ownerJump.hidden=!isOwner;
-      }).catch(()=>{});
-    } else ++allbizOwnerRoleCheck;
+    // Actualiseer de eigenaarsrol vanaf de Auth-server, buiten de Auth-callback.
+    if(user)window.setTimeout(()=>{void checkOwnerAccess()},0);
+    else{
+      ++allbizOwnerRoleCheck;
+      setOwnerVisible(false);
+      if(ownerSignInButton)ownerSignInButton.hidden=false;
+      if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent niet ingelogd op dit toestel. Tik op Naar inloggen met je bestaande testaccount.';
+    }
     document.querySelectorAll('a.subscription-pay-link').forEach(a => {
       const original = a.dataset.baseHref || a.getAttribute('href');
       a.dataset.baseHref = original;
