@@ -933,8 +933,20 @@ function attachProductEditor(card,product){
  price.min='0';price.max='999999';price.step='0.01';price.required=true;
  const desc=field('Beschrijving',product.description||'','textarea',1200);
  const category=field('Categorie',product.category||'Overig','text',35);
- const stock=field('Testvoorraad (leeg = onbeperkt)',product.stock??'','number',0);
- stock.min='0';stock.max='1000000';stock.step='1';stock.placeholder='Niet bijgehouden';
+ // Bewerk fysieke én digitale productgegevens zonder het product te verwijderen.
+ const physical=product.type==='physical';
+ const cost=physical?field('Inkoopprijs (€), optioneel',product.cost??'','number',0):null;
+ const shipping=physical?field('Verzendkosten (€), optioneel',product.shipping??'','number',0):null;
+ if(cost){cost.min='0';cost.max='999999';cost.step='0.01'}
+ if(shipping){shipping.min='0';shipping.max='999999';shipping.step='0.01'}
+ const supplier=physical?field('Leverancierslink (optioneel)',product.supplier||'','url',1500):null;
+ const stock=physical?field('Testvoorraad (leeg = niet bijgehouden)',product.stock??'','number',0):null;
+ if(stock){stock.min='0';stock.max='1000000';stock.step='1';stock.placeholder='Niet bijgehouden'}
+ const fileName=!physical?field('Naam digitaal bestand (administratie; geen upload)',product.fileName||'','text',255):null;
+ if(fileName){
+   const explain=element('p','small muted','Dit bewaart enkel de bestandsnaam, niet de inhoud. Voor levering aan betalende klanten is nog beveiligde opslag nodig.');
+   form.append(explain);
+ }
  const image=field('Foto-URL (optioneel, https://)',product.imageUrl||'','url',800);
  image.placeholder='https://voorbeeld.nl/productfoto.jpg';
  const removeLabel=element('label','product-photo-removal','');
@@ -959,19 +971,37 @@ function attachProductEditor(card,product){
   event.preventDefault();
   const newName=name.value.trim(),newPrice=Number(price.value);
   const newCategory=category.value.trim()||'Overig';
-  const newStock=stock.value.trim();
+  const newStock=stock?stock.value.trim():'';
+  const newCost=cost?cost.value.trim():'';
+  const newShipping=shipping?shipping.value.trim():'';
+  const newSupplier=supplier?supplier.value.trim():'';
   const url=image.value.trim();
   if(!newName||!Number.isFinite(newPrice)||newPrice<0||newPrice>999999){
    alert('Controleer de productnaam en verkoopprijs.');return;
   }
-  if(newStock!==''&&(!Number.isInteger(Number(newStock))||Number(newStock)<0||Number(newStock)>1000000)){
+  if(physical&&newStock!==''&&(!Number.isInteger(Number(newStock))||Number(newStock)<0||Number(newStock)>1000000)){
    alert('Voorraad moet een positief geheel getal zijn of leeg blijven.');return;
+  }
+  if(physical&&[newCost,newShipping].some(value=>value!==''&&(!Number.isFinite(Number(value))||Number(value)<0||Number(value)>999999))){
+   alert('Controleer inkoopprijs en verzendkosten.');return;
+  }
+  if(newSupplier){
+   try{const link=new URL(newSupplier);if(!['https:','http:'].includes(link.protocol))throw Error('Ongeldige URL')}
+   catch{alert('Vul een geldige https://-leverancierslink in.');return}
   }
   if(url&&!safeImage(url)){alert('Gebruik een geldige link naar een afbeelding.');return}
   const previous={...product};
   product.name=newName.slice(0,150);
   product.price=newPrice;product.description=desc.value.trim().slice(0,1200);
-  product.category=newCategory.slice(0,35);product.stock=newStock;
+  product.category=newCategory.slice(0,35);
+  if(physical){
+    product.stock=newStock;
+    product.cost=newCost===''?'':Number(newCost);
+    product.shipping=newShipping===''?'':Number(newShipping);
+    product.supplier=newSupplier.slice(0,1500);
+  }else{
+    product.fileName=fileName.value.trim().slice(0,255);
+  }
   product.visibility=visibility.value==='draft'?'draft':'active';
   if(removePhoto.checked){product.photo='';product.imageUrl='';product.photoPath=''}
   if(url&&url!==(previous.imageUrl||'')){product.imageUrl=safeImage(url);product.photo='';product.photoPath=''}
