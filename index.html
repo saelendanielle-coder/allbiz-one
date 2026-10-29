@@ -2426,8 +2426,19 @@ try {
       target.textContent = user ? 'Testfuncties zijn alleen voor de beheerder.' : 'Log in om je sandbox-testbetaling te controleren.';
       return;
     }
-    target.textContent = 'Sandbox-testbetaling wordt gecontroleerd...';
+    target.textContent = 'Beheerdersrechten voor testbetalingen worden beveiligd gecontroleerd...';
     try {
+      // Verifieer eigenaar opnieuw op de Auth-server, nooit enkel uit browsercache.
+      // Niet-beheerders mogen geen testabonnement gebruiken voor demo-toegang.
+      const verified = await client.auth.getUser();
+      if (requestId !== sandboxRequestId) return;
+      if (verified.error || verified.data?.user?.id !== user.id ||
+          verified.data?.user?.app_metadata?.allbiz_role !== 'owner') {
+        window.allbizApplyAccess?.('sandbox',null);
+        target.textContent = 'Testfuncties zijn uitsluitend toegankelijk voor een geverifieerde beheerder.';
+        return;
+      }
+      target.textContent = 'Sandbox-testbetaling wordt gecontroleerd...';
       const {data,error} = await client.from('allbiz_sandbox_subscriptions')
         .select('plan,status,current_period_end,updated_at')
         .eq('user_id',user.id)
