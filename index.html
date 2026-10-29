@@ -2199,6 +2199,7 @@ try {
     auth: { persistSession: true, autoRefreshToken: true, detectSessionInUrl: true }
   });
   window.allbizAuth = client.auth;
+  window.allbizClient = client;
   window.allbizPublicApiKey = SUPABASE_PUBLIC_KEY;
   const connectMsg=document.getElementById('sellerConnectMessage');
   async function callConnectSandbox(action){
@@ -3499,6 +3500,7 @@ try {
 <script src="allbiz-guided-help.js?v=20261028-trading3" defer></script>
 <script src="allbiz-local-backup.js?v=20261029-3" defer></script>
 <script src="allbiz-launch-audit.js?v=20261029-release4" defer></script>
+<script src="allbiz-seller-tools.js?v=20261029-1" defer></script>
 <script id="allbizAdsConnectClient">
 (()=>{
  'use strict';
