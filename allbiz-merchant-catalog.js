@@ -15,6 +15,7 @@ panel.innerHTML='<h2>📦 Mijn online productcatalogus</h2><p class="muted">Prod
 '<label><input id="abcListed" type="checkbox"> Klaarzetten als zichtbaar product zodra de verkoopfunctie officieel beschikbaar is</label>'+
 '<button type="submit">💾 Product privé opslaan</button> <button type="button" id="abcRefresh" class="secondary">↻ Producten ophalen</button></form>'+
 '<p id="abcStatus" role="status" class="muted">Log in om producten te beheren.</p><div id="abcItems"></div>'+
+'<p><button type="button" class="secondary" id="abcStoreLink">🔗 Kopieer mijn winkellink</button></p>'+
 '<h3>🧾 Mijn echte bestellingen</h3><p class="muted">Alleen bevestigde serverbestellingen komen hier. Demo-omzet wordt niet meegeteld.</p><button type="button" id="abcOrdersRefresh" class="secondary">↻ Bestellingen controleren</button><p id="abcOrdersStatus" role="status"></p><div id="abcOrders"></div>';
 host.append(panel);
 const $=id=>panel.querySelector('#'+id);
@@ -74,6 +75,7 @@ $('abcForm').addEventListener('submit',async e=>{
  }catch(e){$('abcStatus').textContent='⚠️ '+e.message}
  finally{btn.disabled=false}
 });
+$('abcStoreLink').addEventListener('click',async()=>{try{const {user}=await account();const link='https://saelendanielle-coder.github.io/allbiz-one/winkel.html?seller='+encodeURIComponent(user.id);await navigator.clipboard.writeText(link);$('abcStatus').textContent='✅ Winkellink gekopieerd. De winkel opent alleen wanneer jouw echte abonnement en verplichte bedrijfsgegevens gecontroleerd zijn.';}catch(e){$('abcStatus').textContent='Winkellink: https://saelendanielle-coder.github.io/allbiz-one/winkel.html?seller=JOUW-ACCOUNT-ID · '+e.message;}});
 $('abcRefresh').addEventListener('click',refresh);
 $('abcOrdersRefresh').addEventListener('click',async()=>{
  $('abcOrdersStatus').textContent='Bestellingen ophalen…';$('abcOrders').replaceChildren();
