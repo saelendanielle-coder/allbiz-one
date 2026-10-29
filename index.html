@@ -725,9 +725,11 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <button type="button" id="allbizCheckOwnerAccess">🔄 Controleer mijn beheerdersrechten</button>
 <button type="button" id="allbizOwnerSignIn" class="secondary">🔐 Naar inloggen</button>
 </div>
-<p class="small muted">Alleen de eigenaar kan het beheerdersgedeelte openen. Klantgegevens en betalingen zijn nog niet gekoppeld.</p>
+<div id="allbizOwnerDashboard" hidden style="margin:12px 0 0;padding-top:14px;border-top:1px solid #ddd3f1">
+<p class="small muted">Dit overzicht is alleen zichtbaar voor de geverifieerde eigenaar. De cijfers komen van de beveiligde server; omzetrapportage is nog niet aangesloten.</p>
 </div>
-
+<p class="small muted" id="allbizOwnerPrivacyHint">Andere klanten kunnen deze cijfers niet ophalen. Er worden geen bankgegevens getoond of betalingen aangepast.</p>
+</div>
 <div class="card" id="allbizCustomerDashboard" aria-label="Mijn klantendashboard">
   <h2>👤 Mijn klantendashboard</h2>
   <p id="allbizCustomerWelcome" role="status">Log in bij Mijn account om je eigen projecten te openen.</p>
@@ -741,13 +743,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <button type="button" class="secondary" data-goto="help">🤖 Hulp nodig?</button>
   </div>
   <p class="small muted">Sommige ontwerpen zijn nog lokaal op dit toestel opgeslagen. Gebruik de privé-bewaarknoppen en reservekopieën. Bewaar geen gevoelige klantgegevens in de demo.</p>
-  <button type="button" id="allbizOpenOwnerDashboard" hidden style="width:100%;margin-top:12px;background:#40318f;color:white">🛡️ Open mijn beheerdersdashboard</button>
 </div>
-<div class="card" id="allbizOwnerDashboard" hidden>
-  <h2>🛡️ Beheerdersdashboard</h2>
-  <p>Je eigenaarsrol is bevestigd. Dit is de basis van je beheerdersdashboard. Het beveiligde overzicht van klanten, abonnementen en omzet wordt nog aangesloten.</p>
-</div>
-
 <div class="card account-card">
 <h2>🔐 Mijn account</h2>
 <p>Maak een account aan of log in. Hierna kun je via <b>Overzicht</b> de andere onderdelen van AllBiz One gebruiken.</p>
@@ -2563,6 +2559,7 @@ try {
   };
   const checkOwnerAccess=async()=>{
     const id=++allbizOwnerRoleCheck;
+    if(ownerCheckButton)ownerCheckButton.hidden=false;
     if(ownerAccessStatus)ownerAccessStatus.textContent='Beveiligd controleren…';
     setOwnerVisible(false);
     try{
@@ -2575,9 +2572,10 @@ try {
         if(ownerSignInButton)ownerSignInButton.hidden=false;
       }else if(user.app_metadata?.allbiz_role==='owner'){
         setOwnerVisible(true);
+        if(ownerCheckButton)ownerCheckButton.hidden=true;
         void refreshOwnerStats();
         if(ownerSignInButton)ownerSignInButton.hidden=true;
-        if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Tik op Open mijn beheerdersdashboard.';
+        if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Je cijfers staan hieronder.';
       }else{
         if(ownerSignInButton)ownerSignInButton.hidden=true;
         if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent ingelogd, maar dit account heeft geen beheerdersrechten.';
