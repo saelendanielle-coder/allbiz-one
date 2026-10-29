@@ -2,7 +2,7 @@
 (() => {
   'use strict';
   const dashboard = document.getElementById('allbizBackupPanel');
-  if (!dashboard || document.getElementById('allbizBackupDownload')) return;
+  if (!dashboard || !document.getElementById('allbizBackupDownload')) return;
   // Alleen eigen website- en webshopontwerpen; nooit login, Stripe- of brokersleutels.
   const keys = [
     'business-studio-products-v2',
