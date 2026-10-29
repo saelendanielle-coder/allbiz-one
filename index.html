@@ -137,8 +137,11 @@ input[type=file]{font-size:14px;overflow:hidden}
    padding:10px 4px 12px;margin-bottom:10px;border-bottom:1px solid #e2dcf3;
    box-shadow:0 8px 16px rgba(32,18,73,.06)}
  .mobile-feature-picker label{font-size:14px;color:#3b2a77;font-weight:800;margin:0 0 4px}
+ .mobile-picker-heading{display:flex;align-items:center;justify-content:space-between;gap:8px}
+ #mobileShortcutsToggle{width:auto;min-height:32px;font-size:12px;padding:5px 9px;white-space:nowrap}
  .mobile-feature-picker select{font-size:16px;min-height:48px;padding:10px 13px;margin:0;background:#fff;border:2px solid #6951db;box-shadow:0 2px 6px #b8a5ec24}
  .mobile-shortcuts{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:8px}
+ .mobile-feature-picker.compact .mobile-shortcuts{display:none}
  .mobile-shortcuts button{width:100%;min-height:39px;padding:8px 7px;border-radius:11px;font-size:13px;line-height:1.25}
  #quickCustomerDashboard{background:#4230a2;color:#fff;border:2px solid #4230a2;font-weight:800}
  #demoOrderList{scroll-margin-top:170px}
@@ -323,9 +326,12 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 </div></header>
 <main>
 <div class="mobile-feature-picker" aria-label="Snel naar een functie">
+<div class="mobile-picker-heading">
 <label for="mobileFeatureSelect" id="mobileFeatureLabel">📱 Kies wat je wilt doen</label>
+<button type="button" class="secondary" id="mobileShortcutsToggle" aria-controls="mobileShortcuts" aria-expanded="true">Verberg knoppen</button>
+</div>
 <select id="mobileFeatureSelect" aria-label="Kies een onderdeel van AllBiz One"></select>
-<div class="mobile-shortcuts" aria-label="Snel navigeren">
+<div class="mobile-shortcuts" id="mobileShortcuts" aria-label="Snel navigeren">
 <button type="button" id="quickCustomerDashboard" data-goto="account">👤 Mijn klantendashboard</button>
 <button type="button" class="secondary" data-goto="marketing">📣 Digitale marketing</button>
 <button type="button" class="secondary" data-goto="trading">📈 Trading oefenen</button>
@@ -860,6 +866,28 @@ window.allbizApplyAccess=(kind,plan)=>{
  const current=document.querySelector('.panel.active')?.id;
  if(kind!=='reset'&&!window.allbizAccessChecking&&current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account',{automatic:true,keepSavedTab:true});
 };
+// On mobile, the section picker stays visible while quick shortcuts collapse on scroll.
+const mobilePicker=document.querySelector('.mobile-feature-picker');
+const shortcutsToggle=el('mobileShortcutsToggle');
+let mobileShortcutsOverride=null;
+function updateMobilePicker(scrollValue=window.scrollY){
+ if(!mobilePicker||!shortcutsToggle)return;
+ const smallScreen=window.matchMedia('(max-width:650px)').matches;
+ const compact=smallScreen&&(mobileShortcutsOverride===null?scrollValue>200:mobileShortcutsOverride);
+ mobilePicker.classList.toggle('compact',compact);
+ shortcutsToggle.setAttribute('aria-expanded',String(!compact));
+ shortcutsToggle.textContent=compact?'Toon knoppen':'Verberg knoppen';
+}
+shortcutsToggle?.addEventListener('click',()=>{
+ mobileShortcutsOverride=!mobilePicker.classList.contains('compact');
+ updateMobilePicker();
+});
+window.addEventListener('scroll',()=>{
+ if(window.scrollY<90)mobileShortcutsOverride=null;
+ updateMobilePicker();
+},{passive:true});
+window.addEventListener('resize',()=>updateMobilePicker(),{passive:true});
+updateMobilePicker();
 // Remember where the user was, including the scroll position of each section.
 const navProgressKey='allbiz-navigation-progress-v1';
 const navAllowed=new Set([...document.querySelectorAll('nav.nav [data-tab]')].map(b=>b.dataset.tab));
@@ -886,6 +914,10 @@ function restoreScrollPosition(tab){
  navChanging=true;
  // Help should always open at its question form, not at a saved position far down the page.
  const applyPosition=()=>{
+  if(mobilePicker&&window.matchMedia('(max-width:650px)').matches){
+   mobileShortcutsOverride=null;
+   updateMobilePicker(tab==='help'?1000:stored);
+  }
   if(tab==='help'){
    const panel=el('help');
    const sticky=document.querySelector('.mobile-feature-picker');
