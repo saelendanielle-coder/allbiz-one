@@ -1,0 +1,38 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="robots" content="noindex,nofollow"><title>Webshop | AllBiz One</title>
+<style>body{font:16px/1.5 system-ui,Arial;background:#f8f6ff;color:#242039;margin:0}header{background:white;padding:28px 20px;border-bottom:1px solid #ddd}main{max-width:1080px;margin:25px auto;padding:0 16px}.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}.card{background:white;border-radius:14px;border:1px solid #e2daed;padding:18px}strong{font-size:1.15rem}a{color:#4532a2}footer{padding:26px;background:white;margin-top:32px}#status{margin:18px 0}button{background:#ddd;color:#333;border:0;border-radius:8px;padding:12px;cursor:not-allowed}</style></head>
+<body><header><h1 id="brand">AllBiz One · Webshop</h1><p>Veilige productweergave</p></header>
+<main><p id="status" role="status">Winkelgegevens controleren…</p><div class="grid" id="products"></div>
+<section class="card" id="company" hidden><h2>Bedrijfsgegevens en klantenservice</h2><div id="contact"></div><div id="policies"></div></section></main>
+<footer>Powered by AllBiz One · De betalingen zijn nog niet beschikbaar in deze versie.</footer>
+<script>
+(async()=>{
+const id=new URLSearchParams(location.search).get('seller')||'';
+const status=document.getElementById('status');
+if(!/^[a-f0-9-]{36}$/i.test(id)){status.textContent='Ongeldige winkellink.';return;}
+try{
+const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-storefront?seller='+encodeURIComponent(id),{cache:'no-store'});
+const data=await response.json();
+if(!response.ok)throw Error(data.error||'Winkel niet beschikbaar.');
+document.title=data.seller.legal_name+' | Webshop';document.getElementById('brand').textContent=data.seller.legal_name;
+const products=document.getElementById('products');
+const eur=n=>(n/100).toLocaleString('nl-BE',{style:'currency',currency:'EUR'});
+for(const p of data.products){
+const card=document.createElement('article');card.className='card';
+const h=document.createElement('h2');h.textContent=p.name;
+const description=document.createElement('p');description.textContent=p.description||'';
+const price=document.createElement('strong');price.textContent=eur(p.price_cents);
+const type=document.createElement('p');type.textContent=p.kind==='digital'?'Digitaal product':'Fysiek product';
+const unavailable=document.createElement('p');unavailable.textContent='Bestellen is nog niet beschikbaar.';
+card.append(h,description,price,type,unavailable);products.append(card);
+}
+status.textContent=data.products.length?'Deze catalogus toont producten. Bestellingen en betalingen zijn nog niet mogelijk.':'Deze webshop heeft nog geen zichtbare producten.';
+const company=document.getElementById('company');company.hidden=false;
+const contact=document.getElementById('contact');const info=data.seller;
+for(const [label,value] of [['Onderneming',info.legal_name],['Ondernemingsnummer',info.business_number],['BTW-nummer',info.vat_number],['Adres',info.business_address],['Contact',info.contact_email],['Klantenservice',info.support_email],['Telefoon',info.phone]])if(value){const p=document.createElement('p');p.textContent=label+': '+value;contact.append(p);}
+const policies=document.getElementById('policies');
+for(const [label,value] of [['Algemene voorwaarden',info.terms_url],['Privacybeleid',info.privacy_url],['Retourbeleid',info.return_policy_url],['Verzending',info.shipping_policy_url]])if(typeof value==='string'&&/^https:\/\//.test(value)){const p=document.createElement('p');const a=document.createElement('a');a.href=value;a.textContent=label;a.target='_blank';a.rel='noopener noreferrer';p.append(a);policies.append(p);}
+}catch(err){status.textContent=err.message||'Deze winkel is niet gepubliceerd.'}
+})();
+</script></body></html>
