@@ -18,14 +18,18 @@
     'business-studio-domain',
     'business-studio-extension',
     'business-studio-adplan',
-    'allbiz-affiliate-campaign-draft-v1'
+    'allbiz-affiliate-campaign-draft-v1',
+    'allbiz-marketing-campaigns-v1',
+    'allbiz-marketing-posts-v1'
   ];
   const structured = new Set([
     'business-studio-products-v2','business-studio-affiliate-v1',
     'allbiz-pro-builder-v1','allbiz-pro-storefront-v1',
-    'business-studio-adplan','allbiz-affiliate-campaign-draft-v1'
+    'business-studio-adplan','allbiz-affiliate-campaign-draft-v1',
+    'allbiz-marketing-campaigns-v1','allbiz-marketing-posts-v1'
   ]);
-  const arrayKeys = new Set(['business-studio-products-v2','business-studio-affiliate-v1']);
+  const arrayKeys = new Set(['business-studio-products-v2','business-studio-affiliate-v1',
+    'allbiz-marketing-campaigns-v1','allbiz-marketing-posts-v1']);
   const status = document.getElementById('allbizBackupStatus');
   const download = document.getElementById('allbizBackupDownload');
   const restore = document.getElementById('allbizBackupRestore');
