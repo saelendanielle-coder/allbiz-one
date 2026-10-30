@@ -1,0 +1,20 @@
+<!doctype html><html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Jouw bestelling | AllBiz One</title><style>body{font:16px/1.55 system-ui,Arial;margin:0;background:#f8f6ff;color:#242039}main{max-width:650px;margin:50px auto;padding:24px;background:#fff;border:1px solid #ddd4ef;border-radius:16px}a{color:#5131a1}article{padding:10px;border-bottom:1px solid #eee}p{overflow-wrap:anywhere}</style></head><body><main><h1>📦 Jouw bestelling</h1><p id="status" role="status">Je betaling en bestelling worden beveiligd gecontroleerd…</p><div id="details"></div><p><a href="./">Terug naar AllBiz One</a></p></main><script>
+(async()=>{'use strict';
+const $=id=>document.getElementById(id),p=new URLSearchParams(location.search);
+const order=p.get('order')||'',session=p.get('session_id')||'';
+if(!/^[a-f0-9-]{36}$/i.test(order)||!/^cs_live_[A-Za-z0-9]+$/.test(session)){$('status').textContent='Ongeldige bestelreferentie.';return;}
+async function check(){
+try{
+const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-paid-download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'buyer_session',order_id:order,session_id:session})});
+const data=await response.json();
+if(response.status===202){$('status').textContent='Betaling wordt nog bevestigd. Vernieuw deze pagina later; betaal niet opnieuw.';return;}
+if(!response.ok||!data.paid)throw Error(data.error||'Bestelling nog niet bevestigd');
+$('status').textContent='✅ Betaling bevestigd. Je bestelling is geregistreerd.';
+const details=$('details');details.replaceChildren();
+for(const item of data.items||[]){const p=document.createElement('article');p.textContent=item.quantity+' × '+item.name+' · '+(item.kind==='digital'?'Digitale levering':'Fysieke levering');details.append(p);}
+if(data.downloads?.length){const h=document.createElement('h2');h.textContent='📥 Download jouw aankopen';details.append(h);for(const item of data.downloads){const link=document.createElement('a');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.textContent='⬇ '+item.name;const p=document.createElement('p');p.append(link);details.append(p);}}
+else{const p=document.createElement('p');p.textContent='Verzendstatus: '+({awaiting_dispatch:'Wordt klaargemaakt voor verzending',shipped:'Verzonden',delivered:'Afgeleverd'}[data.fulfillment_status]||'In behandeling')+'.';details.append(p);
+if(data.tracking_number){const track=document.createElement('p');track.textContent='Pakket: '+(data.shipping_carrier||'Bezorgdienst')+' · '+data.tracking_number;details.append(track);}}
+}catch(e){$('status').textContent='⚠️ '+e.message;}
+}await check();
+})();</script></body></html>
