@@ -438,11 +438,11 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p><p class="hint">Voor een gewone bedrijfswebsite met diensten en contact gebruik je 🎨 Website &amp; domein. Een werkende checkout voor jouw eigen klanten is nog niet verbonden.</p><button type="button" class="secondary" data-goto="site">🎨 Naar de website-service</button>
 <div class="shop-studio" style="margin-bottom:18px">
-<h3>💳 Stripe Connect — alleen voor webshopverkopers (test)</h3>
-<p class="muted">Stripe Connect is bedoeld voor toekomstige betalingen aan individuele webshopverkopers. Dit is <b>niet</b> nodig om een AllBiz One-abonnement te kopen. Echte webshopbetalingen zijn nog niet beschikbaar.</p>
+<h3>💳 Stripe Connect — koppel je echte verkopersaccount</h3>
+<p class="muted">Webshopverkopers met een actief Pro- of Business-abonnement kunnen hun eigen echte Stripe-account koppelen en hun identiteit bij Stripe bevestigen. Dit is <b>niet</b> nodig om een AllBiz One-abonnement te kopen. Koppelen brengt nog geen betalingen of kosten voor jouw klanten op gang: de webshopcheckout blijft uit tot alles is getest.</p>
 <button type="button" id="sellerConnectStatus" class="secondary">🔍 Controleer Stripe Connect</button>
-<button type="button" id="sellerConnectStart">🔗 Koppel mijn Stripe-testverkoper</button>
-<p id="sellerConnectMessage" role="status" class="toast">Nog geen Connect-sandboxstatus gecontroleerd.</p>
+<button type="button" id="sellerConnectStart">🔗 Koppel mijn echte Stripe-verkopersaccount</button>
+<p id="sellerConnectMessage" role="status" class="toast">Nog geen echte Connect-status gecontroleerd.</p>
 <script>
 /* Immediate feedback even when the deferred Supabase login module has not loaded. */
 (function(){
@@ -461,8 +461,8 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
       },12000);
     });
   }
-  onClick('sellerConnectStatus','⏳ Stripe Connect-teststatus controleren...');
-  onClick('sellerConnectStart','⏳ Beveiligde Stripe-testkoppeling voorbereiden...');
+  onClick('sellerConnectStatus','⏳ Echte Stripe Connect-status controleren...');
+  onClick('sellerConnectStart','⏳ Beveiligde echte Stripe-koppeling voorbereiden...');
 })();
 </script>
 </div>
@@ -2203,10 +2203,10 @@ try {
   window.allbizClient = client;
   window.allbizPublicApiKey = SUPABASE_PUBLIC_KEY;
   const connectMsg=document.getElementById('sellerConnectMessage');
-  async function callConnectSandbox(action){
+  async function callConnectLive(action){
     const {data:{session},error}=await client.auth.getSession();
     if(error||!session?.access_token)throw Error('Log eerst in bij Mijn account.');
-    const res=await fetch(SUPABASE_URL+'/functions/v1/allbiz-connect-sandbox',{
+    const res=await fetch(SUPABASE_URL+'/functions/v1/allbiz-connect-live',{
       method:'POST',
       headers:{Authorization:'Bearer '+session.access_token,apikey:SUPABASE_PUBLIC_KEY,'Content-Type':'application/json'},
       body:JSON.stringify({action})
@@ -2219,8 +2219,8 @@ try {
     const btn=e.currentTarget;btn.disabled=true;
     connectMsg.textContent='Stripe Connect-teststatus controleren...';
     try{
-      const data=await callConnectSandbox('status');
-      connectMsg.textContent=data.connected?'✅ Stripe-testverkoper verbonden. Nog geen echte betalingen.':data.configured?'🧪 Stripe-sandbox actief. Testverkoper nog niet volledig verbonden.':'🔒 Stripe Connect is voorbereid. De geheime testsleutel ontbreekt nog op de server; er wordt niets betaald.';
+      const data=await callConnectLive('status');
+      connectMsg.textContent=data.connected?'✅ Je echte Stripe-verkopersaccount is verbonden. Webshopbetalingen blijven voorlopig uit.':data.configured?(data.hasAccount?'🔒 Stripe-account gevonden. De verificatie is nog niet afgerond.':'🔒 Stripe Connect staat klaar. Klik op Koppel om je verificatie te starten.'):'🔒 De geheime live Stripe-sleutel ontbreekt nog in de serverinstellingen. Er wordt niets betaald.';
     }catch(err){connectMsg.textContent=String(err.message||'Controleren mislukt.')}
     finally{btn.disabled=false}
   });
@@ -2228,10 +2228,10 @@ try {
     const btn=e.currentTarget;btn.disabled=true;
     connectMsg.textContent='Beveiligde Stripe-onboarding voorbereiden...';
     try{
-      const data=await callConnectSandbox('onboard');
-      if(data.connected){connectMsg.textContent='✅ Stripe-testverkoper is al gekoppeld.';return}
+      const data=await callConnectLive('onboard');
+      if(data.connected){connectMsg.textContent='✅ Je echte Stripe-verkopersaccount is al gekoppeld.';return}
       if(data.onboardingUrl){window.location.assign(data.onboardingUrl);return}
-      connectMsg.textContent='🔒 De server heeft nog een Stripe-testsleutel nodig. De winkel blijft in testmodus.';
+      connectMsg.textContent='🔒 De server heeft een veilige live Stripe-sleutel nodig. Webshopbetalingen blijven uit.';
     }catch(err){connectMsg.textContent=String(err.message||'De testkoppeling kon niet starten.')}
     finally{btn.disabled=false}
   });
