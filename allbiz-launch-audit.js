@@ -112,6 +112,7 @@
     const euroDescription=document.createElement('p');euroDescription.className='small';
     euroDescription.textContent='Alleen voor de eigenaar. Geen abonnement. Je betaalt pas wanneer je zelf afrekent op Stripe.';
     const euroButton=document.createElement('button');euroButton.type='button';
+    euroButton.id='allbizOwnerOneEuroStart';
     euroButton.className='secondary';euroButton.textContent='Open veilige €1-proefbetaling';
     const euroStatus=document.createElement('p');euroStatus.setAttribute('role','status');
     euroStatus.className='small muted';euroStatus.textContent='Er is nog niets betaald.';
