@@ -835,6 +835,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="allbizOwnerAccessStatus" role="status" aria-live="polite">Je accountstatus wordt gecontroleerd…</p>
 <div class="import-buttons">
 <button type="button" id="allbizCheckOwnerAccess">🔄 Controleer mijn beheerdersrechten</button>
+<button type="button" id="allbizOneEuroShortcut" class="secondary" hidden>💶 Ga naar €1-proefbetaling</button>
 <button type="button" id="allbizOwnerSignIn" class="secondary">🔐 Naar inloggen</button>
 </div>
 <div id="allbizOwnerDashboard" hidden style="margin:12px 0 0;padding-top:14px;border-top:1px solid #ddd3f1">
@@ -2910,6 +2911,7 @@ try {
   const ownerBox=$('allbizOwnerDashboard');
   const setOwnerVisible=allowed=>{
     if(ownerBox)ownerBox.hidden=!allowed;
+    const euroShortcut=$('allbizOneEuroShortcut');if(euroShortcut)euroShortcut.hidden=!allowed;
     // The owner dashboard is owner-only; real payment buttons are managed by the authenticated user.
     const sandboxMsg=$("sandboxSubscriptionStatus"); if(sandboxMsg)sandboxMsg.hidden=true;
     document.querySelectorAll("[data-allbiz-owner-note]").forEach(n => { n.hidden = !allowed; });
@@ -2946,6 +2948,19 @@ try {
     }
   };
   ownerCheckButton?.addEventListener('click',()=>{void checkOwnerAccess()});
+  $('allbizOneEuroShortcut')?.addEventListener('click',()=>{
+    if(ownerBox?.hidden){
+      if(ownerAccessStatus)ownerAccessStatus.textContent='Bevestig eerst je eigenaarsrechten.';
+      void checkOwnerAccess();return;
+    }
+    const paymentButton=$('allbizOwnerOneEuroStart');
+    if(paymentButton){
+      paymentButton.scrollIntoView({behavior:'smooth',block:'center'});
+      paymentButton.focus({preventScroll:true});
+    }else if(ownerAccessStatus){
+      ownerAccessStatus.textContent='De €1-testknop wordt nog geladen. Vernieuw de pagina en controleer je account opnieuw.';
+    }
+  });
   ownerSignInButton?.addEventListener('click',()=>{
     const guest=$('authGuest');
     if(guest&&!guest.hidden){guest.scrollIntoView({behavior:'smooth',block:'center'});$('authEmail')?.focus()}
@@ -3508,7 +3523,7 @@ try {
 <script src="allbiz-affiliate-drafts.js?v=20261028-3" defer></script>
 <script src="allbiz-guided-help.js?v=20261028-trading3" defer></script>
 <script src="allbiz-local-backup.js?v=20261029-3" defer></script>
-<script src="allbiz-launch-audit.js?v=20261030-oneeuro6" defer></script>
+<script src="allbiz-launch-audit.js?v=20261030-oneeuro7" defer></script>
 <script src="allbiz-seller-tools.js?v=20261029-2" defer></script>
 <script src="allbiz-merchant-catalog.js?v=20261030-2" defer></script>
 <script id="allbizAdsConnectClient">
