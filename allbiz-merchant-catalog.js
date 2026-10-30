@@ -82,14 +82,39 @@ $('abcOrdersRefresh').addEventListener('click',async()=>{
  $('abcOrdersStatus').textContent='Bestellingen ophalen…';$('abcOrders').replaceChildren();
  try{
   const {client,user}=await account();
-  const {data,error}=await client.from('allbiz_store_orders').select('id,amount_total_cents,status,created_at').eq('seller_id',user.id).order('created_at',{ascending:false}).limit(30);
+  const {data,error}=await client.from('allbiz_store_orders').select('id,amount_total_cents,status,created_at,fulfillment_status').eq('seller_id',user.id).order('created_at',{ascending:false}).limit(30);
   if(error)throw error;
   $('abcOrdersStatus').textContent=data.length?data.length+' serverbestelling(en)':'Geen echte bestellingen geregistreerd.';
   for(const order of data){
-   const p=document.createElement('p');p.textContent=new Date(order.created_at).toLocaleString('nl-BE')+' · '+eur(order.amount_total_cents)+' · '+order.status;$('abcOrders').append(p);
+   const card=document.createElement('div');card.style.cssText='padding:12px;margin:9px 0;border:1px solid #ddd;border-radius:10px';
+   const p=document.createElement('p');p.textContent=new Date(order.created_at).toLocaleString('nl-BE')+' · '+eur(order.amount_total_cents)+' · '+order.status+' · '+(order.fulfillment_status||'');
+   card.append(p);
+   if(order.fulfillment_status==='awaiting_dispatch'){
+    const carrier=document.createElement('input');carrier.placeholder='Vervoerder (bv. bpost)';carrier.maxLength=80;
+    const track=document.createElement('input');track.placeholder='Track & trace (optioneel)';track.maxLength=100;
+    const send=document.createElement('button');send.textContent='📦 Markeer als verzonden';
+    send.addEventListener('click',async()=>{send.disabled=true;try{await updateShipping(order.id,'dispatch',{shipping_carrier:carrier.value,tracking_number:track.value});$('abcOrdersRefresh').click()}catch(e){$('abcOrdersStatus').textContent='⚠️ '+e.message;send.disabled=false;}});
+    card.append(carrier,track,send);
+   }
+   if(order.fulfillment_status==='shipped'){
+    const done=document.createElement('button');done.textContent='✅ Markeer als geleverd';
+    done.addEventListener('click',async()=>{done.disabled=true;try{await updateShipping(order.id,'delivered',{});$('abcOrdersRefresh').click()}catch(e){$('abcOrdersStatus').textContent='⚠️ '+e.message;done.disabled=false;}});
+    card.append(done);
+   }
+   $('abcOrders').append(card);
   }
  }catch(e){$('abcOrdersStatus').textContent='⚠️ '+e.message}
 });
+async function updateShipping(order_id,action,fields){
+ const {client}=await account();const {data:{session}}=await client.auth.getSession();
+ if(!session?.access_token)throw Error('Log opnieuw in');
+ const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-fulfillment',{
+ method:'POST',headers:{Authorization:'Bearer '+session.access_token,'Content-Type':'application/json'},
+ body:JSON.stringify({action,order_id,...fields})});
+ const body=await response.json().catch(()=>({}));
+ if(!response.ok)throw Error(body.error||'Bestelling bijwerken mislukt');
+ return body;
+}
 window.addEventListener('allbiz-user-changed',()=>{$('abcForm').reset();$('abcItems').replaceChildren();$('abcOrders').replaceChildren();$('abcStatus').textContent='Account gewijzigd. Haal je catalogus opnieuw op.';});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
