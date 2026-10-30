@@ -1692,59 +1692,7 @@ el('exportSite').addEventListener('click',()=>{
  serviceCards?'<section id="diensten"><h2>Onze diensten</h2><ul>'+serviceCards+'</ul></section>':'',
  '<section id="contact"><h2>Contact</h2>'+contact+'</section></main>',
  '<footer>© '+new Date().getFullYear()+' '+title+'</footer>',
- '
-<script>
-/* Affiliate tracking: opted-in server links, real redirect counts, user-entered network reports. */
-(function(){
- const affiliate=document.getElementById('affiliate');
- if(!affiliate||document.getElementById('allbizAffiliateTracking'))return;
- const section=document.createElement('section');section.className='card';section.id='allbizAffiliateTracking';
- section.innerHTML='<h2>📊 Echte affiliate-linkklikken</h2><p class="muted">Maak een meetbare link van een affiliateproduct. De teller registreert openingen van die link, geen unieke kopers. Verkopen en commissies vul je alleen in volgens het rapport van je affiliateprogramma. Je bestaande links en producten blijven behouden.</p><div class="fields"><div><label for="affTrackProduct">Kies je affiliateproduct</label><select id="affTrackProduct"></select></div><div><label for="affTrackCreate">Meetbare link maken</label><button type="button" id="affTrackCreate">🔗 Maak meetbare link</button></div></div><div class="row"><button class="secondary" type="button" id="affTrackRefresh">🔄 Vernieuw echte cijfers</button><span id="affTrackStatus" role="status" class="toast"></span></div><div id="affTrackResults" class="affiliate-grid"></div>';
- affiliate.insertBefore(section,affiliate.children[2]||null);
- const $=id=>document.getElementById(id),status=$('affTrackStatus');
- const base='https://woaifabvfqnnunxmhpkc.supabase.co';
- const go=base+'/functions/v1/allbiz-affiliate-go?id=';
- const esc=t=>String(t).replace(/[&<>"']/g,x=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','&#39;':'&#39;'}[x]));
- const getProducts=()=>{try{return JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]').filter(a=>a&&a.id&&a.name&&a.link)}catch{return []}};
- function fillProducts(){const sel=$('affTrackProduct'),selected=sel.value;sel.replaceChildren();const products=getProducts();sel.add(new Option(products.length?'Selecteer een product':'Voeg eerst een affiliateproduct toe',''));for(const p of products)sel.add(new Option(p.name,p.id));if(products.some(x=>x.id===selected))sel.value=selected;}
- async function access(){
-  const auth=window.allbizAuth,key=window.allbizPublicApiKey;if(!auth||!key)throw Error('Log eerst in bij Mijn account.');
-  const {data,error}=await auth.getSession();if(error||!data?.session?.access_token)throw Error('Log eerst in bij Mijn account.');
-  return {token:data.session.access_token,key,user:data.session.user.id};
- }
- async function api(method,path,body){
-  const {token,key}=await access();const res=await fetch(base+'/rest/v1/'+path,{method,headers:{Authorization:'Bearer '+token,apikey:key,'content-type':'application/json',Prefer:'return=representation'},...(body?{body:JSON.stringify(body)}:{})});
-  if(!res.ok){const detail=await res.json().catch(()=>({}));throw Error(detail.message||'Serverfout '+res.status)}
-  return method==='DELETE'?null:res.json();
- }
- async function refresh(){
-  const rows=await api('GET','allbiz_affiliate_tracking_links?select=id,product_name,destination_url,click_count,reported_sales,reported_commission,is_active,created_at&order=created_at.desc');
-  const out=$('affTrackResults');out.replaceChildren();
-  if(!rows.length){out.textContent='Nog geen meetbare affiliate-links. Kies hierboven een product.';return}
-  for(const r of rows){
-   const card=document.createElement('div');card.className='affiliate-card';
-   const address=go+encodeURIComponent(r.id);
-   card.innerHTML='<h3>'+esc(r.product_name)+'</h3><p><strong>'+Number(r.click_count).toLocaleString('nl-BE')+' linkopeningen</strong></p><p class="small muted">Door jou ingevuld uit affiliateprogramma: '+Number(r.reported_sales)+' verkopen • € '+Number(r.reported_commission).toFixed(2)+' commissie. Dit zijn geen automatisch bevestigde transacties.</p><p class="small muted" style="overflow-wrap:anywhere">'+esc(address)+'</p>';
-   const copy=document.createElement('button');copy.type='button';copy.className='secondary';copy.textContent='📋 Kopieer meetbare link';copy.addEventListener('click',async()=>{try{await navigator.clipboard.writeText(address);status.textContent='✅ Meetbare link gekopieerd.'}catch{status.textContent='Kopiëren mislukt. Selecteer de link hierboven.'}});
-   const details=document.createElement('details');const summary=document.createElement('summary');summary.textContent='✏️ Verkopen en commissie uit rapport invullen';details.append(summary);
-   const sales=document.createElement('input');sales.type='number';sales.min='0';sales.max='100000000';sales.step='1';sales.value=r.reported_sales;
-   const amount=document.createElement('input');amount.type='number';amount.min='0';amount.max='9999999999';amount.step='0.01';amount.value=r.reported_commission;
-   const save=document.createElement('button');save.type='button';save.textContent='Rapportcijfers bewaren';
-   save.addEventListener('click',async()=>{const n=Number(sales.value),v=Number(amount.value);if(!Number.isInteger(n)||n<0||n>100000000||!Number.isFinite(v)||v<0||v>9999999999){status.textContent='Controleer de bedragen.';return}save.disabled=true;try{await api('PATCH','allbiz_affiliate_tracking_links?id=eq.'+r.id,{reported_sales:n,reported_commission:v,updated_at:new Date().toISOString()});status.textContent='✅ Rapportcijfers bewaard.';await refresh()}catch(e){status.textContent=e.message}finally{save.disabled=false}});
-   for(const [title,control]of[['Aantal verkopen volgens rapport',sales],['Commissie in euro volgens rapport',amount]]){const label=document.createElement('label');label.textContent=title;label.append(control);details.append(label)}
-   details.append(save);card.append(copy,details);out.append(card);
-  }
- }
- $('affTrackCreate').addEventListener('click',async()=>{const p=getProducts().find(x=>x.id===$('affTrackProduct').value);if(!p){status.textContent='Selecteer eerst een affiliateproduct.';return}let url;try{url=new URL(p.link);if(url.protocol!=='https:'||url.username||url.password||!url.hostname.includes('.'))throw Error()}catch{status.textContent='Gebruik een geldige https-affiliatelink.';return}
- const button=$('affTrackCreate');button.disabled=true;status.textContent='Meetbare link maken...';
- try{const {user}=await access();const existing=await api('GET','allbiz_affiliate_tracking_links?select=id&destination_url=eq.'+encodeURIComponent(p.link)+'&owner_id=eq.'+user+'&limit=1');if(existing.length){status.textContent='Deze link was al toegevoegd. Kopieer hem hieronder.'}else{await api('POST','allbiz_affiliate_tracking_links',{owner_id:user,product_name:p.name.slice(0,150),destination_url:p.link});status.textContent='✅ Meetbare link aangemaakt. Kopieer hem hieronder.'}await refresh()}catch(e){status.textContent='Maken mislukt: '+e.message}finally{button.disabled=false}});
- $('affTrackRefresh').addEventListener('click',async()=>{fillProducts();status.textContent='Cijfers ophalen...';try{await refresh();status.textContent='✅ Actuele cijfers opgehaald.'}catch(e){status.textContent=e.message}});
- $('affTrackProduct').addEventListener('focus',fillProducts);
- window.addEventListener('allbiz-user-changed',()=>{fillProducts();refresh().catch(e=>status.textContent=e.message)});
- fillProducts();refresh().catch(()=>status.textContent='Log in bij Mijn account om meetbare links en cijfers te zien.');
-})();
-</script>
-</body></html>'
+ '</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
