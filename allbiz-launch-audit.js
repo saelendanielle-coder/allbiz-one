@@ -18,8 +18,8 @@
     panel.append(intro);
     const checks = [
       ['✅', 'Account en database', 'Supabase-authenticatie en privé-opslag zijn aanwezig. Test ook registratie en wachtwoordherstel met een nieuw account.'],
-      ['✅', 'Stripe testmodus', 'Stripe Sandbox-betalingen en automatische testabonnementen zijn eerder gecontroleerd, inclusief Pro-toegang. Niet opnieuw testen; er is geen echt geld afgeschreven.'],
-      ['⚠️', 'Echte betalingen', 'De echte Stripe-abonnementslinks zijn geactiveerd. Een volledige live betaalcyclus (betaling, toegang, verlenging en opzegging) moet nog worden bevestigd. Dit is iets anders dan webshopcheckout.'],
+      ['✅', 'Eerste echte Stripe-betaling', 'Op 30 oktober 2026 is een echte eenmalige betaling van €1 ontvangen. Dit bewijst nog geen abonnementstoegang, verlenging of opzegging.'],
+      ['⚠️', 'Live abonnementen', 'Een echte betaling van €1 is bevestigd, maar er staat nog geen actief live abonnement in de database. Toegang, verlenging en opzegging moeten nog worden geverifieerd.'],
       ['⚠️', 'Website online publiceren', 'Publicatie is serverbeveiligd en vereist een echt actief abonnement. Controleer de volledige klantreis.'],
       ['⚠️', 'Webshop en digitale levering', 'De webshop, privé-bestanden en beveiligde downloadcontrole zijn technisch aanwezig. De webshopcheckout staat nog uit tot Stripe Connect, betaalbevestiging en bezorging van downloads aantoonbaar werken.'],
       ['⚠️', 'Trading met echt geld', 'Nog niet beschikbaar. Er is geen toegelaten, werkende brokerkoppeling voor echte orders.'],
@@ -29,7 +29,7 @@
     const remaining = document.createElement('p');
     remaining.className = 'small';
     remaining.style.fontWeight = '700';
-    remaining.textContent = 'Nog 5 lanceringspunten: live betaling bevestigen, websitepublicatie testen, webshopcheckout & levering, brokerkoppeling en bedrijfsinformatie.';
+    remaining.textContent = 'Nog 5 lanceringspunten: live abonnementsverwerking, websitepublicatie, Stripe Connect en webshopcheckout/levering, brokerkoppeling en bedrijfsinformatie.';
     panel.append(remaining);
     const list = document.createElement('ul');
     list.style.cssText = 'list-style:none;padding:0;display:grid;gap:8px;margin:12px 0';
@@ -119,7 +119,7 @@
         : '.';
       serverStatus.textContent = '✅ Server bereikbaar: ' + count +
         ' echte actieve abonnementen' + suffix +
-        (count === 0 ? ' De Stripe Sandbox-tests zijn al uitgevoerd. Er is nog geen live-abonnement geregistreerd.' :
+        (count === 0 ? ' De echte €1-betaling is bevestigd; er is nog geen live-abonnement geregistreerd.' :
           ' Live betalingen, verlenging en opzegging zijn nog niet definitief bevestigd.');
     });
     const note = document.createElement('p');
@@ -128,7 +128,7 @@
     panel.append(note);
     const actions = document.createElement('div');
     actions.style.cssText = 'display:flex;flex-wrap:wrap;gap:9px';
-    for (const [label, tab] of [['💎 Abonnementen bekijken', 'plans'], ['🏪 Webshop testen', 'shop'], ['📈 Tradingdemo openen', 'trading']]) {
+    for (const [label, tab] of [['💎 Abonnementen bekijken', 'plans'], ['🏪 Webshop bekijken', 'shop'], ['📈 Tradingdemo openen', 'trading']]) {
       const button = document.createElement('button');
       button.type = 'button';
       button.textContent = label;
