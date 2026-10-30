@@ -906,6 +906,11 @@ const allbizRequiredTier={products:1,site:1,builder:1,shop:2,orders:2,import:2,v
 const allbizTierRank={starter:1,pro:2,business:3};
 const allbizTierLabel=['Gratis','Starter','Pro','Business'];
 let allbizLiveTier=0,allbizSandboxTier=0;
+// Verified owner may open setup screens; paid customer APIs still enforce subscriptions.
+function allbizUiTierAllowed(tab){
+ const required=allbizRequiredTier[tab]||0;
+ return !required||window.allbizOwnerVerified===true||Math.max(allbizLiveTier,allbizSandboxTier)>=required;
+}
 window.allbizApplyAccess=(kind,plan)=>{
  if(kind==='reset'){allbizLiveTier=0;allbizSandboxTier=0}
  else if(kind==='live')allbizLiveTier=allbizTierRank[plan]||0;
@@ -915,7 +920,7 @@ window.allbizApplyAccess=(kind,plan)=>{
  banner.hidden=!(allbizSandboxTier>0&&allbizLiveTier===0);
  if(!banner.hidden)banner.textContent='🧪 Testmodus · '+allbizTierLabel[allbizSandboxTier]+': je kunt de bijbehorende lokale demo-onderdelen proberen. Dit is GEEN echt betaald abonnement.';
  const current=document.querySelector('.panel.active')?.id;
- if(kind!=='reset'&&!window.allbizAccessChecking&&current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current])switchTab('account',{automatic:true,keepSavedTab:true});
+ if(kind!=='reset'&&!window.allbizAccessChecking&&current&&!allbizUiTierAllowed(current))switchTab('account',{automatic:true,keepSavedTab:true});
 };
 // On mobile, the section picker stays visible while quick shortcuts collapse on scroll.
 const mobilePicker=document.querySelector('.mobile-feature-picker');
@@ -1000,7 +1005,7 @@ window.allbizResumeLastSection=()=>{
  navRestored=true;
  if(!navAllowed.has(tab))return;
  const required=allbizRequiredTier[tab]||0;
- if(required&&Math.max(allbizLiveTier,allbizSandboxTier)<required)return; // Never bypass subscription checks
+ if(!allbizUiTierAllowed(tab))return; // Owner allowed only after server verification.
  switchTab(tab,{automatic:true});
 };
 function switchTab(tab,options={}){
@@ -1010,7 +1015,7 @@ function switchTab(tab,options={}){
  if(!options.automatic)navUserInteracted=true;
  const required=allbizRequiredTier[tab]||0;
  const notice=el('allbizAccessNotice');
- if(required&&Math.max(allbizLiveTier,allbizSandboxTier)<required){
+ if(!allbizUiTierAllowed(tab)){
   el('allbizAccessNoticeTitle').textContent='💎 '+allbizTierLabel[required]+' of hoger nodig';
   el('allbizAccessNoticeText').textContent='Dit onderdeel vraagt '+allbizTierLabel[required]+' of hoger. Met de 🧪 TEST-betaallink kun je dit veilig in de demo proberen. Een testbetaling geeft GEEN recht op betaalde serverfuncties.';
   notice.hidden=false;tab='plans';
@@ -1026,7 +1031,7 @@ function switchTab(tab,options={}){
 }
 window.allbizFinishAccessCheck=()=>{
  const current=document.querySelector('.panel.active')?.id;
- if(current&&allbizRequiredTier[current]&&Math.max(allbizLiveTier,allbizSandboxTier)<allbizRequiredTier[current]){
+ if(current&&!allbizUiTierAllowed(current)){
   switchTab('account',{automatic:true,keepSavedTab:true});
  }
 };
@@ -2858,6 +2863,7 @@ try {
   const ownerCheckButton=$('allbizCheckOwnerAccess');
   const ownerBox=$('allbizOwnerDashboard');
   const setOwnerVisible=allowed=>{
+    window.allbizOwnerVerified=!!allowed;
     if(ownerBox)ownerBox.hidden=!allowed;
     const euroShortcut=$('allbizOneEuroShortcut');if(euroShortcut)euroShortcut.hidden=!allowed;
     // The owner dashboard is owner-only; real payment buttons are managed by the authenticated user.
@@ -2886,6 +2892,10 @@ try {
         void showOwnerCustomers(1);
         if(ownerSignInButton)ownerSignInButton.hidden=true;
         if(ownerAccessStatus)ownerAccessStatus.textContent='✅ Je bent bevestigd als eigenaar. Je cijfers staan hieronder.';
+        // Continue a requested webshop deep link after owner verification.
+        if(window.location.hash==='#shop'&&window.allbizRequestedSection==='shop'){
+          document.querySelector('nav.nav button[data-tab="shop"]')?.click();
+        }
       }else{
         if(ownerSignInButton)ownerSignInButton.hidden=true;
         if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent ingelogd, maar dit account heeft geen beheerdersrechten.';
