@@ -106,37 +106,6 @@
     });
     server.append(serverHeading, serverStatus, refresh, serverNote, checkoutCheck, checkoutStatus);
     panel.append(server);
-    const euroBox=document.createElement('div');
-    euroBox.style.cssText='background:white;border:1px solid #ddd3ee;border-radius:12px;padding:13px;margin:12px 0';
-    const euroHeading=document.createElement('h4');euroHeading.textContent='💶 Eenmalige €1-proefbetaling';
-    const euroDescription=document.createElement('p');euroDescription.className='small';
-    euroDescription.textContent='Alleen voor de eigenaar. Geen abonnement. Je betaalt pas wanneer je zelf afrekent op Stripe.';
-    const euroButton=document.createElement('button');euroButton.type='button';
-    euroButton.id='allbizOwnerOneEuroStart';
-    euroButton.className='secondary';euroButton.textContent='€1-proefbetaling tijdelijk uitgeschakeld';euroButton.disabled=true;
-    const euroStatus=document.createElement('p');euroStatus.setAttribute('role','status');
-    euroStatus.className='small muted';euroStatus.textContent='⚠️ De echte Stripe-betaallink staat uit totdat de automatische levering werkt. Betaal nog niet.';
-    euroButton.addEventListener('click',async()=>{
-      euroButton.disabled=true;euroStatus.textContent='Beveiligde betaalmogelijkheid controleren…';
-      try{
-        const supabase=window.allbizClient;
-        if(!supabase)throw Error('Accountverbinding niet beschikbaar.');
-        const {data,error}=await supabase.auth.getSession();
-        if(error||!data?.session?.access_token)throw Error('Log eerst in bij Mijn account.');
-        const url='https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-store-checkout';
-        const statusResponse=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'status'})});
-        const statusData=await statusResponse.json();
-        if(!statusResponse.ok||!statusData.owner_one_euro_test_ready)throw Error('De live Stripe-koppeling is nog niet klaar. Er is niets afgeschreven.');
-        if(!confirm('Echte eenmalige testbetaling van €1,00 openen? Dit is geen abonnement.')){euroStatus.textContent='Geen betaling gestart.';return;}
-        const response=await fetch(url,{method:'POST',headers:{'Content-Type':'application/json',Authorization:'Bearer '+data.session.access_token},body:JSON.stringify({action:'owner_test_checkout'})});
-        const result=await response.json();
-        if(!response.ok||!result.checkout_url)throw Error(result.error||'De betaalpagina kon niet worden aangemaakt.');
-        if(!/^https:\/\/checkout\.stripe\.com\//.test(result.checkout_url))throw Error('Ongeldige Stripe-link.');
-        location.assign(result.checkout_url);
-      }catch(e){euroStatus.textContent='⚠️ '+e.message;}finally{euroButton.disabled=false;}
-    });
-    euroBox.append(euroHeading,euroDescription,euroButton,euroStatus);
-    panel.append(euroBox);
     window.addEventListener('allbiz-owner-stats-loaded', event => {
       const data = event.detail || {};
       const count = data.active_subscriptions;
