@@ -427,12 +427,12 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button type="button" id="makeSite">Bewaar mijn ontwerp</button><button type="button" id="exportSite" class="secondary">⬇ Download gewone website (Starter)</button><button type="button" id="exportShop" class="secondary">🛍️ Download webshopvoorbeeld (Pro)</button></div><p class="muted">Starter maakt een gewone bedrijfswebsite met je naam, diensten en contact. Pro kan ook een webshopvoorbeeld downloaden. Downloaden is gratis in de testmodus; om de website online te zetten is nog hosting nodig.</p><p id="siteStatus" role="status" class="toast"></p>
 <div class="import-buttons"><button type="button" class="secondary" id="allbizSaveCloud">☁️ Bewaar privé in mijn account</button><button type="button" class="secondary" id="allbizLoadCloud">📂 Open mijn bewaarde website</button></div><p id="allbizDraftStatus" class="toast" role="status">Dit ontwerp is nog niet in je online account opgeslagen of gepubliceerd.</p>
 <div class="card" id="allbizPublishBox" style="margin:16px 0;border:1px solid #e3d9fa">
-<h3>🌍 Website publiceren — nog in testfase</h3>
+<h3>🌍 Website publiceren</h3>
 <p class="muted">Testen en downloaden is gratis. Pas met een echt betaald Starter-, Pro- of Business-abonnement kan een website online komen. De website wordt alleen openbaar na je uitdrukkelijke bevestiging; je contactgegevens worden dan ook zichtbaar.</p>
 <label for="allbizSiteSlug">Naam voor je toekomstige website-link</label>
 <input id="allbizSiteSlug" type="text" minlength="3" maxlength="64" pattern="[a-z0-9-]{3,64}" placeholder="bijv. mijn-bedrijf" autocapitalize="off" spellcheck="false">
 <label style="display:flex;align-items:flex-start;gap:9px"><input id="allbizPublishConsent" type="checkbox" style="width:auto;margin:4px 0">Ik bevestig dat mijn website en ingevulde contactgegevens openbaar op internet mogen komen.</label>
-<div class="import-buttons"><button type="button" class="secondary" id="allbizCheckPublishButton">🧪 Controleer publicatiekoppeling (zonder publiceren)</button></div>
+<div class="import-buttons"><button type="button" class="secondary" id="allbizCheckPublishButton">🔎 Controleer publicatiestatus</button></div>
 <div class="import-buttons"><button type="button" id="allbizPublishButton">🌍 Website echt publiceren</button><button type="button" class="secondary" id="allbizUnpublishButton">Website offline halen</button></div>
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
@@ -2171,7 +2171,7 @@ try {
   }
   document.getElementById('sellerConnectStatus').addEventListener('click',async e=>{
     const btn=e.currentTarget;btn.disabled=true;
-    connectMsg.textContent='Stripe Connect-teststatus controleren...';
+    connectMsg.textContent='Live Stripe Connect-status controleren...';
     try{
       const data=await callConnectLive('status');
       connectMsg.textContent=data.connected?'✅ Je echte Stripe-verkopersaccount is verbonden. Webshopbetalingen blijven voorlopig uit.':data.configured?(data.hasAccount?'🔒 Stripe-account gevonden. De verificatie is nog niet afgerond.':'🔒 Stripe Connect staat klaar. Klik op Koppel om je verificatie te starten.'):'🔒 De geheime live Stripe-sleutel ontbreekt nog in de serverinstellingen. Er wordt niets betaald.';
@@ -2186,7 +2186,7 @@ try {
       if(data.connected){connectMsg.textContent='✅ Je echte Stripe-verkopersaccount is al gekoppeld.';return}
       if(data.onboardingUrl){window.location.assign(data.onboardingUrl);return}
       connectMsg.textContent='🔒 De server heeft een veilige live Stripe-sleutel nodig. Webshopbetalingen blijven uit.';
-    }catch(err){connectMsg.textContent=String(err.message||'De testkoppeling kon niet starten.')}
+    }catch(err){connectMsg.textContent=String(err.message||'De echte verkoperskoppeling kon niet starten.')}
     finally{btn.disabled=false}
   });
   window.allbizAutoSaveBuilder=async()=>{
@@ -2562,7 +2562,7 @@ try {
         : 'Er staat geen website online via dit account.';
       const billing=d.hasLiveSubscription
         ? 'Er is een echt betaald abonnement geregistreerd.'
-        : 'Je hebt geen echt betaald abonnement; je gratis testbetaling blijft een test.';
+        : 'Er is geen actief betaald abonnement aan dit account gekoppeld.';
       publicationMessage('✅ Publicatiekoppeling bereikbaar. '+details+' '+billing+' Deze controle heeft niets gepubliceerd.');
     }catch(error){
       publicationMessage('Controle niet gelukt: '+(error?.message||'onbekende fout')+'. Er is niets gepubliceerd door deze controle.');
