@@ -19,9 +19,9 @@
     const checks = [
       ['✅', 'Account en database', 'Supabase-authenticatie en privé-opslag zijn aanwezig. Test ook registratie en wachtwoordherstel met een nieuw account.'],
       ['✅', 'Stripe testmodus', 'Stripe Sandbox-betalingen en automatische testabonnementen zijn eerder gecontroleerd, inclusief Pro-toegang. Niet opnieuw testen; er is geen echt geld afgeschreven.'],
-      ['⚠️', 'Echte betalingen', 'De sandbox-flow is getest. Een volledige live-betaalcyclus is nog niet aangetoond; daarom blijven betaalbuttons voor nieuwe klanten voorlopig dicht.'],
+      ['⚠️', 'Echte betalingen', 'De echte Stripe-abonnementslinks zijn geactiveerd. Een volledige live betaalcyclus (betaling, toegang, verlenging en opzegging) moet nog worden bevestigd. Dit is iets anders dan webshopcheckout.'],
       ['⚠️', 'Website online publiceren', 'Publicatie is serverbeveiligd en vereist een echt actief abonnement. Controleer de volledige klantreis.'],
-      ['⚠️', 'Webshop en digitale levering', 'Afrekenen en bestellingen zijn momenteel demo. Er is nog geen echte checkout, veilige digitale levering of automatische verzending.'],
+      ['⚠️', 'Webshop en digitale levering', 'De webshop, privé-bestanden en beveiligde downloadcontrole zijn technisch aanwezig. De webshopcheckout staat nog uit tot Stripe Connect, betaalbevestiging en bezorging van downloads aantoonbaar werken.'],
       ['⚠️', 'Trading met echt geld', 'Nog niet beschikbaar. Er is geen toegelaten, werkende brokerkoppeling voor echte orders.'],
       ['⚠️', 'Bedrijfs- en klantinformatie', 'Controleer vóór verkoop ondernemingsgegevens, privacy, voorwaarden, herroepingsrecht, klantenservice en duidelijke abonnementsprijzen.']
     ];
@@ -29,7 +29,7 @@
     const remaining = document.createElement('p');
     remaining.className = 'small';
     remaining.style.fontWeight = '700';
-    remaining.textContent = 'Nog 5 lanceringspunten: live betaling, websitepublicatie, webshopbestellingen, brokerkoppeling en bedrijfsinformatie.';
+    remaining.textContent = 'Nog 5 lanceringspunten: live betaling bevestigen, websitepublicatie testen, webshopcheckout & levering, brokerkoppeling en bedrijfsinformatie.';
     panel.append(remaining);
     const list = document.createElement('ul');
     list.style.cssText = 'list-style:none;padding:0;display:grid;gap:8px;margin:12px 0';
@@ -75,7 +75,36 @@
       serverStatus.textContent = 'De actuele betaalstatus wordt beveiligd opgevraagd…';
       existing.click();
     });
-    server.append(serverHeading, serverStatus, refresh, serverNote);
+    const checkoutCheck = document.createElement('button');
+    checkoutCheck.type = 'button';
+    checkoutCheck.className = 'secondary';
+    checkoutCheck.textContent = '↻ Controleer echte webshopcheckout';
+    const checkoutStatus = document.createElement('p');
+    checkoutStatus.className = 'small muted';
+    checkoutStatus.setAttribute('role', 'status');
+    checkoutStatus.textContent = 'Webshopbetalingen nog niet gecontroleerd.';
+    checkoutCheck.addEventListener('click', async () => {
+      checkoutCheck.disabled = true;
+      checkoutStatus.textContent = 'Beveiligde betaalstatus ophalen…';
+      try {
+        const response = await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-store-checkout', {
+          method: 'POST',
+          headers: {'content-type':'application/json'},
+          body: JSON.stringify({action:'status'})
+        });
+        const data = await response.json();
+        if (!response.ok) throw new Error(data.error || 'Server niet bereikbaar');
+        checkoutStatus.textContent = data.live_checkout_enabled
+          ? '✅ Live webshopcheckout is aan volgens de server; controleer nog de volledige aankoop en aflevering.'
+          : '⚠️ Live webshopcheckout blijft uit. ' + (data.reason || 'Een volledige veilige eindtest ontbreekt.') +
+            (data.live_checkout_configured ? ' Stripe-sleutel is aanwezig.' : ' Live Stripe-sleutel ontbreekt of is niet bevestigd.');
+      } catch (error) {
+        checkoutStatus.textContent = '⚠️ Webshopstatus onbekend: ' + error.message;
+      } finally {
+        checkoutCheck.disabled = false;
+      }
+    });
+    server.append(serverHeading, serverStatus, refresh, serverNote, checkoutCheck, checkoutStatus);
     panel.append(server);
     window.addEventListener('allbiz-owner-stats-loaded', event => {
       const data = event.detail || {};
