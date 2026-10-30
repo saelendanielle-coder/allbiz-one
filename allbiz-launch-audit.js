@@ -113,9 +113,9 @@
     euroDescription.textContent='Alleen voor de eigenaar. Geen abonnement. Je betaalt pas wanneer je zelf afrekent op Stripe.';
     const euroButton=document.createElement('button');euroButton.type='button';
     euroButton.id='allbizOwnerOneEuroStart';
-    euroButton.className='secondary';euroButton.textContent='Open veilige €1-proefbetaling';
+    euroButton.className='secondary';euroButton.textContent='€1-proefbetaling tijdelijk uitgeschakeld';euroButton.disabled=true;
     const euroStatus=document.createElement('p');euroStatus.setAttribute('role','status');
-    euroStatus.className='small muted';euroStatus.textContent='Er is nog niets betaald.';
+    euroStatus.className='small muted';euroStatus.textContent='⚠️ De echte Stripe-betaallink staat uit totdat de automatische levering werkt. Betaal nog niet.';
     euroButton.addEventListener('click',async()=>{
       euroButton.disabled=true;euroStatus.textContent='Beveiligde betaalmogelijkheid controleren…';
       try{
