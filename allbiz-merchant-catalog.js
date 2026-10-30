@@ -43,7 +43,7 @@ async function refresh(){
  for(const p of rows){
   const item=document.createElement('article');item.style.cssText='padding:12px;margin:10px 0;border:1px solid #ddd3f1;border-radius:10px';
   const title=document.createElement('strong');title.textContent=p.name+' · '+eur(p.price_cents);
-  const desc=document.createElement('p');desc.textContent=(p.kind==='digital'?'📥 Digitaal':'📦 Fysiek')+' · '+(p.is_listed?'Voorbereid als zichtbaar':'Privé concept')+(p.digital_file_path?' · Bestand gekoppeld':'');
+  const desc=document.createElement('p');desc.textContent=(p.kind==='digital'?'📥 Digitaal':'📦 Fysiek')+' · '+(p.is_listed?'Voorbereid als zichtbaar':'Privé concept')+(p.kind==='digital'?(p.digital_file_path?' · Bestand gekoppeld':' · ⚠️ Bestand ontbreekt'):'');
   const remove=document.createElement('button');remove.className='secondary';remove.type='button';remove.textContent='Verwijderen';
   remove.addEventListener('click',async()=>{
    if(!confirm('Dit catalogusproduct verwijderen?'))return;
@@ -67,6 +67,7 @@ $('abcForm').addEventListener('submit',async e=>{
   const kind=$('abcKind').value;
   const filePath=kind==='digital' ? $('abcFile').value : '';
   if(filePath&&!filePath.startsWith(user.id+'/'))throw Error('Ongeldig digitaal bestand.');
+  if(kind==='digital'&&$('abcListed').checked&&!filePath)throw Error('Koppel eerst een geüpload digitaal bestand voordat je dit product zichtbaar maakt.');
   const row={seller_id:user.id,name:$('abcName').value.trim(),description:$('abcDesc').value.trim(),kind,price_cents:cents,stock,digital_file_path:filePath,is_listed:$('abcListed').checked,updated_at:new Date().toISOString()};
   if(row.name.length<2)throw Error('Vul een productnaam in.');
   const {error}=await client.from('allbiz_catalog_products').insert(row);
