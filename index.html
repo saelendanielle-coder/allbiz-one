@@ -774,6 +774,13 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   </details>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
   <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
+  <div class="card" id="aboGoogleAdsReports" style="margin-top:14px">
+    <h3>📊 Google Ads: echte campagnecijfers</h3>
+    <p class="small muted">Bekijk vertoningen, klikken en uitgegeven advertentiebudget van de afgelopen 30 dagen. Dit overzicht verandert geen advertenties en maakt geen kosten. Koppel eerst Google Ads en kies je advertentieaccount.</p>
+    <button type="button" id="aboAdsLoadReport" class="secondary">↻ Haal echte campagnecijfers op</button>
+    <p id="aboAdsReportStatus" role="status" class="small muted">Nog geen cijfers opgehaald.</p>
+    <div id="aboAdsReportItems"></div>
+  </div>
   <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
 </div>
 </section>
@@ -3458,6 +3465,7 @@ try {
  const host=$('allbizAdConnections');if(!host)return;
  const status=$('aboAdsConnectStatus'),google=$('aboGoogleAdsState'),connect=$('aboGoogleAdsConnect'),disconnect=$('aboGoogleAdsDisconnect'),refresh=$('aboAdsRefresh');
  const copyCallback=$('aboAdsCopyGoogleCallback');
+ const loadReport=$('aboAdsLoadReport'),reportStatus=$('aboAdsReportStatus'),reportItems=$('aboAdsReportItems');
  const accountBox=$('aboGoogleAdsAccounts'),accountSelect=$('aboGoogleAdsAccountSelect'),chooseAccount=$('aboGoogleAdsChoose'),accountStatus=$('aboGoogleAdsAccountsStatus');
  copyCallback?.addEventListener('click',async()=>{
    const url=$('aboAdsGoogleCallback')?.value||'';
@@ -3507,6 +3515,22 @@ try {
   }
   finally{refresh.disabled=false;}
  }
+ loadReport.addEventListener('click',async()=>{
+  loadReport.disabled=true;reportItems.replaceChildren();reportStatus.textContent='Campagnecijfers veilig ophalen…';
+  try{
+   const d=await send('campaign_report');
+   const nums=new Intl.NumberFormat('nl-BE',{maximumFractionDigits:0});
+   const money=new Intl.NumberFormat('nl-BE',{style:'currency',currency:/^[A-Z]{3}$/.test(d.currency||'')?d.currency:'EUR'});
+   const rows=Array.isArray(d.campaigns)?d.campaigns:[];
+   reportStatus.textContent='Google Ads-account '+d.account_id+' · laatste 30 dagen. '+rows.length+' campagnes. Totaal: '+nums.format(d.totals?.impressions||0)+' vertoningen, '+nums.format(d.totals?.clicks||0)+' klikken, '+money.format(d.totals?.spend||0)+' kosten.';
+   if(!rows.length){const p=document.createElement('p');p.textContent='Geen campagnes of resultaten beschikbaar in deze periode.';reportItems.append(p);}
+   for(const campaign of rows){const item=document.createElement('div');item.style.cssText='padding:12px;border:1px solid #ded8f4;border-radius:10px;margin:9px 0';
+    const strong=document.createElement('strong');strong.textContent=campaign.name||'Campagne';
+    const p=document.createElement('p');p.textContent=campaign.status+' · '+nums.format(campaign.impressions)+' vertoningen · '+nums.format(campaign.clicks)+' klikken · '+money.format(campaign.spend)+' kosten';
+    item.append(strong,p);reportItems.append(item);}
+  }catch(e){reportStatus.textContent='⚠️ '+(e.message||'Rapport niet beschikbaar');}
+  finally{loadReport.disabled=false;}
+ });
  refresh.addEventListener('click',reload);
  connect.addEventListener('click',async()=>{
   connect.disabled=true;status.textContent='Beveiligde toestemming voorbereiden…';
