@@ -13,7 +13,7 @@ panel.innerHTML='<h2>📦 Mijn online productcatalogus</h2><p class="muted">Prod
 '<label for="abcStock">Voorraad (leeg = niet bijgehouden)</label><input id="abcStock" type="number" min="0" max="1000000" step="1">'+
 '<label for="abcFile">Pad van privé digitaal bestand (optioneel)</label><select id="abcFile"><option value="">Geen bestand gekoppeld</option></select>'+
 '<label><input id="abcListed" type="checkbox"> Klaarzetten als zichtbaar product zodra de verkoopfunctie officieel beschikbaar is</label>'+
-'<button type="submit">💾 Product privé opslaan</button> <button type="button" id="abcRefresh" class="secondary">↻ Producten ophalen</button></form>'+
+'<p id="abcEditNotice" role="status" hidden></p><button type="submit" id="abcSaveProduct">💾 Product privé opslaan</button> <button type="button" id="abcCancelEdit" class="secondary" hidden>✖ Bewerken annuleren</button> <button type="button" id="abcRefresh" class="secondary">↻ Producten ophalen</button></form>'+
 '<p id="abcStatus" role="status" class="muted">Log in om producten te beheren.</p><div id="abcItems"></div>'+
 '<p><button type="button" class="secondary" id="abcStoreLink">🔗 Kopieer mijn winkellink</button></p>'+
 '<h3>🧾 Mijn echte bestellingen</h3><p class="muted">Alleen bevestigde serverbestellingen komen hier. Demo-omzet wordt niet meegeteld.</p><button type="button" id="abcOrdersRefresh" class="secondary">↻ Bestellingen controleren</button><p id="abcOrdersStatus" role="status"></p><div id="abcOrders"></div>';
@@ -27,6 +27,42 @@ async function account(){
  return {client,user:data.user};
 }
 const eur=c=>(c/100).toLocaleString('nl-BE',{style:'currency',currency:'EUR'});
+let editingId=null;
+function stopEditing(){
+ editingId=null;
+ $('abcForm').reset();
+ $('abcEditNotice').hidden=true;
+ $('abcEditNotice').textContent='';
+ $('abcCancelEdit').hidden=true;
+ $('abcSaveProduct').textContent='💾 Product privé opslaan';
+}
+$('abcCancelEdit').addEventListener('click',()=>{
+ stopEditing();
+ $('abcStatus').textContent='Bewerken geannuleerd. Je bestaande product is niet veranderd.';
+});
+function editProduct(product, userId){
+ editingId=product.id;
+ const form=$('abcForm');
+ $('abcName').value=product.name;
+ $('abcDesc').value=product.description||'';
+ $('abcKind').value=product.kind;
+ $('abcPrice').value=(product.price_cents/100).toFixed(2);
+ $('abcStock').value=product.stock===null?'':String(product.stock);
+ // Keep existing private file reference visible, even if it is no longer in the first page of the file list.
+ const existing=product.digital_file_path||'';
+ const select=$('abcFile');
+ if(existing&&existing.startsWith(userId+'/')&&![...select.options].some(o=>o.value===existing)){
+  select.add(new Option('Huidig bestand (controleer of het nog bestaat)',existing));
+ }
+ select.value=existing&&existing.startsWith(userId+'/')?existing:'';
+ $('abcListed').checked=product.is_listed===true;
+ $('abcSaveProduct').textContent='💾 Wijzigingen opslaan';
+ $('abcCancelEdit').hidden=false;
+ $('abcEditNotice').hidden=false;
+ $('abcEditNotice').textContent='Je bewerkt: '+product.name+'. Andere producten blijven ongewijzigd.';
+ form.scrollIntoView({behavior:'smooth',block:'start'});
+ $('abcName').focus({preventScroll:true});
+}
 async function refresh(){
  $('abcStatus').textContent='Catalogus ophalen…';$('abcItems').replaceChildren();
  try{
@@ -44,6 +80,7 @@ async function refresh(){
   const item=document.createElement('article');item.style.cssText='padding:12px;margin:10px 0;border:1px solid #ddd3f1;border-radius:10px';
   const title=document.createElement('strong');title.textContent=p.name+' · '+eur(p.price_cents);
   const desc=document.createElement('p');desc.textContent=(p.kind==='digital'?'📥 Digitaal':'📦 Fysiek')+' · '+(p.is_listed?'Voorbereid als zichtbaar':'Privé concept')+(p.kind==='digital'?(p.digital_file_path?' · Bestand gekoppeld':' · ⚠️ Bestand ontbreekt'):'');
+  const edit=document.createElement('button');edit.className='secondary';edit.type='button';edit.textContent='✏️ Bewerken';edit.addEventListener('click',()=>editProduct(p,user.id));
   const remove=document.createElement('button');remove.className='secondary';remove.type='button';remove.textContent='Verwijderen';
   remove.addEventListener('click',async()=>{
    if(!confirm('Dit catalogusproduct verwijderen?'))return;
@@ -51,7 +88,7 @@ async function refresh(){
    const {error}=await client.from('allbiz_catalog_products').delete().eq('id',p.id).eq('seller_id',user.id);
    if(error){$('abcStatus').textContent='⚠️ '+error.message;remove.disabled=false}else await refresh();
   });
-  item.append(title,desc,remove);$('abcItems').append(item);
+  item.append(title,desc,edit,document.createTextNode(' '),remove);$('abcItems').append(item);
  }
  }catch(e){$('abcStatus').textContent='⚠️ '+e.message;}
 }
@@ -70,9 +107,19 @@ $('abcForm').addEventListener('submit',async e=>{
   if(kind==='digital'&&$('abcListed').checked&&!filePath)throw Error('Koppel eerst een geüpload digitaal bestand voordat je dit product zichtbaar maakt.');
   const row={seller_id:user.id,name:$('abcName').value.trim(),description:$('abcDesc').value.trim(),kind,price_cents:cents,stock,digital_file_path:filePath,is_listed:$('abcListed').checked,updated_at:new Date().toISOString()};
   if(row.name.length<2)throw Error('Vul een productnaam in.');
-  const {error}=await client.from('allbiz_catalog_products').insert(row);
-  if(error)throw error;
-  $('abcForm').reset();await refresh();
+  if(editingId){
+   const {data,error}=await client.from('allbiz_catalog_products').update(row).eq('id',editingId).eq('seller_id',user.id).select('id');
+   if(error)throw error;
+   if(!Array.isArray(data)||data.length!==1)throw Error('Het bestaande product is niet gevonden of kon niet bijgewerkt worden.');
+   stopEditing();
+   await refresh();
+   $('abcStatus').textContent='✅ Productwijzigingen opgeslagen. Bestaande bestellingen blijven ongewijzigd.';
+  }else{
+   const {error}=await client.from('allbiz_catalog_products').insert(row);
+   if(error)throw error;
+   stopEditing();await refresh();
+   $('abcStatus').textContent='✅ Nieuw product opgeslagen.';
+  }
  }catch(e){$('abcStatus').textContent='⚠️ '+e.message}
  finally{btn.disabled=false}
 });
@@ -115,7 +162,7 @@ async function updateShipping(order_id,action,fields){
  if(!response.ok)throw Error(body.error||'Bestelling bijwerken mislukt');
  return body;
 }
-window.addEventListener('allbiz-user-changed',()=>{$('abcForm').reset();$('abcItems').replaceChildren();$('abcOrders').replaceChildren();$('abcStatus').textContent='Account gewijzigd. Haal je catalogus opnieuw op.';});
+window.addEventListener('allbiz-user-changed',()=>{stopEditing();$('abcItems').replaceChildren();$('abcOrders').replaceChildren();$('abcStatus').textContent='Account gewijzigd. Haal je catalogus opnieuw op.';});
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init,{once:true});else init();
 })();
