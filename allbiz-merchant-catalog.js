@@ -16,7 +16,7 @@ panel.innerHTML='<h2>📦 Mijn online productcatalogus</h2><p class="muted">Prod
 '<p id="abcEditNotice" role="status" hidden></p><button type="submit" id="abcSaveProduct">💾 Product privé opslaan</button> <button type="button" id="abcCancelEdit" class="secondary" hidden>✖ Bewerken annuleren</button> <button type="button" id="abcRefresh" class="secondary">↻ Producten ophalen</button></form>'+
 '<p id="abcStatus" role="status" class="muted">Log in om producten te beheren.</p><div id="abcItems"></div>'+
 '<p><button type="button" class="secondary" id="abcStoreLink">🔗 Kopieer mijn winkellink</button></p>'+
-'<h3>🧾 Mijn echte bestellingen</h3><p class="muted">Alleen bevestigde serverbestellingen komen hier. Demo-omzet wordt niet meegeteld.</p><button type="button" id="abcOrdersRefresh" class="secondary">↻ Bestellingen controleren</button><p id="abcOrdersStatus" role="status"></p><div id="abcOrders"></div>';
+'<h3>🧾 Mijn echte bestellingen</h3><p class="muted">Hier zie je uitsluitend bestellingen die door de server zijn geregistreerd. Echte verkopen worden pas mogelijk wanneer Stripe Connect geactiveerd is.</p><button type="button" id="abcOrdersRefresh" class="secondary">↻ Bestellingen controleren</button><p id="abcOrdersStatus" role="status"></p><div id="abcOrders"></div>';
 host.append(panel);
 const $=id=>panel.querySelector('#'+id);
 async function account(){
