@@ -26,7 +26,14 @@
   list.append(label, select, choose, listStatus);
   const status = document.createElement('p');
   status.className = 'small'; status.setAttribute('role', 'status');
-  controls.append(connect, disconnect, list, status);
+  // The initial OAuth URL is created asynchronously. Some mobile/in-app browsers
+  // refuse scripted navigation afterwards. Provide a real, user-clickable link.
+  const facebookLink = document.createElement('a');
+  facebookLink.textContent = 'Open Facebook om toestemming te geven';
+  facebookLink.hidden = true;
+  facebookLink.referrerPolicy = 'no-referrer';
+  facebookLink.style.cssText = 'padding:12px 14px;border:2px solid #6550ba;border-radius:12px;text-align:center;font-weight:700';
+  controls.append(connect, facebookLink, disconnect, list, status);
   card.append(controls);
   const oldDescription = state.nextElementSibling;
   if (oldDescription && oldDescription.tagName === 'P') {
@@ -69,7 +76,7 @@
     }
   }
   async function reload() {
-    connect.disabled = true; disconnect.hidden = true; list.hidden = true;
+    connect.disabled = true; disconnect.hidden = true; list.hidden = true; facebookLink.hidden = true; facebookLink.removeAttribute('href');
     try {
       const d = await request('status');
       const meta = d.meta || {};
@@ -97,14 +104,22 @@
     }
   }
   connect.addEventListener('click', async () => {
-    connect.disabled = true; status.textContent = 'Beveiligde Meta-toestemming openen…';
+    connect.disabled = true; facebookLink.hidden = true;
+    status.textContent = 'Beveiligde Meta-toestemming openen…';
     try {
       const result = await request('connect_meta');
       const url = new URL(result.authorization_url);
       if (url.protocol !== 'https:' || url.hostname !== 'www.facebook.com' || !url.pathname.includes('/dialog/oauth'))
         throw new Error('De Meta-toestemmingslink is ongeldig.');
-      location.assign(url.href);
-    } catch (e) { status.textContent = '⚠️ ' + e.message; await reload(); }
+      // A direct tap on this link works even if Android blocks automatic redirects.
+      facebookLink.href = url.href;
+      facebookLink.hidden = false;
+      status.textContent = 'Als Facebook niet vanzelf opent, tik op de link "Open Facebook om toestemming te geven".';
+      window.location.assign(url.href);
+    } catch (e) {
+      await reload();
+      status.textContent = '⚠️ ' + (e?.message || 'Facebook kon niet worden geopend.');
+    }
   });
   choose.addEventListener('click', async () => {
     if (!active || !select.value) return;
