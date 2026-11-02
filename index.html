@@ -3477,21 +3477,21 @@ try {
  });
  const endpoint='https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ads-connect';
  async function loadSocialStatus(){
-  const meta=$('aboMetaAdsLiveStatus'),tiktok=$('aboTiktokAdsLiveStatus');
+  // Meta heeft een eigen koppelingsscherm met accountkeuze en foutmeldingen.
+  const tiktok=$('aboTiktokAdsLiveStatus');
   const auth=window.allbizAuth;
-  if(!auth){meta.textContent=tiktok.textContent='Log in om de koppeling te controleren.';return;}
+  if(!auth){tiktok.textContent='Log in om de koppeling te controleren.';return;}
   try{
    const {data}=await auth.getSession();
-   if(!data?.session?.access_token){meta.textContent=tiktok.textContent='Log in om de koppeling te controleren.';return;}
+   if(!data?.session?.access_token){tiktok.textContent='Log in om de koppeling te controleren.';return;}
    const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-social-ads-connect',{
     method:'POST',headers:{Authorization:'Bearer '+data.session.access_token,apikey:window.allbizPublicApiKey||'','Content-Type':'application/json'},
     body:JSON.stringify({action:'status'})
    });
    const v=await response.json();
    if(!response.ok)throw Error(v.error||'Niet beschikbaar');
-   meta.textContent=v.meta?.connected?'Meta-account opgeslagen; publicatie nog niet beschikbaar.':'Niet gekoppeld · ontwikkelaarsgoedkeuring nodig.';
-   tiktok.textContent=v.tiktok?.connected?'TikTok-account opgeslagen; publicatie nog niet beschikbaar.':'Niet gekoppeld · ontwikkelaarsgoedkeuring nodig.';
-  }catch(e){meta.textContent=tiktok.textContent='Controle niet mogelijk: '+(e.message||'onbekende fout');}
+   tiktok.textContent=v.tiktok?.connected?'TikTok-account opgeslagen; publicatie nog niet beschikbaar.':'Niet gekoppeld · TikTok Marketing API-app nog niet beschikbaar.';
+  }catch(e){tiktok.textContent='Controle niet mogelijk: '+(e.message||'onbekende fout');}
  }
 
  async function send(action){
