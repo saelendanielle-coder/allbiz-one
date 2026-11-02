@@ -385,7 +385,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 <div class="card"><h2 data-tr="title">Start jouw eigen bedrijf 🚀</h2><p data-tr="intro">Van e-books en cursussen tot kleding, dropshipping en affiliate marketing. Alles komt samen in jouw webshop. Je kunt meteen starten: stappenplannen zijn optionele hulp, geen verplichte toegangspoort.</p><div class="stats"><div class="stat"><strong id="count">0</strong><span data-tr="products">Producten</span></div><div class="stat"><strong id="physicalCount">0</strong><span data-tr="physical">Fysieke producten</span></div><div class="stat"><strong id="digitalCount">0</strong><span data-tr="digital">Digitale producten</span></div></div><p class="muted" data-tr="noPay">Je kunt deze demo gratis uitproberen. Er worden nog geen betalingen of echte bestellingen verwerkt.</p><button data-goto="guides" data-tr="steps" type="button">✅ Bekijk vrijblijvend stappenplan</button> <button data-goto="import" data-tr="importBtn" type="button">🚚 Producten importeren</button> <button class="secondary" data-goto="products" data-tr="addBtn" type="button">+ Product toevoegen</button> <button class="secondary" data-goto="shop" data-tr="shopBtn" type="button">Bekijk je webshop</button> <button class="secondary" data-goto="affiliate" data-tr="affiliateBtn" type="button">🔗 Affiliate toevoegen</button> <button class="secondary" data-goto="marketing" data-tr="adsBtn" type="button">📣 Maak advertenties</button></div><div class="card"><h2 data-tr="how">Zo werkt het</h2><p data-tr="howtext">Begin meteen met bouwen. Vink stappen pas af nadat je ze hebt uitgevoerd. Alles blijft toegankelijk.</p><p>1. Importeer producten van een leverancier of voeg zelf producten toe.<br/>2. Kies een websitethema en een gewenste domeinnaam.<br/>3. Bekijk jouw webshop en download een voorbeeldwebsite.<br/>4. Echte leveranciers-API’s, domeinen en betalingen sluiten we later aan.</p></div></section>
 <section id="products" class="panel"><div class="card"><h2>🛍️ Product toevoegen</h2><p class="muted">Kies wat je wilt verkopen.</p><button type="button" class="secondary" id="jumpToProductBackup" style="margin:8px 0 16px;width:100%">☁️ Naar automatisch producten bewaren</button><div class="switches"><label><input type="radio" name="type" value="physical" checked>📦 Fysiek product / dropshipping</label><label><input type="radio" name="type" value="digital">📥 Digitaal product</label></div><form id="productForm"><div class="fields"><div><label for="product">Naam van je product</label><input id="product" required placeholder="Bijv. Trendy hoodie"></div><div><label for="price">Verkoopprijs (€)</label><input id="price" type="number" min="0" step="0.01" required placeholder="29,99"></div></div><label for="productDescription">Beschrijving</label><textarea id="productDescription" placeholder="Vertel wat jouw product bijzonder maakt"></textarea>
 <div id="physicalFields"><div class="fields"><div><label for="cost">Inkoopprijs (€), optioneel</label><input id="cost" type="number" min="0" step="0.01" placeholder="12,00"></div><div><label for="shipping">Verzendkosten (€), optioneel</label><input id="shipping" type="number" min="0" step="0.01" placeholder="4,95"></div></div><label for="supplier">Link naar leverancier, optioneel</label><input id="supplier" type="url" placeholder="https://..." autocomplete="url"><span class="fieldhelp">Bijvoorbeeld de productlink van je dropshippingleverancier. Bestellingen worden nog niet doorgestuurd.</span><label for="stock">Voorraad of beschikbaar aantal, optioneel</label><input id="stock" type="number" min="0" step="1" placeholder="Bijv. 100"><span class="fieldhelp">Bij dropshipping is dit een handmatige inschatting, geen live leveranciersvoorraad.</span></div>
-<div id="digitalFields" class="hidden"><label for="file">Digitaal bestand (alleen bestandsnaam in demo)</label><input id="file" type="file"><span class="fieldhelp">Echte veilige downloads werken pas na aansluiting van online opslag en betalingen.</span></div>
+<div id="digitalFields" class="hidden"><label for="file">Digitaal bestand (alleen lokaal voorbeeld)</label><input id="file" type="file"><span class="fieldhelp">Gebruik voor echte bestanden de privé-upload onder Mijn webshop. Beveiligde levering is voorbereid; webshopbetalingen zijn nog uitgeschakeld.</span></div>
 <label for="photo">Productfoto, optioneel</label><input id="photo" type="file" accept="image/*"><span class="fieldhelp">Kleine foto's worden op dit toestel opgeslagen voor de demo (maximaal 450 KB).</span>
 <label for="productCategory">Categorie (optioneel)</label><input id="productCategory" list="allbizCategoryIdeas" maxlength="35" placeholder="Bijv. Kleding"><datalist id="allbizCategoryIdeas"><option value="Kleding"><option value="Schoenen"><option value="Beauty"><option value="Wonen"><option value="Elektronica"><option value="Accessoires"></datalist>
 <button type="submit">+ Product toevoegen</button><p id="productStatus" class="toast" role="status"></p></form></div><div class="card"><div class="row"><h2>Mijn producten</h2><span class="pill" id="listCount">0 producten</span></div><div class="shop-studio" id="catalogBackupBox" style="margin-top:18px">
@@ -437,7 +437,12 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
-<section id="shop" class="panel"><div class="card"><h2>🏪 Bouw jouw webshop (Pro)</h2><p class="muted">Een winkel met een eigen startpagina, producten, categorieën en zoekfunctie. <b>Dit is een demo:</b> je winkel staat niet openbaar online en klanten kunnen nog niet echt afrekenen.</p><p class="hint">Voor een gewone bedrijfswebsite met diensten en contact gebruik je 🎨 Website &amp; domein. Een werkende checkout voor jouw eigen klanten is nog niet verbonden.</p><button type="button" class="secondary" data-goto="site">🎨 Naar de website-service</button>
+<section id="shop" class="panel">
+<div class="card" id="allbizStoreMain">
+<h2>🏪 Mijn webshop en digitale producten</h2>
+<p class="muted">Beheer echte productgegevens en privé digitale bestanden met je eigen AllBiz One-account. Je productcatalogus en bestelverwerking zijn technisch voorbereid. <strong>Webshopkopers kunnen nog niet echt afrekenen</strong> totdat Stripe Connect, betaalbevestiging en levering volledig zijn gecontroleerd.</p>
+<p class="hint">Een digitale download wordt pas aan de koper vrijgegeven nadat de server een echte betaling heeft bevestigd. Er worden nu geen betalingen gestart.</p>
+<button type="button" class="secondary" data-goto="site">🎨 Naar de website-service</button>
 <div class="shop-studio" style="margin-bottom:18px">
 <h3>💳 Stripe Connect — koppel je echte verkopersaccount</h3>
 <p class="muted">Webshopverkopers met een actief Pro- of Business-abonnement kunnen hun eigen echte Stripe-account koppelen en hun identiteit bij Stripe bevestigen. Dit is <b>niet</b> nodig om een AllBiz One-abonnement te kopen. Koppelen brengt nog geen betalingen of kosten voor jouw klanten op gang: de webshopcheckout blijft uit tot alles is getest.</p>
@@ -467,8 +472,12 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 })();
 </script>
 </div>
+</div>
+<details id="allbizShopPractice" class="shop-legacy">
+<summary>🎨 Optioneel: ouder winkelontwerp en testmandje</summary>
+<div class="card">
 <div class="shop-studio">
-<h3>🎨 Ontwerp je winkel</h3>
+<h3>🎨 Ontwerpvoorbeeld van je winkel</h3>
 <p class="muted">De bedrijfsnaam en slogan stel je in onder 🎨 Website & domein.</p>
 <label for="shopThemeSelect">Kleuren en stijl van je webshop</label><select id="shopThemeSelect"><option value="classic">💜 Modern</option><option value="luxe">🖤 Luxe</option><option value="nature">🌿 Natuur</option><option value="pop">🌸 Trendy</option></select>
 <p>Verander de teksten en zie het resultaat meteen hieronder. De instellingen worden op dit toestel bewaard.</p>
@@ -480,7 +489,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button type="button" class="secondary" id="shopCloudSave">☁️ Bewaar webshopontwerp privé</button><button type="button" class="secondary" id="shopCloudLoad">📂 Open bewaard webshopontwerp</button></div><p id="shopCloudStatus" role="status" class="toast">Je webshopontwerp staat momenteel alleen op dit toestel.</p>
 <details class="shop-builder-details" id="shopBuilderDetails">
 <summary>🧩 Geavanceerde webshopbouwer — pagina's, menu's en collecties</summary>
-<p class="shop-builder-help">Bouw hier je eigen demo-webshop. Veranderingen zijn niet openbaar. Bewaar ze met de privé-opslagknop hierboven zodat je op een ander toestel verder kunt.</p>
+<p class="shop-builder-help">Dit is een lokaal ontwerpvoorbeeld en geen gepubliceerde online winkel. Bewaar wijzigingen privé met de knop hierboven als je op een ander toestel verder wilt.</p>
 <div class="shop-builder-group">
 <h4>📄 Pagina's & navigatiemenu</h4>
 <label for="builderPageChoose">Pagina kiezen of een nieuwe maken</label>
@@ -518,7 +527,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <label for="builderPromoButton">Tekst op de knop</label><input id="builderPromoButton" maxlength="45" placeholder="Bijv. Bekijk de collectie">
 <button id="builderSavePromo" type="button">✅ Actie-banner bewaren</button>
 </div>
-<p id="builderStatus" class="toast" role="status">Nog niets aangepast. Je bouwt uitsluitend een webshopdemo.</p>
+<p id="builderStatus" class="toast" role="status">Nog niets aangepast. Dit is een ontwerpvoorbeeld en nog geen gepubliceerde winkel.</p>
 </details>
 </div>
 <div id="shopPreview"></div></div><div class="card"><h2>🛒 Winkelmandje <span id="cartCount" class="pill">0</span></h2><div id="cartList"></div><div id="cartTotal" class="price"></div>
@@ -533,7 +542,9 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
  <p class="small muted">Dit zijn alleen fictieve voorbeeldgegevens. Ze worden niet naar een echte verkoper of betaalprovider verstuurd.</p>
  <div class="cart-summary-actions"><button type="button" id="confirmDemoCheckout">✅ Testbestelling bevestigen</button><button type="button" class="secondary" id="cancelDemoCheckout">Annuleren</button></div>
 </div>
-<p id="checkoutStatus" class="toast" role="status"></p><p class="notice">Dit is een demo. Er worden geen echte bestellingen of betalingen geplaatst. Om echt te verkopen, zijn onder andere een betaalprovider, orderbeheer en voor dropshipping een leverancierskoppeling nodig.</p></div></section>
+<p id="checkoutStatus" class="toast" role="status"></p><p class="notice"><strong>Oude oefenfunctie:</strong> dit testmandje verwerkt geen echte betalingen of bestellingen. Gebruik voor echte productgegevens de catalogus bovenaan.</p></div>
+</details>
+</section>
 
 <section id="orders" class="panel">
 <div class="card">
