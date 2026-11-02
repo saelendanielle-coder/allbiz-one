@@ -22,7 +22,7 @@ function init(){
  '</div><button type="submit">💾 Bewaar bedrijfsgegevens</button> <button type="button" class="secondary" id="allbizSellerReload">↻ Gegevens ophalen</button></form>'+
  '<p id="allbizSellerStatus" role="status" class="small muted">Log in bij Mijn account om je gegevens te beheren.</p>'+
  '<hr style="margin:22px 0;border:0;border-top:1px solid #e5dff0">'+
- '<h3>📥 Privé digitale productbestanden</h3><p class="small muted">Upload PDF, ZIP, TXT, JPG of PNG tot 20 MB. Alleen jouw ingelogde account kan dit bestand bekijken. Automatische levering na betaling is nog niet aangesloten.</p>'+
+ '<h3>📥 Privé digitale productbestanden</h3><p class="small muted">Upload PDF, ZIP, TXT, JPG of PNG tot 20 MB. Alleen jouw ingelogde account kan dit bestand bekijken. Digitale levering na een bevestigde betaling is technisch voorbereid. Nieuwe webshopbetalingen zijn nog niet beschikbaar tot Stripe Connect werkt.</p>'+
  '<label for="allbizDigitalUpload">Kies digitaal bestand</label><input id="allbizDigitalUpload" type="file" accept=".pdf,.zip,.txt,.png,.jpg,.jpeg,application/pdf,application/zip,text/plain,image/png,image/jpeg">'+
  '<button type="button" id="allbizDigitalSave">🔒 Bestand privé opslaan</button> <button type="button" class="secondary" id="allbizDigitalRefresh">↻ Bestanden bekijken</button>'+
  '<p id="allbizDigitalStatus" role="status" class="small muted">Nog geen bestanden opgehaald.</p><div id="allbizDigitalList"></div>';
