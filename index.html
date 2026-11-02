@@ -739,7 +739,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
   <div class="ads-connection-grid" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:12px">
     <div class="plan">
   <h3>🔎 Google Ads</h3>
-  <p id="aboGoogleAdsState" role="status">Status controleren…</p>
+  <p id="aboGoogleAdsState" role="status">Status controleren…</p><div id="aboGoogleAdsAccounts" hidden><label for="aboGoogleAdsAccountSelect">Kies je eigen Google Ads-advertentieaccount</label><select id="aboGoogleAdsAccountSelect"></select><button type="button" id="aboGoogleAdsChoose" class="secondary">💾 Account selecteren</button><p id="aboGoogleAdsAccountsStatus" role="status" class="small muted"></p></div>
   <button type="button" id="aboGoogleAdsConnect" disabled>Verbind Google Ads</button>
   <button type="button" class="secondary" id="aboGoogleAdsDisconnect" hidden>Ontkoppelen</button>
   <p class="small muted">Nog nodig: een Google Cloud-project met Google Ads API-toegang en OAuth-instellingen.</p>
@@ -3458,6 +3458,7 @@ try {
  const host=$('allbizAdConnections');if(!host)return;
  const status=$('aboAdsConnectStatus'),google=$('aboGoogleAdsState'),connect=$('aboGoogleAdsConnect'),disconnect=$('aboGoogleAdsDisconnect'),refresh=$('aboAdsRefresh');
  const copyCallback=$('aboAdsCopyGoogleCallback');
+ const accountBox=$('aboGoogleAdsAccounts'),accountSelect=$('aboGoogleAdsAccountSelect'),chooseAccount=$('aboGoogleAdsChoose'),accountStatus=$('aboGoogleAdsAccountsStatus');
  copyCallback?.addEventListener('click',async()=>{
    const url=$('aboAdsGoogleCallback')?.value||'';
    try{await navigator.clipboard.writeText(url);$('aboAdsCopyCallbackStatus').textContent='✅ Callback-URL gekopieerd.';}
@@ -3474,6 +3475,22 @@ try {
   if(!response.ok)throw Error(body.error||'Koppeling niet beschikbaar.');
   return body;
  }
+ async function loadAccounts(){
+  accountBox.hidden=true;
+  try{const d=await send('list_accounts');const accounts=Array.isArray(d.accounts)?d.accounts:[];
+   accountSelect.replaceChildren();
+   for(const id of accounts){const opt=new Option('Google Ads '+id,id);accountSelect.add(opt)}
+   if(d.selected_customer_id)accountSelect.value=d.selected_customer_id;
+   accountBox.hidden=false;chooseAccount.disabled=!accounts.length;
+   accountStatus.textContent=accounts.length?accounts.length+' toegankelijk(e) advertentieaccount(s). Er wordt niets gepubliceerd.':'Geen toegankelijke Google Ads-accounts gevonden.';
+  }catch(e){accountBox.hidden=false;chooseAccount.disabled=true;accountStatus.textContent='⚠️ '+(e.message||'Accounts niet beschikbaar.');}
+ }
+ chooseAccount.addEventListener('click',async()=>{
+  if(!accountSelect.value)return;chooseAccount.disabled=true;accountStatus.textContent='Accountkeuze bewaren…';
+  try{await (async()=>{const auth=window.allbizAuth;const {data}=await auth.getSession();const result=await fetch(endpoint,{method:'POST',headers:{Authorization:'Bearer '+data.session.access_token,'Content-Type':'application/json','apikey':window.allbizPublicApiKey||''},body:JSON.stringify({action:'select_account',customer_id:accountSelect.value})});const body=await result.json();if(!result.ok)throw Error(body.error||'Opslaan mislukt');})();accountStatus.textContent='✅ Google Ads-account '+accountSelect.value+' gekozen. Er zijn geen advertenties geplaatst.';}
+  catch(e){accountStatus.textContent='⚠️ '+(e.message||'Opslaan mislukt');}
+  finally{chooseAccount.disabled=false;}
+ });
  async function reload(){
   refresh.disabled=true;connect.disabled=true;disconnect.hidden=true;status.textContent='Koppelingen worden gecontroleerd…';
   try{
@@ -3482,6 +3499,7 @@ try {
    connect.disabled=!d.eligible||!g.configured||!!g.connected;
    connect.textContent=g.connected?'Google-account gekoppeld':'Verbind Google Ads';
    disconnect.hidden=!g.connected;
+   if(g.connected)await loadAccounts();else accountBox.hidden=true;
    status.textContent=d.eligible?'Geen advertenties worden automatisch gepubliceerd.':'Account koppelen is beschikbaar met het Business-abonnement.';
   }catch(e){
    google.textContent='Je accountstatus is nog niet gecontroleerd.';
