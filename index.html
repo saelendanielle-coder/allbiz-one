@@ -748,9 +748,9 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <div class="plan">
   <h3>📘 Facebook & Instagram</h3>
   <p id="aboMetaAdsLiveStatus" role="status">Koppelingsstatus controleren…</p>
-  <p>Verbinden is nog niet beschikbaar. Maak eerst een Meta-ontwikkelaarsapp aan en vraag de nodige rechten aan, waaronder <code>ads_read</code> en <code>ads_management</code>.</p>
+  <p>Meta kan via officiële toestemming worden gekoppeld zodra jouw Meta-ontwikkelaarsapp en de benodigde rechten zijn ingesteld. De knop verschijnt hieronder.</p>
   <a href="https://developers.facebook.com/apps/" target="_blank" rel="noopener noreferrer">Open Meta for Developers</a>
-  <p class="small muted">Daarna moet de beveiligde aanmeldkoppeling nog worden afgewerkt en getest. Deel nooit je App Secret.</p>
+  <p class="small muted">De beveiligde aanmeldkoppeling bestaat al, maar moet met een goedgekeurde ontwikkelaarsapp worden getest. Deel nooit je App Secret.</p>
 </div>
     <div class="plan">
   <h3>🎵 TikTok Ads</h3>
@@ -772,11 +772,11 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <input type="text" id="aboAdsGoogleCallback" readonly value="https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ads-connect">
     <button type="button" class="secondary" id="aboAdsCopyGoogleCallback">📋 Kopieer Google callback-URL</button>
     <p id="aboAdsCopyCallbackStatus" class="small" role="status"></p>
-    <p class="small muted">Meta en TikTok hebben nog geen volledig werkende callback. Vul daarvoor nog geen willekeurige URL in. Bewaar App Secrets en tokens alleen in de beveiligde serverinstellingen, nooit in GitHub of deze chat.</p>
+    <p class="small muted">Meta callback: https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-social-ads-connect . TikTok heeft nog geen werkende callback. Bewaar App Secrets en tokens alleen in beveiligde serverinstellingen, nooit in GitHub of deze chat.</p>
   </details>
   <div style="display:flex;flex-wrap:wrap;gap:8px;margin-top:12px"><button type="button" id="aboAdsRefresh" class="secondary">↻ Controleer koppelingen</button></div>
   <p id="aboAdsConnectStatus" class="small" role="status" aria-live="polite"></p>
-  <p class="small muted">Meta en TikTok: beveiligde koppelingopslag staat klaar. Toestemming via de officiële ontwikkelaarsapps en de koppelschermen moet nog worden afgerond voordat klanten zich kunnen verbinden.</p>
+  <p class="small muted">Meta heeft nu een toestemmingsscherm voor advertentieaccounts; de ontwikkelaarsapp moet nog zijn ingesteld. TikTok heeft nog geen actieve Marketing API-autorisatie. Er worden geen advertenties geplaatst.</p>
   <div class="card" id="aboGoogleAdsReports" style="margin-top:14px">
     <h3>📊 Google Ads: echte campagnecijfers</h3>
     <p class="small muted">Bekijk vertoningen, klikken en uitgegeven advertentiebudget van de afgelopen 30 dagen. Dit overzicht verandert geen advertenties en maakt geen kosten. Koppel eerst Google Ads en kies je advertentieaccount.</p>
@@ -784,7 +784,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <p id="aboAdsReportStatus" role="status" class="small muted">Nog geen cijfers opgehaald.</p>
     <div id="aboAdsReportItems"></div>
   </div>
-  <p class="small muted">Account koppelen is stap 1. Advertenties aanmaken, publiceren en echte rapportages ophalen zijn nog niet actief; daarvoor zijn extra API-rechten en controles nodig.</p>
+  <p class="small muted">Account koppelen is stap 1. Google Ads-rapportages zijn technisch voorbereid en vereisen een werkende API-koppeling; advertenties aanmaken of publiceren is nog niet actief. Hiervoor zijn aparte rechten en controles nodig.</p>
 </div>
 </section>
 <section id="ads" class="panel">
@@ -3576,5 +3576,6 @@ try {
  reload();loadSocialStatus();
 })();
 </script>
+<script src="allbiz-meta-connect-ui.js?v=20261102-1" defer></script>
 </body>
 </html>
