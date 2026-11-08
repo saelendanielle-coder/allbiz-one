@@ -1251,7 +1251,19 @@ function fillBuilderCollection(){
  el('builderCollectionText').value=x?.text||'';
  el('builderCollectionVisible').checked=x?.visible!==false;
 }
-function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Op dit toestel bewaard. Log in om ook privé in je account te bewaren.');window.allbizAutoSaveBuilder?.()}
+function builderChanged(message,previous){
+ if(!saveBuilder()){
+  // Herstel de laatste bewaarde gegevens. Laat de invoervelden staan om opnieuw te proberen.
+  if(previous)builderData=previous;
+  renderShop();
+  builderMessage('Opslaan mislukt: onvoldoende opslagruimte. Je ingevulde tekst staat nog in het formulier; probeer opnieuw na het vrijmaken van opslagruimte.');
+  return false;
+ }
+ builderRefreshForms();renderShop();
+ builderMessage(message+' Op dit toestel bewaard. Log in om ook privé in je account te bewaren.');
+ window.allbizAutoSaveBuilder?.();
+ return true;
+}
 el('builderPageChoose').addEventListener('change',event=>{trySelectBuilderPage(event.target.value)});
 el('builderPreviewPage').addEventListener('click',()=>{
  const page=builderData.pages.find(p=>p.id===el('builderPageChoose').value);
@@ -1264,13 +1276,20 @@ el('builderPreviewPage').addEventListener('click',()=>{
 });
 el('builderCollectionChoose').addEventListener('change',fillBuilderCollection);
 el('builderSavePage').addEventListener('click',()=>{
- const title=el('builderPageTitle').value.trim(),id=el('builderPageChoose').value;
+ const title=el('builderPageTitle').value.trim().slice(0,60),id=el('builderPageChoose').value;
  if(!title){builderMessage('Vul eerst een paginatitel in.');return}
- const item={id:id==='new'?newId():id,title:title.slice(0,60),text:el('builderPageText').value.slice(0,2500),visible:el('builderPageVisible').checked};
+ if(builderData.pages.some(page=>page.id!==id&&page.title.trim().toLocaleLowerCase('nl')===title.toLocaleLowerCase('nl'))){
+  builderMessage('Er bestaat al een pagina met deze naam. Kies die pagina in de lijst om ze te bewerken, of gebruik een andere naam.');
+  return;
+ }
+ const previous=cleanBuilder(builderData);
+ const item={id:id==='new'?newId():id,title,text:el('builderPageText').value.slice(0,2500),visible:el('builderPageVisible').checked};
  const index=builderData.pages.findIndex(x=>x.id===id);
  if(index<0){if(builderData.pages.length>=12){builderMessage('Maximaal 12 extra pagina’s.');return}builderData.pages.push(item)}
  else builderData.pages[index]=item;
- builderChanged('✅ Pagina bewaard.');el('builderPageChoose').value=item.id;fillBuilderPage();
+ if(builderChanged('✅ Pagina bewaard.',previous)){
+  el('builderPageChoose').value=item.id;fillBuilderPage();
+ }
 });
 // Eén verwijderde pagina is herstelbaar zolang dit tabblad geopend blijft.
 let lastDeletedBuilderPage=null;
@@ -1326,26 +1345,35 @@ for(const [button,delta] of [['builderPageUp',-1],['builderPageDown',1]]){
  el(button).addEventListener('click',()=>{
   const id=el('builderPageChoose').value,index=builderData.pages.findIndex(x=>x.id===id),dest=index+delta;
   if(index<0||dest<0||dest>=builderData.pages.length)return;
+  const previous=cleanBuilder(builderData);
   [builderData.pages[index],builderData.pages[dest]]=[builderData.pages[dest],builderData.pages[index]];
-  builderChanged('✅ Menuvolgorde aangepast.');el('builderPageChoose').value=id;fillBuilderPage();
+  if(builderChanged('✅ Menuvolgorde aangepast.',previous)){
+   el('builderPageChoose').value=id;fillBuilderPage();
+  }
  });
 }
 el('builderSaveCollection').addEventListener('click',()=>{
  const id=el('builderCollectionChoose').value,category=el('builderCollectionCategory').value.trim(),label=el('builderCollectionLabel').value.trim();
  if(!category||!label){builderMessage('Vul een categorie en een collectietitel in.');return}
+ const previous=cleanBuilder(builderData);
  const item={id:id==='new'?newId():id,category:category.slice(0,35),label:label.slice(0,70),text:el('builderCollectionText').value.slice(0,220),visible:el('builderCollectionVisible').checked};
  const index=builderData.collections.findIndex(x=>x.id===id);
  if(index<0){if(builderData.collections.length>=12){builderMessage('Maximaal 12 collecties.');return}builderData.collections.push(item)}else builderData.collections[index]=item;
- builderChanged('✅ Collectie bewaard.');el('builderCollectionChoose').value=item.id;fillBuilderCollection();
+ if(builderChanged('✅ Collectie bewaard.',previous)){
+  el('builderCollectionChoose').value=item.id;fillBuilderCollection();
+ }
 });
 el('builderDeleteCollection').addEventListener('click',()=>{
  const id=el('builderCollectionChoose').value,x=builderData.collections.find(c=>c.id===id);
  if(!x)return;if(!confirm('Collectie '+x.label+' verwijderen?'))return;
- builderData.collections=builderData.collections.filter(z=>z.id!==id);builderChanged('✅ Collectie verwijderd.');
+ const previous=cleanBuilder(builderData);
+ builderData.collections=builderData.collections.filter(z=>z.id!==id);
+ builderChanged('✅ Collectie verwijderd.',previous);
 });
 el('builderSavePromo').addEventListener('click',()=>{
+ const previous=cleanBuilder(builderData);
  builderData.promo={title:el('builderPromoTitle').value.trim().slice(0,90),text:el('builderPromoText').value.trim().slice(0,240),button:el('builderPromoButton').value.trim().slice(0,45)};
- builderChanged('✅ Actie-banner bewaard.');
+ builderChanged('✅ Actie-banner bewaard.',previous);
 });
 builderRefreshForms();
 function selectBuilderScreen(name){builderScreen=name;renderShop()}
