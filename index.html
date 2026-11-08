@@ -2280,9 +2280,23 @@ try {
     }catch(err){connectMsg.textContent=String(err.message||'De echte verkoperskoppeling kon niet starten.')}
     finally{btn.disabled=false}
   });
+  // Een ontwerp wordt alleen automatisch gesynchroniseerd met het account dat
+  // de gebruiker eerder expliciet voor dit lokale ontwerp heeft gekozen.
+  const shopDesignOwnerKey='allbiz-shop-design-owner-v1';
+  function savedShopDesignOwner(){
+    try{return localStorage.getItem(shopDesignOwnerKey)||''}catch(e){return ''}
+  }
+  function markShopDesignOwner(id){
+    try{localStorage.setItem(shopDesignOwnerKey,id);return true}catch(e){return false}
+  }
   window.allbizAutoSaveBuilder=async()=>{
     try{
-      const {data:{user}}=await client.auth.getUser();if(!user)return;
+      const {data,error:authError}=await client.auth.getUser();
+      const user=data?.user;if(authError||!user)return;
+      if(savedShopDesignOwner()!==user.id){
+        el('builderStatus').textContent='✅ Op dit toestel bewaard. Kies “Bewaar webshopontwerp privé” om dit ontwerp veilig aan je ingelogde account te koppelen.';
+        return;
+      }
       // Upsert maakt ook de eerste privé ontwerp-rij aan. UPDATE alleen kan 0 rijen raken
       // en toch een misleidende succesmelding tonen.
       const {error}=await client.from('allbiz_shop_designs').upsert({
@@ -2294,7 +2308,15 @@ try {
   };
   (async()=>{
     try{
-      const {data:{user}}=await client.auth.getUser();if(!user)return;
+      const {data:authData,error:authError}=await client.auth.getUser();
+      const user=authData?.user;if(authError||!user)return;
+      const localOwner=savedShopDesignOwner();
+      if(localOwner!==user.id){
+        el('shopCloudStatus').textContent=localOwner
+          ? '🔒 Er staat op dit toestel een ontwerp van een ander account. Dat wordt niet automatisch met je huidige account gemengd. Kies “Open bewaard webshopontwerp” om je eigen ontwerp te openen.'
+          : 'ℹ️ Dit lokale ontwerp is nog niet gekoppeld aan een account. Gebruik “Bewaar webshopontwerp privé” of “Open bewaard webshopontwerp”.';
+        return;
+      }
       const {data,error}=await client.from('allbiz_shop_designs').select('builder_data').eq('user_id',user.id).maybeSingle();
       if(error||!data)return;
       const remote=cleanBuilder(data.builder_data);
@@ -2334,6 +2356,11 @@ try {
     shopCloudSave.disabled=true;shopCloudStatus.textContent='Webshopontwerp privé opslaan...';
     try{
       const user=await shopCloudUser();
+      const localOwner=savedShopDesignOwner();
+      if(localOwner&&localOwner!==user.id&&!confirm('Dit lokale ontwerp hoort bij een ander account op dit toestel. Wil je het bewust naar je huidige account kopiëren?')){
+        shopCloudStatus.textContent='Opslaan geannuleerd. Het lokale ontwerp is niet naar de cloud gekopieerd.';
+        return;
+      }
       const image=document.getElementById('shopHeroImage').value.trim();
       if(image&&!/^https:\/\/[^\s]+$/i.test(image))throw new Error('Gebruik een https-link voor de bannerfoto of laat het veld leeg.');
       const theme=document.getElementById('shopThemeSelect').value;
@@ -2350,7 +2377,11 @@ try {
       };
       const {error}=await client.from('allbiz_shop_designs').upsert(row,{onConflict:'user_id'});
       if(error)throw new Error(error.message);
-      shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé bewaard. Er is niets gepubliceerd.';
+      if(!markShopDesignOwner(user.id)){
+        shopCloudStatus.textContent='✅ Online bewaard; lokale accountkoppeling opslaan mislukt. Automatische synchronisatie blijft uit op dit toestel.';
+        return;
+      }
+      shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé voor dit account bewaard. Er is niets gepubliceerd.';
     }catch(e){shopCloudStatus.textContent='Opslaan mislukt: '+(e.message||'onbekende fout')}
     finally{shopCloudSave.disabled=false}
   });
@@ -2370,8 +2401,11 @@ try {
       const theme=['classic','luxe','nature','pop'].includes(data.theme)?data.theme:'classic';
       document.querySelector('[data-theme="'+theme+'"]')?.click();
       document.getElementById('shopThemeSelect').value=theme;
-      builderData=cleanBuilder(data.builder_data);builderScreen='home';saveBuilder();builderRefreshForms();renderShop();
-      shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé geopend. Er is niets gepubliceerd.';
+      builderData=cleanBuilder(data.builder_data);builderScreen='home';
+      if(!saveBuilder())throw new Error('Lokale opslag mislukt. Je ontwerp is niet veilig op dit toestel bewaard.');
+      if(!markShopDesignOwner(user.id))throw new Error('Lokale accountkoppeling opslaan mislukt. Automatisch synchroniseren blijft uit.');
+      builderRefreshForms();renderShop();
+      shopCloudStatus.textContent='✅ Je eigen webshopontwerp, pagina’s, menu, collecties en banners privé geopend. Er is niets gepubliceerd.';
     }catch(e){shopCloudStatus.textContent='Ophalen mislukt: '+(e.message||'onbekende fout')}
     finally{shopCloudLoad.disabled=false}
   });
