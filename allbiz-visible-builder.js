@@ -173,6 +173,10 @@
     byId('builderSavePage')?.addEventListener('click', () => {
       if (auditList.childElementCount) auditPages();
     });
+    // Ververs de status ook na verwijderen of terugzetten van een pagina.
+    window.addEventListener('allbiz-builder-pages-changed', () => {
+      if (auditList.childElementCount) auditPages();
+    });
     audit.append(auditHeading, auditIntro, auditButton, auditStatus, auditList);
 
     const hint = document.createElement('p');
