@@ -890,15 +890,15 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div id="authGuest">
 <form id="authForm" autocomplete="on">
 <label for="authMode">Wat wil je doen?</label>
-<select id="authMode"><option value="signup">Account maken</option><option value="login">Inloggen</option></select>
-<div id="authNameBox"><label for="authName">Je naam</label><input id="authName" autocomplete="name" maxlength="100" placeholder="Je naam"></div>
+<select id="authMode"><option value="login">Inloggen</option><option value="signup">Nieuw account maken</option></select>
+<div id="authNameBox" hidden><label for="authName">Je naam</label><input id="authName" autocomplete="name" maxlength="100" placeholder="Je naam"></div>
 <label for="authEmail">E-mailadres</label><input id="authEmail" type="email" autocomplete="email" required placeholder="naam@voorbeeld.com">
-<label for="authPassword">Wachtwoord (minimaal 8 tekens)</label><input id="authPassword" type="password" autocomplete="new-password" required minlength="8">
-<button type="submit" id="authSubmit" disabled>Account maken</button>
+<label for="authPassword">Wachtwoord (minimaal 8 tekens)</label><input id="authPassword" type="password" autocomplete="current-password" required minlength="8">
+<button type="submit" id="authSubmit" disabled>Inloggen</button>
 <button type="button" id="authReset" class="secondary" disabled>Wachtwoord vergeten?</button>
 </form>
 </div>
-<div id="authSignedIn" hidden><p>Je bent ingelogd als <strong id="authUserEmail"></strong>.</p><p id="accountSubscriptionStatus" class="hint" role="status" aria-live="polite">Abonnementstatus wordt gecontroleerd...</p><button type="button" id="authLogout">Uitloggen</button><p class="muted">Belangrijk: producten, webshops en stappenplannen staan momenteel alleen op dit apparaat en zijn nog NIET veilig per account gescheiden of gesynchroniseerd. Sla voorlopig geen vertrouwelijke klantgegevens op.</p></div>
+<div id="authSignedIn" hidden><p>Je bent ingelogd als <strong id="authUserEmail"></strong>.</p><p id="accountSubscriptionStatus" class="hint" role="status" aria-live="polite">Abonnementstatus wordt gecontroleerd...</p><button type="button" id="authLogout">Uitloggen</button><p class="muted">Let op: sommige ontwerpen worden alleen op dit toestel bewaard. Gebruik bij je website of webshop de optie “Bewaar privé in mijn account” om ontwerpen op een ander toestel te openen. Bewaar geen vertrouwelijke klantgegevens totdat de beveiliging volledig is getest.</p></div>
 <div id="authRecovery" hidden>
   <label for="authNewPassword">Nieuw wachtwoord (minimaal 8 tekens)</label>
   <input id="authNewPassword" type="password" minlength="8" autocomplete="new-password" placeholder="Nieuw wachtwoord">
@@ -2965,6 +2965,8 @@ try {
   status(sessionError ? 'Je vorige sessie kon niet hersteld worden. Probeer opnieuw in te loggen.' : '');
   client.auth.onAuthStateChange((event, session) => {
     renderUser(session?.user ?? null);
+    // Voorkom dat een oud herstelformulier zichtbaar blijft na een sessiewissel.
+    if (event !== 'PASSWORD_RECOVERY') $('authRecovery').hidden = true;
     if (event === 'PASSWORD_RECOVERY') {
       $('authRecovery').hidden = false;
       guest.hidden = true;
@@ -3006,25 +3008,58 @@ try {
     } finally { $('authPassword').value=''; $('authSubmit').disabled=false; }
   });
   $('authReset').addEventListener('click', async () => {
-    const email = $('authEmail').value.trim();
-    if(!email) { status('Vul eerst je e-mailadres in.'); return; }
-    const {error} = await client.auth.resetPasswordForEmail(email, {
-      redirectTo: 'https://saelendanielle-coder.github.io/allbiz-one/'
-    });
-    status(error ? 'Wachtwoordherstel is momenteel niet mogelijk.' : 'Als dit account bestaat, ontvang je een herstelmail.');
+    const emailField = $('authEmail');
+    const email = emailField.value.trim();
+    if(!email || !emailField.checkValidity()) {
+      status('Vul eerst een geldig e-mailadres in.'); emailField.focus(); return;
+    }
+    const button = $('authReset');
+    button.disabled = true;
+    status('Herstelverzoek versturen...');
+    try {
+      const {error} = await client.auth.resetPasswordForEmail(email, {
+        redirectTo: 'https://saelendanielle-coder.github.io/allbiz-one/'
+      });
+      if(error) throw error;
+      status('Als dit account bestaat, ontvang je een herstelmail. Controleer ook je spamfolder.');
+    } catch (error) {
+      status('Het herstelverzoek is niet gelukt. Controleer je verbinding en probeer later opnieuw.');
+    } finally {
+      button.disabled = false;
+    }
   });
   $('authSaveNewPassword').addEventListener('click', async () => {
-    const password = $('authNewPassword').value;
+    const passwordField = $('authNewPassword');
+    const password = passwordField.value;
     if(password.length<8) { status('Gebruik minimaal 8 tekens.'); return; }
-    const {error} = await client.auth.updateUser({password});
-    if(error) {status('Instellen mislukt: ' + error.message);return;}
-    $('authNewPassword').value='';
-    $('authRecovery').hidden=true;
-    status('Nieuw wachtwoord opgeslagen. Je kunt nu inloggen.');
+    const button = $('authSaveNewPassword');
+    button.disabled = true;
+    status('Nieuw wachtwoord opslaan...');
+    try {
+      const {error} = await client.auth.updateUser({password});
+      if(error) throw error;
+      $('authRecovery').hidden = true;
+      status('Je wachtwoord is gewijzigd.');
+    } catch (error) {
+      status('Wachtwoord wijzigen is niet gelukt. Probeer opnieuw of vraag een nieuwe herstellink aan.');
+    } finally {
+      passwordField.value = '';
+      button.disabled = false;
+    }
   });
   $('authLogout').addEventListener('click', async () => {
-    const {error} = await client.auth.signOut();
-    status(error?'Uitloggen is niet gelukt.':'Je bent uitgelogd.');
+    const button = $('authLogout');
+    button.disabled = true;
+    try {
+      const {error} = await client.auth.signOut();
+      if(error) throw error;
+      $('authRecovery').hidden = true;
+      status('Je bent uitgelogd.');
+    } catch (error) {
+      status('Uitloggen is niet gelukt. Probeer opnieuw.');
+    } finally {
+      button.disabled = false;
+    }
   });
 } catch(error) {
   guest.hidden=true;
