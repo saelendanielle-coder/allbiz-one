@@ -1215,11 +1215,34 @@ function builderRefreshForms(){
  el('builderPromoText').value=builderData.promo.text;
  el('builderPromoButton').value=builderData.promo.button;
 }
+let builderPageSnapshot=null;
 function fillBuilderPage(){
  const x=builderData.pages.find(v=>v.id===el('builderPageChoose').value);
  el('builderPageTitle').value=x?.title||'';el('builderPageText').value=x?.text||'';
  el('builderPageVisible').checked=x?.visible!==false;
+ // Een momentopname van de getoonde velden (niet van een andere geselecteerde pagina).
+ builderPageSnapshot={id:el('builderPageChoose').value,title:el('builderPageTitle').value,
+   text:el('builderPageText').value,visible:el('builderPageVisible').checked};
 }
+function builderPageHasUnsavedChanges(){
+ if(!builderPageSnapshot)return false;
+ return el('builderPageTitle').value!==builderPageSnapshot.title||
+   el('builderPageText').value!==builderPageSnapshot.text||
+   el('builderPageVisible').checked!==builderPageSnapshot.visible;
+}
+function trySelectBuilderPage(id){
+ const select=el('builderPageChoose');
+ const oldId=builderPageSnapshot?.id||'new';
+ if(id===oldId){select.value=id;return true}
+ if(builderPageHasUnsavedChanges()&&!confirm('Je hebt nog niet-bewaarde wijzigingen op deze pagina. Wil je toch wisselen? Bewaar je tekst eerst om niets te verliezen.')){
+   select.value=oldId;
+   return false;
+ }
+ select.value=id;
+ fillBuilderPage();
+ return true;
+}
+window.allbizTrySelectBuilderPage=trySelectBuilderPage;
 function fillBuilderCollection(){
  const x=builderData.collections.find(v=>v.id===el('builderCollectionChoose').value);
  el('builderCollectionCategory').value=x?.category||'';
@@ -1228,7 +1251,7 @@ function fillBuilderCollection(){
  el('builderCollectionVisible').checked=x?.visible!==false;
 }
 function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Op dit toestel bewaard. Log in om ook privé in je account te bewaren.');window.allbizAutoSaveBuilder?.()}
-el('builderPageChoose').addEventListener('change',fillBuilderPage);
+el('builderPageChoose').addEventListener('change',event=>{trySelectBuilderPage(event.target.value)});
 el('builderPreviewPage').addEventListener('click',()=>{
  const page=builderData.pages.find(p=>p.id===el('builderPageChoose').value);
  if(!page){builderMessage('Bewaar eerst je pagina met + Pagina bewaren.');return}
