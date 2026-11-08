@@ -68,6 +68,10 @@
         option.value !== 'new' && normalize(option.textContent) === title.toLocaleLowerCase('nl'));
       const samePage = target ? choose.value === target.value :
         choose.value === 'new' && normalize(name.value) === title.toLocaleLowerCase('nl');
+      // Verschillende nieuwe pagina's gebruiken dezelfde interne selectie "new".
+      // Vraag expliciet toestemming voordat een onafgemaakt nieuw concept verdwijnt.
+      if (!target && !samePage && choose.value === 'new' && currentDraftIsUnsaved() &&
+          !window.confirm('Je hebt al een nieuwe pagina ingevuld die nog niet is bewaard. Wil je deze tekst vervangen?')) return;
       // De gedeelde paginawisselcontrole voorkomt dubbel vragen en bewaart het oude ontwerp bij Annuleren.
       if (!samePage && typeof window.allbizTrySelectBuilderPage === 'function') {
         if (!window.allbizTrySelectBuilderPage(target?.value || 'new')) return;
@@ -91,6 +95,7 @@
           choose.dispatchEvent(new Event('change'));
         }
         name.value = title;
+        body.value = '';
         // Alleen bij Over ons kunnen we reeds door de eigenaar ingevulde websitetekst overnemen.
         if (title === 'Over ons') body.value = byId('siteAbout')?.value?.trim().slice(0,2500) || '';
         visible.checked = true;
