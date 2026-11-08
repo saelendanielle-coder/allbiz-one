@@ -1227,7 +1227,7 @@ function fillBuilderCollection(){
  el('builderCollectionText').value=x?.text||'';
  el('builderCollectionVisible').checked=x?.visible!==false;
 }
-function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Wordt privé gesynchroniseerd als je ingelogd bent.');window.allbizAutoSaveBuilder?.()}
+function builderChanged(message){if(!saveBuilder()){builderMessage('Opslaan mislukt: opslag op dit toestel vol.');return}builderRefreshForms();renderShop();builderMessage(message+' Op dit toestel bewaard. Log in om ook privé in je account te bewaren.');window.allbizAutoSaveBuilder?.()}
 el('builderPageChoose').addEventListener('change',fillBuilderPage);
 el('builderPreviewPage').addEventListener('click',()=>{
  const page=builderData.pages.find(p=>p.id===el('builderPageChoose').value);
@@ -2214,7 +2214,11 @@ try {
   window.allbizAutoSaveBuilder=async()=>{
     try{
       const {data:{user}}=await client.auth.getUser();if(!user)return;
-      const {error}=await client.from('allbiz_shop_designs').update({builder_data:cleanBuilder(builderData),updated_at:new Date().toISOString()}).eq('user_id',user.id);
+      // Upsert maakt ook de eerste privé ontwerp-rij aan. UPDATE alleen kan 0 rijen raken
+      // en toch een misleidende succesmelding tonen.
+      const {error}=await client.from('allbiz_shop_designs').upsert({
+        user_id:user.id,builder_data:cleanBuilder(builderData),updated_at:new Date().toISOString()
+      },{onConflict:'user_id'});
       if(error)throw error;
       el('builderStatus').textContent='✅ Pagina’s en collecties privé gesynchroniseerd. Er is niets gepubliceerd.';
     }catch(e){el('builderStatus').textContent='Lokaal bewaard. Privé synchronisatie mislukt; gebruik Bewaar webshopontwerp privé.'}
@@ -3612,5 +3616,6 @@ try {
 })();
 </script>
 <script src="allbiz-meta-connect-ui.js?v=20261102-2" defer></script>
+<script src="allbiz-visible-builder.js?v=20261108-1" defer></script>
 </body>
 </html>
