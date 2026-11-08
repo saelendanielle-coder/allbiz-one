@@ -502,6 +502,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="shop-builder-action-row">
 <button type="button" id="builderSavePage">+ Pagina bewaren</button>
 <button type="button" id="builderDeletePage" class="secondary">Verwijderen</button>
+<button type="button" id="builderUndoDeletePage" class="secondary" hidden>↩️ Laatste verwijderde pagina terugzetten</button>
 <button type="button" id="builderPreviewPage" class="secondary">👀 Bekijk deze pagina in de webshop</button>
 </div>
 <p class="shop-builder-help">Gebruik de pijltjes om de volgorde van extra menupagina's aan te passen. De vaste knoppen Startpagina, Producten en Collecties blijven bestaan.</p>
@@ -1271,10 +1272,55 @@ el('builderSavePage').addEventListener('click',()=>{
  else builderData.pages[index]=item;
  builderChanged('✅ Pagina bewaard.');el('builderPageChoose').value=item.id;fillBuilderPage();
 });
+// Eén verwijderde pagina is herstelbaar zolang dit tabblad geopend blijft.
+let lastDeletedBuilderPage=null;
 el('builderDeletePage').addEventListener('click',()=>{
- const id=el('builderPageChoose').value,x=builderData.pages.find(z=>z.id===id);
- if(!x)return;if(!confirm('De testpagina '+x.title+' verwijderen?'))return;
- builderData.pages=builderData.pages.filter(z=>z.id!==id);builderScreen='home';builderChanged('✅ Pagina verwijderd.');
+ const id=el('builderPageChoose').value;
+ const index=builderData.pages.findIndex(page=>page.id===id);
+ if(index<0)return;
+ const removed=builderData.pages[index];
+ if(!confirm('Pagina "'+removed.title+'" verwijderen? Alleen de laatst verwijderde pagina kan in dit tabblad worden teruggezet. Niet-opgeslagen aanpassingen worden niet bewaard.'))return;
+ const oldPages=builderData.pages.slice(),oldScreen=builderScreen;
+ builderData.pages=builderData.pages.filter(page=>page.id!==id);
+ builderScreen='home';
+ if(!saveBuilder()){
+  builderData.pages=oldPages;builderScreen=oldScreen;
+  builderMessage('Verwijderen mislukt: onvoldoende opslagruimte. Je pagina is niet verwijderd.');
+  return;
+ }
+ lastDeletedBuilderPage={page:{...removed},index};
+ el('builderUndoDeletePage').hidden=false;
+ builderRefreshForms();renderShop();
+ builderMessage('Pagina "'+removed.title+'" verwijderd. Je kunt deze direct terugzetten zolang dit tabblad openstaat. Er is niets gepubliceerd.');
+ window.allbizAutoSaveBuilder?.();
+ window.dispatchEvent(new Event('allbiz-builder-pages-changed'));
+});
+el('builderUndoDeletePage').addEventListener('click',()=>{
+ if(!lastDeletedBuilderPage)return;
+ const {page,index}=lastDeletedBuilderPage;
+ if(builderData.pages.some(existing=>existing.id===page.id)){
+  builderMessage('Deze pagina bestaat alweer. Terugzetten is niet nodig.');return;
+ }
+ if(builderData.pages.length>=12){
+  builderMessage('Terugzetten lukt niet: maximaal 12 extra pagina’s. Verwijder eerst een andere pagina.');return;
+ }
+ const previous=builderData.pages.slice();
+ builderData.pages.splice(Math.min(index,builderData.pages.length),0,{...page});
+ if(!saveBuilder()){
+  builderData.pages=previous;
+  builderMessage('Terugzetten mislukt: onvoldoende opslagruimte. Probeer opnieuw zolang dit tabblad openstaat.');
+  return;
+ }
+ lastDeletedBuilderPage=null;
+ el('builderUndoDeletePage').hidden=true;
+ builderRefreshForms();
+ el('builderPageChoose').value=page.id;
+ fillBuilderPage();
+ builderScreen=page.visible?'page:'+page.id:'home';
+ renderShop();
+ builderMessage('✅ Pagina "'+page.title+'" teruggezet en op dit toestel bewaard. Controleer of de privékopie ook is bijgewerkt.');
+ window.allbizAutoSaveBuilder?.();
+ window.dispatchEvent(new Event('allbiz-builder-pages-changed'));
 });
 for(const [button,delta] of [['builderPageUp',-1],['builderPageDown',1]]){
  el(button).addEventListener('click',()=>{
