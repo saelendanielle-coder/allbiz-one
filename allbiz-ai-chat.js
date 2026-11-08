@@ -8,8 +8,8 @@
  section.className='card';
  section.id='allbizAiChat';
  section.style.cssText='border:1px solid #d7ccf6;background:#faf8ff;margin:16px 0;padding:18px;border-radius:16px';
- const h=document.createElement('h3');h.textContent='✨ AllBiz AI Assistent (voorbereid)';
- const info=document.createElement('p');info.textContent='Stel straks vrije vragen aan de echte AI. De dienst is nog niet geactiveerd: daarvoor is een beveiligde API-koppeling nodig. De gewone gratis hulp hierboven blijft werken.';
+ const h=document.createElement('h3');h.textContent='✨ AllBiz AI Assistent (Business)';
+ const info=document.createElement('p');info.textContent='Stel vrije vragen zodra de beveiligde AI-server is ingesteld en jouw Business-abonnement actief is. De gratis hulp blijft beschikbaar.';
  info.className='muted';
  const badge=document.createElement('p');badge.textContent='🔒 Nog niet actief · er worden geen betaalde AI-aanvragen verstuurd.';
  badge.setAttribute('role','status');badge.id='allbizAiStatus';
@@ -20,7 +20,18 @@
  const input=document.createElement('textarea');input.id='allbizAiQuestion';input.maxLength=500;input.rows=2;input.placeholder='Bijvoorbeeld: help me mijn eerste website maken';input.required=true;
  const submit=document.createElement('button');submit.type='submit';submit.textContent='✨ Vraag AI';submit.disabled=true;
  const note=document.createElement('p');note.className='muted small';note.textContent='Geen wachtwoorden, bankgegevens of vertrouwelijke klantinformatie invoeren. Live AI is bedoeld als een toekomstige Business-functie, niet als vervanging van menselijke klantenservice.';
- form.append(label,input,submit);section.append(h,info,badge,messages,form,note);card.append(section);
+ const retry=document.createElement('button');
+ retry.type='button';retry.className='secondary';retry.textContent='🔄 Controleer AI-status';
+ const free=document.createElement('button');
+ free.type='button';free.className='secondary';free.textContent='💬 Vraag gratis hulp';
+ free.addEventListener('click',()=>{
+   const field=document.getElementById('allbizHelpQuestion');
+   const help=document.getElementById('allbizHelpForm');
+   if(!field||!help)return;
+   if(input.value.trim())field.value=input.value.trim();
+   if(field.value.trim())help.requestSubmit();else field.focus();
+ });
+ form.append(label,input,submit,retry,free);section.append(h,info,badge,messages,form,note);card.append(section);
  const add=(text,user)=>{
    const line=document.createElement('div');line.textContent=text;line.style.cssText='padding:10px 12px;border-radius:12px;justify-self:'+(user?'end':'start')+';background:'+(user?'#5940c7':'#f1edff')+';color:'+(user?'white':'#31254b');
    messages.append(line);while(messages.children.length>16)messages.firstChild.remove();
@@ -32,18 +43,24 @@
  let busy=false;
  const history=[];
  const check=async()=>{
-  try{
-   const controller=new AbortController(),timeout=setTimeout(()=>controller.abort(),8000);
-   const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey},body:JSON.stringify({action:'status'}),signal:controller.signal});
-   clearTimeout(timeout);
-   const data=await res.json();
-   const available=data.available===true;
-   badge.textContent=available?'✅ De AI-server is beschikbaar. Log in om te controleren of je Business-toegang hebt.':'🔒 AI is voorbereid maar nog niet ingeschakeld. De gratis hulp hierboven werkt wel.';
-   submit.disabled=!available;
-  }catch{badge.textContent='🔒 AI-server niet bereikbaar. Gebruik voorlopig de gratis hulp.'}
+   retry.disabled=true;submit.disabled=true;
+   const controller=new AbortController();
+   const timeout=setTimeout(()=>controller.abort(),8000);
+   badge.textContent='AI-koppeling wordt gecontroleerd…';
+   try{
+     const res=await fetch(endpoint,{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey},body:JSON.stringify({action:'status'}),signal:controller.signal});
+     if(!res.ok)throw Error('Status niet bereikbaar');
+     const data=await res.json(),available=data.available===true;
+     badge.textContent=available?'✅ AI-server ingesteld. Log in met een actief Business-abonnement om vragen te stellen.':'🔒 Er is nog geen AI-API-sleutel op de server ingesteld. Gebruik de gratis hulp.';
+     submit.disabled=!available;
+   }catch{
+     badge.textContent='⚠️ AI-status niet bereikbaar. Gebruik gratis hulp en probeer later opnieuw.';
+   }finally{clearTimeout(timeout);retry.disabled=false;}
  };
+ retry.addEventListener('click',check);
+ window.addEventListener('allbiz-user-changed',()=>{history.length=0;check();});
  check();
- form.addEventListener('submit',async e=>{
+  form.addEventListener('submit',async e=>{
   e.preventDefault();if(busy||submit.disabled)return;
   const message=input.value.trim();if(!message)return;
   const auth=window.allbizAuth;
