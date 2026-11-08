@@ -1,0 +1,28 @@
+name: Tastytrade sandbox OAuth tests
+
+on:
+  pull_request:
+    paths:
+      - 'supabase/functions/_shared/tastytrade-oauth.ts'
+      - 'supabase/functions/_shared/tastytrade-oauth_test.ts'
+      - '.github/workflows/tastytrade-oauth-tests.yml'
+  push:
+    branches: [feature/tastytrade-oauth-sandbox-prep]
+    paths:
+      - 'supabase/functions/_shared/tastytrade-oauth.ts'
+      - 'supabase/functions/_shared/tastytrade-oauth_test.ts'
+
+permissions:
+  contents: read
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Test sandbox OAuth helpers (no credentials or network permissions)
+        run: deno test --no-check supabase/functions/_shared/tastytrade-oauth_test.ts
