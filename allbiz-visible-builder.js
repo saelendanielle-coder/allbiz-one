@@ -103,6 +103,63 @@
       actions.append(button);
     }
 
+
+    // Lokale ontwerpcontrole: geen juridische certificering en geen netwerkverzoeken.
+    const audit = document.createElement('section');
+    audit.id = 'allbizPageAudit';
+    const auditHeading = document.createElement('h3');
+    auditHeading.textContent = '✅ Controleer jouw webshoppagina’s';
+    const auditIntro = document.createElement('p');
+    auditIntro.className = 'small muted';
+    auditIntro.textContent = 'Bekijk welke van de vier veelgebruikte pagina’s op dit toestel zijn bewaard en zichtbaar zijn in het voorbeeld. Controleer zelf of alle informatie klopt.';
+    const auditButton = document.createElement('button');
+    auditButton.type = 'button';
+    auditButton.className = 'secondary';
+    auditButton.textContent = '🔎 Controleer mijn pagina’s';
+    const auditStatus = document.createElement('p');
+    auditStatus.className = 'small';
+    auditStatus.setAttribute('role', 'status');
+    auditStatus.setAttribute('aria-live', 'polite');
+    auditStatus.textContent = 'Nog niet gecontroleerd.';
+    const auditList = document.createElement('ul');
+    auditList.className = 'allbiz-page-audit-list';
+
+    function auditPages() {
+      let pages;
+      try {
+        const data = JSON.parse(localStorage.getItem('allbiz-pro-builder-v1') || 'null');
+        pages = Array.isArray(data?.pages) ? data.pages : [];
+      } catch {
+        auditStatus.textContent = '⚠️ Je opgeslagen pagina’s kunnen niet worden gelezen op dit toestel.';
+        auditList.replaceChildren();
+        return;
+      }
+      auditList.replaceChildren();
+      let complete = 0;
+      for (const name of Object.keys(hints)) {
+        const item = pages.find(page => page && typeof page.title === 'string' &&
+          page.title.trim().toLocaleLowerCase('nl') === name.toLocaleLowerCase('nl'));
+        const hasText = typeof item?.text === 'string' && !!item.text.trim();
+        const shown = item?.visible !== false;
+        const ok = !!item && hasText && shown;
+        if (ok) complete += 1;
+        const li = document.createElement('li');
+        const description = !item ? 'nog niet bewaard' :
+          !hasText ? 'tekst ontbreekt' :
+          !shown ? 'verborgen in het menu' : 'bewaard en zichtbaar in het voorbeeld';
+        li.textContent = (ok ? '✅ ' : '⚠️ ') + name + ' — ' + description;
+        auditList.append(li);
+      }
+      auditStatus.textContent = complete + ' van 4 pagina’s hebben tekst en zijn zichtbaar in het winkelvoorbeeld. Dit controleert niet of je bedrijfsgegevens of voorwaarden juridisch correct zijn.';
+    }
+
+    auditButton.addEventListener('click', auditPages);
+    // De bestaande opslaanknop schrijft eerst lokaal; daarna wordt de checklist vernieuwd.
+    byId('builderSavePage')?.addEventListener('click', () => {
+      if (auditList.childElementCount) auditPages();
+    });
+    audit.append(auditHeading, auditIntro, auditButton, auditStatus, auditList);
+
     const hint = document.createElement('p');
     hint.className = 'small muted';
     hint.textContent = 'Klik op een pagina, vul je tekst in en kies “+ Pagina bewaren”. Gebruik daarna “Bekijk deze pagina in de webshop”. Bestaande pagina’s blijven bewaard.';
@@ -120,11 +177,13 @@
       '#allbizVisibleBuilder .allbiz-page-actions button{min-height:48px;white-space:normal}',
       '#allbizVisibleBuilder #shopPreview{margin-top:12px;min-width:0;overflow-wrap:anywhere}',
       '#allbizVisibleBuilder #shopBuilderDetails{margin:14px 0}',
+      '#allbizPageAudit{background:#faf8ff;border:1px solid #e2daf6;border-radius:14px;padding:14px;margin:14px 0}',
+      '#allbizPageAudit .allbiz-page-audit-list{margin:10px 0 0;padding-left:19px;line-height:1.9}',
       '@media(max-width:420px){#allbizVisibleBuilder .allbiz-page-actions{grid-template-columns:1fr}}'
     ].join('');
     document.head.append(style);
 
-    panel.append(heading, intro, actionTitle, actions, hint);
+    panel.append(heading, intro, actionTitle, actions, hint, audit);
     // Enkel de ontwerpfuncties verplaatsen. Het oude testmandje blijft verborgen.
     panel.append(builder, cloudActions, cloudStatus, title, notice, preview);
     const firstCard = byId('allbizStoreMain');
