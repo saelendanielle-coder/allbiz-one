@@ -98,15 +98,39 @@
         toWrite.push([key, value]);
       }
       if (!toWrite.length) throw new Error('Geen ondersteunde ontwerpen');
+
+      // Herstelde lokale ontwerpen zijn nog niet aan het huidige account gekoppeld.
+      // Wis uitsluitend de betreffende automatische synchronisatie-machtiging;
+      // deze accountmarkeringen horen niet in een exportbestand.
+      const restoredKeys = new Set(toWrite.map(([key]) => key));
+      const markersToClear = [];
+      if (restoredKeys.has('allbiz-pro-builder-v1')) {
+        markersToClear.push('allbiz-shop-design-owner-v1');
+      }
+      if (restoredKeys.has('business-studio-products-v2')) {
+        markersToClear.push('allbiz-product-auto-owner-v1');
+      }
       const approve = window.confirm(
         'Reservekopie terugzetten?\n\n' +
         'De gegevens uit het bestand vervangen dezelfde opgeslagen ontwerpen op dit toestel. ' +
-        'Je online account wordt niet gewijzigd. Wil je doorgaan?'
+        'Je online account wordt niet gewijzigd.\n\n' +
+        (markersToClear.length
+          ? 'Automatisch privé synchroniseren wordt tijdelijk uitgeschakeld voor teruggezette ontwerpen. ' +
+            'Je kunt ze daarna bewust onder je eigen account bewaren.\n\n'
+          : '') +
+        'Wil je doorgaan?'
       );
       if (!approve) { notify('Terugzetten geannuleerd; je gegevens zijn niet gewijzigd.'); return; }
-      const before = toWrite.map(([key]) => [key, localStorage.getItem(key)]);
+
+      // Ontwerpen en hun accountmarkeringen gaan samen over, of worden teruggedraaid
+      // als een schrijfactie mislukt. Zo blijft geen oude accountmachtiging actief.
+      const mutations = [...toWrite, ...markersToClear.map(key => [key, null])];
+      const before = mutations.map(([key]) => [key, localStorage.getItem(key)]);
       try {
-        for (const [key,value] of toWrite) localStorage.setItem(key,value);
+        for (const [key,value] of mutations) {
+          if (value === null) localStorage.removeItem(key);
+          else localStorage.setItem(key,value);
+        }
       } catch (err) {
         for (const [key,value] of before) {
           try {
@@ -116,7 +140,7 @@
         }
         throw new Error('Lokale opslag onvoldoende');
       }
-      notify('✅ Reservekopie teruggezet. De app wordt vernieuwd om je ontwerpen te tonen.');
+      notify('✅ Reservekopie teruggezet. Automatisch privé synchroniseren is voor de herstelde ontwerpen uitgezet. Kies handmatig bewaren na controle van het juiste account. De app wordt vernieuwd.');
       setTimeout(() => window.location.reload(), 1000);
     } catch (error) {
       notify('Terugzetten mislukt: kies een geldige AllBiz One-reservekopie. Je ontwerpen zijn niet bewust gewist.');
