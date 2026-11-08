@@ -724,7 +724,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
     <button type="button" class="secondary" data-goto="ads">📢 Advertentiecampagnes (Business)</button>
     <button type="button" class="secondary" data-goto="plans">💎 Bekijk abonnementen</button>
   </div>
-  <p class="small muted">Voor het maken van berichten is Starter of hoger nodig. De eigenaar kan hiervoor het geverifieerde testabonnement gebruiken. Geen AI-koppeling, automatische publicatie of garantie op klanten. Er worden geen advertentiekosten gemaakt door een concept te maken.</p>
+  <p class="small muted">Voor het maken van berichten is Starter of hoger nodig. Geen AI-koppeling, automatische publicatie of garantie op klanten. Er worden geen advertentiekosten gemaakt door een concept te maken.</p>
 </div>
 <div id="allbizMarketingFallback" class="card" role="status" style="margin-top:14px;border:2px solid #ddd1fb">
   <h3>🗓️ Mijn marketingcampagnes</h3>
@@ -847,8 +847,10 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <button type="button" class="secondary" data-q="Hoe werkt mijn webshop?">🛍️ Webshop</button>
 <button type="button" class="secondary" data-q="Hoe werkt mijn abonnement?">💎 Abonnement</button>
 <button type="button" class="secondary" data-q="Hoe maak ik een YouTube video?">🎬 YouTube</button>
-<button type="button" class="secondary" data-q="Hoe maak ik reclame?">📣 Marketing</button>
+<button type="button" class="secondary" data-q="Hoe maak ik een socialmedia-bericht?">📣 Marketing</button>
 <button type="button" class="secondary" data-q="Kan ik echt traden?">📈 Trading</button>
+<button type="button" class="secondary" data-q="Hoe werkt affiliate marketing?">🔗 Affiliate</button>
+<button type="button" class="secondary" data-q="Hoe maak ik reclame?">📢 Advertenties</button>
 </div>
 <p class="notice" style="margin-top:15px"><b>Testversie:</b> dit zijn automatische antwoorden op veelgestelde vragen, geen echte AI-chat of menselijke klantenservice. De assistent kan geen betalingen uitvoeren, accounts wijzigen of bestellingen verwerken. Deel geen wachtwoorden, bank- of identiteitsgegevens.</p>
 </div></section>
@@ -1662,14 +1664,15 @@ el('clearCart').addEventListener('click',()=>{
 
 /* Lokale klantenhulp: geeft uitleg, geen AI of privégegevens doorsturen. */
 const helpTopics=[
-{keys:['abonnement','stripe','betaling','betalen','starter','pro','business','factuur','betaald'],name:'Abonnementen',tab:'plans',reply:'Log in en open Abonnementen. Kies Starter, Pro of Business. Met de paarse TEST-link kun je zonder echt geld de demo proberen. Na een echte betaling controleer je bij Abonnementen de status. Staat die niet op actief? Betaal niet opnieuw voordat dit is nagekeken.'},
+{keys:['abonnement','stripe','betaling','betalen','starter','pro','business','factuur','betaald'],name:'Abonnementen',tab:'plans',reply:'Log in en open Abonnementen. Kies Starter, Pro of Business. Betaal alleen via een officieel ingeschakelde betaalpagina wanneer die beschikbaar is. Controleer na betaling bij Abonnementen of de toegang actief is. Staat die niet op actief? Betaal niet opnieuw voordat dit is nagekeken.'},
 {keys:['webshop','winkel','winkelmand','checkout','bestelling','verkoper','connect'],name:'Webshop',tab:'shop',reply:'Open Mijn webshop om producten, collecties en je winkelontwerp te bekijken. De checkout is nog een simulatie; klanten kunnen nog niet echt winkelen of betalen. Stripe Connect is alleen een test voor mogelijke toekomstige webshopverkopers.'},
 {keys:['website','domein','publiceren','online','hosting','bedrijfswebsite','webservice'],name:'Website',tab:'site',reply:'Ga naar Website & domein, vul je bedrijfsgegevens in, kies een thema en bewaar je ontwerp. Je kunt een websitevoorbeeld downloaden. Een gewenste domeinnaam is niet automatisch geregistreerd. Online publiceren is een aparte stap die een echt abonnement en jouw toestemming vereist.'},
 {keys:['youtube','video','shorts','filmpje'],name:'YouTube',tab:'video',reply:'Ga naar YouTube-video’s. Kies teksten, foto’s en eventueel audio, bekijk het voorbeeld en download je video. Je moet de video nog zelf uploaden naar YouTube. Gebruik alleen materiaal waarop je rechten hebt.'},
-{keys:['advertentie','reclame','marketing','google ads','facebook','instagram','tiktok','campagne','budget'],name:'Marketing',tab:'ads',reply:'Ga naar Advertenties & groei om advertentieteksten en een budgetplan te maken. Download de voorstellen en plaats ze zelf op de advertentieplatforms. Automatisch publiceren en echte advertentieresultaten zijn nog niet gekoppeld.'},
+{keys:['marketing','socialmedia','sociale media','instagram','facebook','tiktok','linkedin','bericht','posts'],name:'Digitale marketing',tab:'marketing',reply:'Open Digitale marketing om een concept voor een socialmedia-bericht te maken. Voor het maken of bewaren van berichten heb je Starter of hoger nodig. Berichten worden niet automatisch geplaatst of als advertentie uitgegeven.'},
+{keys:['advertentie','reclame','google ads','campagne','budget','adverteren'],name:'Advertentieplan',tab:'ads',reply:'Open Advertenties & groei om concepten en een geschat budgetplan te maken. Hiervoor is Business nodig. Er worden geen advertenties automatisch gepubliceerd, er wordt niets uitgegeven en de schattingen zijn geen echte campagneresultaten.'},
 {keys:['trading','crypto','broker','beleggen','aandelen','opname','portefeuille'],name:'Trading',tab:'trading',reply:'Echt traden is nog niet mogelijk in AllBiz One. Er is geen broker verbonden en de app kan geen geld storten, kopen, verkopen of opnemen. Deel nooit je brokerwachtwoord of bankcodes.'},
 {keys:['inloggen','inlog','account','wachtwoord','registreren','aanmelden'],name:'Mijn account',tab:'account',reply:'Open Mijn account om je te registreren of in te loggen. Bevestig zo nodig je e-mailadres. Gebruik de wachtwoordhersteloptie als je je wachtwoord vergeten bent. Deel je wachtwoord nooit.'},
-{keys:['product','importeren','dropshipping','leverancier'],name:'Producten',tab:'products',reply:'Open Producten om een product met naam, prijs en beschrijving toe te voegen. In deze testversie worden nog geen echte orders bij leveranciers geplaatst.'},
+{keys:['product','importeren','dropshipping','leverancier'],name:'Producten',tab:'shop',reply:'Open Mijn webshop om producten en collecties toe te voegen en te beheren. Hiervoor is Pro nodig. Er worden nog geen echte orders bij leveranciers geplaatst en webshopbetalingen zijn niet actief.'},
 {keys:['affiliate','commissie','partnerlink'],name:'Affiliate',tab:'affiliate',reply:'Voeg je eigen affiliate-link toe nadat je je hebt aangesloten bij een geldig affiliateprogramma. Vermeld dat je mogelijk commissie verdient. De app betaalt zelf geen commissies uit.'},
 {keys:['assistent','chatbot','kunstmatige intelligentie','klantenservice','hulp'],name:'Hulp',tab:'help',reply:'Deze assistent geeft vaste antwoorden op veelgestelde vragen. Een echte AI-chat die vrij kan antwoorden, moet nog veilig gekoppeld worden. Deel geen vertrouwelijke gegevens.'}
 ];
@@ -1732,6 +1735,7 @@ function escapeHtml(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;',
 /* Affiliateproducten: los van echte webshopproducten en het winkelmandje */
 const affiliateKey='business-studio-affiliate-v1';
 let affiliateItems=[];
+let affiliatePostProductId='';
 try{const saved=JSON.parse(localStorage.getItem(affiliateKey)||'[]');if(Array.isArray(saved))affiliateItems=saved.filter(x=>x&&x.name&&safeLink(x.link)).slice(0,200)}catch(e){}
 function saveAffiliates(){try{localStorage.setItem(affiliateKey,JSON.stringify(affiliateItems));return true}catch(e){return false}}
 function affiliateCard(a,editable){
@@ -1761,6 +1765,10 @@ function renderAffiliate(){
   if(!affiliateItems.length){const option=new Option('Voeg eerst een affiliateproduct toe','');dropdown.add(option)}
   else{affiliateItems.forEach(x=>dropdown.add(new Option(x.name,x.id)));if(affiliateItems.some(x=>x.id===selected))dropdown.value=selected}
   affiliateEstimate();
+  if(affiliatePostProductId&&!affiliateItems.some(x=>x.id===affiliatePostProductId)){
+    affiliatePostProductId='';
+    el('affiliatePost').textContent='Je promotietekst verschijnt hier.';
+  }
 }
 function selectedAffiliate(){return affiliateItems.find(x=>x.id===el('affiliateSelect').value)||null}
 function affiliateEstimate(){const a=selectedAffiliate(),sales=Number(el('affiliateSales').value);if(!a||a.price===null||a.rate===null){el('affiliateEstimate').textContent='Vul bij een affiliateproduct de prijs en commissie in voor een voorbeeld.';return}const est=a.price*a.rate/100*(Number.isFinite(sales)?Math.max(0,Math.floor(sales)):0);el('affiliateEstimate').textContent='Hypothetische commissie: '+money(est)}
@@ -1775,11 +1783,22 @@ el('affiliateForm').addEventListener('submit',e=>{
   affiliateItems.push(a);if(!saveAffiliates()){affiliateItems.pop();el('affiliateStatus').textContent='Opslaan mislukt; maak opslagruimte vrij.';return}
   el('affiliateForm').reset();renderAffiliate();renderAll();el('affiliateSelect').value=a.id;affiliateEstimate();el('affiliateStatus').textContent='✅ Affiliateproduct toegevoegd. Het staat ook in je websitevoorbeeld.';
 });
-el('affiliateSelect').addEventListener('change',affiliateEstimate);el('affiliateSales').addEventListener('input',affiliateEstimate);
-el('affiliateMakePost').addEventListener('click',()=>{const a=selectedAffiliate();if(!a){el('affiliatePost').textContent='Voeg eerst een affiliateproduct toe.';return}
+el('affiliateSelect').addEventListener('change',()=>{
+  affiliateEstimate();
+  affiliatePostProductId='';
+  el('affiliatePost').textContent='Kies Maak promotietekst voor dit product.';
+});el('affiliateSales').addEventListener('input',affiliateEstimate);
+el('affiliateMakePost').addEventListener('click',()=>{const a=selectedAffiliate();if(!a){affiliatePostProductId='';el('affiliatePost').textContent='Voeg eerst een affiliateproduct toe.';return}
+  affiliatePostProductId=a.id;
   el('affiliatePost').textContent='💡 Mijn tip: '+a.name+'\n\n'+(a.description||'Bekijk de productdetails bij de verkoper.')+'\n\n👉 Bekijk het product: '+a.link+'\n\n🔎 Advertentie / affiliate-link: als je via deze link iets koopt, kan ik een commissie ontvangen.';
 });
-el('affiliateCopyPost').addEventListener('click',async()=>{if(!selectedAffiliate()){el('affiliateStatus').textContent='Voeg eerst een product toe.';return}if(!el('affiliatePost').textContent.includes('affiliate-link'))el('affiliateMakePost').click();await copyAffiliateLink(el('affiliatePost').textContent)});
+el('affiliateCopyPost').addEventListener('click',async()=>{
+  const chosen=selectedAffiliate();
+  if(!chosen){el('affiliateStatus').textContent='Voeg eerst een product toe.';return}
+  if(affiliatePostProductId!==chosen.id)el('affiliateMakePost').click();
+  if(affiliatePostProductId!==chosen.id)return;
+  await copyAffiliateLink(el('affiliatePost').textContent);
+});
 el('affiliateToVideo').addEventListener('click',()=>{const a=selectedAffiliate();if(!a){el('affiliateStatus').textContent='Voeg eerst een product toe.';return}
   el('videoName').value=('Mijn aanrader: '+a.name).slice(0,75);el('videoText1').value=('Ontdek '+a.name).slice(0,120);el('videoText2').value=(a.description||'Bekijk mijn favoriete product!').slice(0,120);el('videoText3').value=('Affiliate-link in beschrijving!').slice(0,100);vShowStill();switchTab('video');vMessage('Videoteksten ingevuld. Zet jouw affiliate-link én reclamevermelding zelf in de YouTube-beschrijving: '+a.link);
 });
