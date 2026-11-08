@@ -590,7 +590,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
       <canvas id="videoCanvas" class="video-canvas" width="360" height="640" aria-label="Voorbeeld van je video"></canvas>
       <div class="video-actions"><button type="button" class="secondary" id="videoPreview">▶ Bekijk voorbeeld</button><button type="button" id="videoExport">⬇ Download video</button></div>
       <p id="videoStatus" class="video-status muted" role="status">Je kunt meteen een voorbeeld bekijken.</p>
-      <p class="small muted">De export is een videobestand (.webm of .mp4 als je browser dat ondersteunt). Je kunt het daarna zelf uploaden naar YouTube. Op sommige telefoons ondersteunt de browser geen video-export.</p>
+      <p class="small muted">Download een video als je browser opnemen ondersteunt (.webm of soms .mp4). Op sommige telefoons kun je wel een losse PNG-omslag downloaden, maar geen video opnemen. Upload het bestand zelf naar YouTube.</p>
     </div>
   </div></div>
 </section>
@@ -1881,6 +1881,29 @@ function vDraw(elapsed=0){
 function vStopPreview(){if(vPreviewTimer!==null){cancelAnimationFrame(vPreviewTimer);vPreviewTimer=null}}
 function vMessage(msg){el('videoStatus').textContent=msg}
 function vShowStill(){if(vRecording)return;vStopPreview();vDraw(.2)}
+// A still image can be exported even on phones that do not support MediaRecorder.
+const videoPosterButton=document.createElement('button');
+videoPosterButton.type='button';
+videoPosterButton.className='secondary';
+videoPosterButton.id='videoPosterExport';
+videoPosterButton.textContent='🖼️ Download omslag (PNG)';
+el('videoExport').after(videoPosterButton);
+videoPosterButton.addEventListener('click',()=>{
+  if(vRecording){vMessage('Wacht tot de video-export klaar is.');return}
+  try{
+    vShowStill();
+    vCanvas.toBlob(blob=>{
+      if(!blob){vMessage('De afbeelding kon niet worden opgeslagen.');return}
+      const filename=(el('videoName').value.trim()||'mijn-video').normalize('NFD')
+        .replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9 _-]/gi,'')
+        .slice(0,55).trim().replace(/\s+/g,'-')||'mijn-video';
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=filename+'-omslag.png';document.body.append(a);a.click();a.remove();
+      setTimeout(()=>URL.revokeObjectURL(url),30000);
+      vMessage('✅ PNG-omslag gedownload. Dit is een afbeelding, geen videobestand.');
+    },'image/png');
+  }catch{vMessage('Opslaan van de omslag lukte niet op dit toestel.')}
+});
 for(let i=1;i<=3;i++){
   el('videoText'+i).addEventListener('input',vShowStill);
   el('videoImage'+i).addEventListener('change',async e=>{
@@ -1902,18 +1925,20 @@ el('videoPreview').addEventListener('click',()=>{
 });
 el('videoExport').addEventListener('click',async()=>{
   if(vRecording)return;
-  if(!window.MediaRecorder||typeof vCanvas.captureStream!=='function'){vMessage('Deze browser kan geen videobestand maken. Open dit bestand op een computer in Chrome of Edge.');return}
+  if(!window.MediaRecorder||typeof vCanvas.captureStream!=='function'){vMessage('Deze browser ondersteunt geen video-export. Download eventueel de PNG-omslag, of gebruik Chrome of Edge op een computer.');return}
+  const selectedMusic=el('videoMusic').files[0];
+  if(selectedMusic&&(selectedMusic.size>20*1024*1024||!selectedMusic.type.startsWith('audio/'))){vMessage('Kies een geldig audiobestand van maximaal 20 MB, of maak de video zonder audio.');return}
   vStopPreview();vRecording=true;el('videoExport').disabled=true;el('videoPreview').disabled=true;
-  let recorder=null,audio=null,ctx=null,source=null,stream=null,drawTimer=null;
+  let recorder=null,audio=null,audioUrl=null,ctx=null,source=null,stream=null,drawTimer=null;
   let done=false;
-  const cleanup=()=>{if(done)return;done=true;clearInterval(drawTimer);try{audio?.pause();if(audio)audio.currentTime=0}catch(e){}try{stream?.getTracks().forEach(t=>t.stop())}catch(e){}if(ctx)ctx.close().catch(()=>{});vRecording=false;el('videoExport').disabled=false;el('videoPreview').disabled=false;vDraw(.2)};
+  const cleanup=()=>{if(done)return;done=true;clearInterval(drawTimer);try{audio?.pause();if(audio)audio.currentTime=0}catch(e){}try{stream?.getTracks().forEach(t=>t.stop())}catch(e){}if(audioUrl){URL.revokeObjectURL(audioUrl);audioUrl=null}if(ctx)ctx.close().catch(()=>{});vRecording=false;el('videoExport').disabled=false;el('videoPreview').disabled=false;vDraw(.2)};
   try{
     const total=Number(el('videoSeconds').value)*3;
     vDraw(.01);stream=vCanvas.captureStream(24);
     const sound=el('videoMusic').files[0];
     if(sound&&sound.type.startsWith('audio/')){
       const AudioContextClass=window.AudioContext||window.webkitAudioContext;
-      if(AudioContextClass){ctx=new AudioContextClass();await ctx.resume();const dest=ctx.createMediaStreamDestination();audio=new Audio();audio.src=URL.createObjectURL(sound);audio.loop=true;audio.preload='auto';source=ctx.createMediaElementSource(audio);source.connect(dest);dest.stream.getAudioTracks().forEach(track=>stream.addTrack(track));}
+      if(AudioContextClass){ctx=new AudioContextClass();await ctx.resume();const dest=ctx.createMediaStreamDestination();audio=new Audio();audioUrl=URL.createObjectURL(sound);audio.src=audioUrl;audio.loop=true;audio.preload='auto';source=ctx.createMediaElementSource(audio);source.connect(dest);dest.stream.getAudioTracks().forEach(track=>stream.addTrack(track));}
     }
     const types=['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/webm','video/mp4'];
     const mime=types.find(t=>MediaRecorder.isTypeSupported(t));recorder=new MediaRecorder(stream,mime?{mimeType:mime,videoBitsPerSecond:1700000}:undefined);
