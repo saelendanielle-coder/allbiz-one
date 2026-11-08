@@ -32,7 +32,7 @@
         about: 'Je kunt deze gratis stappen lezen. Om de webshopbouwer te openen heb je Pro of hoger nodig; zonder toegang kom je eerst bij Abonnementen. Echte afrekening en bestellingen blijven uitgeschakeld.',
         steps: [
           {title:'Vul je verkopersgegevens in', detail:'Open Mijn webshop en vul je echte bedrijfs- en contactgegevens in. Deze gegevens worden privé bewaard; ze zijn niet automatisch openbaar.', tab:'shop', target:'allbizSellerProfile', action:'Open verkopersgegevens'},
-          {title:'Maak je winkelpagina’s', detail:'Gebruik de knoppen Over ons, Contact, Verzending en Retouren. Vul je eigen teksten in en kies Pagina bewaren.', tab:'shop', target:'allbizVisibleBuilder', action:'Open de paginabouwer'},
+          {title:'Maak je winkelpagina’s', detail:'Gebruik de knoppen Over ons, Contact, Verzending en Retouren. Vul je eigen teksten in en kies Pagina bewaren.', tab:'shop', target:'allbizVisibleBuilder', openDetails:'shopBuilderDetails', action:'Open de paginabouwer'},
           {title:'Controleer en bewaar je ontwerp', detail:'Gebruik Controleer mijn pagina’s en bewaar het webshopontwerp privé in je account. Dit is geen echte winkelcheckout of juridische controle.', tab:'shop', target:'allbizPageAudit', action:'Controleer je webshoppagina’s'}
         ]
       },
@@ -174,12 +174,22 @@
       if (typeof switchTab==='function') switchTab(tab);
       else document.querySelector('[data-tab="'+tab+'"]')?.click();
       if(step.target)window.setTimeout(()=>{
-        const active=document.querySelector('.panel.active')?.id;
-        if(active!==tab)return;
+        // De abonneecontrole kan de pagina ondertussen vergrendeld hebben.
+        if(document.querySelector('.panel.active')?.id!==tab)return;
+        if(step.openDetails){
+          const editor=document.getElementById(step.openDetails);
+          // Open alleen het bedoelde ontwerpformulier, nooit verborgen testmandjes.
+          if(editor?.tagName==='DETAILS' && editor.id==='shopBuilderDetails')editor.open=true;
+        }
         const target=document.getElementById(step.target);
         if(!target||!target.getClientRects().length)return;
-        target.scrollIntoView({behavior:'smooth',block:'center'});
-      },350);
+        // Houd rekening met het vaste mobiele menu bovenaan het scherm.
+        const mobile=document.querySelector('.mobile-feature-picker');
+        const offset=mobile && getComputedStyle(mobile).display!=='none'
+          ?mobile.getBoundingClientRect().height+18:18;
+        const top=Math.max(0,Math.round(window.scrollY+target.getBoundingClientRect().top-offset));
+        window.scrollTo({top,behavior:'smooth'});
+      },400);
     });
     draw();
     // Rechtstreekse links tonen de gekozen gratis stappenhulp ook na navigatieherstel.
