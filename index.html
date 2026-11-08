@@ -337,6 +337,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 <div class="mobile-shortcuts" id="mobileShortcuts" aria-label="Snel navigeren">
 <button type="button" id="quickCustomerDashboard" data-goto="account">👤 Mijn klantendashboard</button>
 <button type="button" class="secondary" data-goto="marketing">📣 Digitale marketing</button>
+<button type="button" class="secondary" data-goto="adaccounts">🔗 Mijn advertentieaccounts</button>
 <button type="button" class="secondary" data-goto="trading">📈 Trading oefenen</button>
 <button type="button" class="secondary" data-goto="affiliate">🔗 Affiliate marketing</button>
 
@@ -2244,8 +2245,9 @@ openRequestedSection();
  if(!select||!nav)return;
  const titles={nl:'📱 Kies wat je wilt doen',en:'📱 Choose a feature',fr:'📱 Choisir une fonction',de:'📱 Funktion auswählen',es:'📱 Elige una función',pt:'📱 Escolha uma função',it:'📱 Scegli una funzione',ar:'📱 اختر وظيفة',hi:'📱 कोई सुविधा चुनें',zh:'📱 选择功能'};
  const allNavButtons=[...nav.querySelectorAll('button[data-tab]')].filter(b=>b.dataset.tab!=='products');
- // Op gsm staan veelgebruikte onderdelen bovenaan in het keuzemenu.
- const preferred=['marketing','adaccounts','trading','affiliate','help'];
+ // Android opent de native keuzelijst bij de huidige selectie.
+ // Houd Mijn account eerst, zodat belangrijke functies niet boven die selectie verdwijnen.
+ const preferred=['account','marketing','adaccounts','trading','affiliate','help'];
  const navButtons=[
   ...preferred.map(id=>allNavButtons.find(b=>b.dataset.tab===id)).filter(Boolean),
   ...allNavButtons.filter(b=>!preferred.includes(b.dataset.tab))
