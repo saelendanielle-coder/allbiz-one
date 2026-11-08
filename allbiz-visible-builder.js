@@ -68,18 +68,28 @@
         option.value !== 'new' && normalize(option.textContent) === title.toLocaleLowerCase('nl'));
       const samePage = target ? choose.value === target.value :
         choose.value === 'new' && normalize(name.value) === title.toLocaleLowerCase('nl');
-      if (!samePage && currentDraftIsUnsaved() &&
+      // De gedeelde paginawisselcontrole voorkomt dubbel vragen en bewaart het oude ontwerp bij Annuleren.
+      if (!samePage && typeof window.allbizTrySelectBuilderPage === 'function') {
+        if (!window.allbizTrySelectBuilderPage(target?.value || 'new')) return;
+      } else if (!samePage && currentDraftIsUnsaved() &&
           !window.confirm('Je hebt mogelijk nog niet-bewaarde wijzigingen. Wil je toch naar "' + title +
             '" gaan? Bewaar eerst je tekst om niets kwijt te raken.')) return;
 
       builder.open = true;
       if (target) {
-        choose.value = target.value;
-        choose.dispatchEvent(new Event('change'));
+        if (samePage) choose.value = target.value;
         status.textContent = '✅ De bestaande pagina ' + title + ' staat klaar. Bewaar eventuele wijzigingen vóór je het voorbeeld bekijkt.';
       } else {
-        choose.value = 'new';
-        choose.dispatchEvent(new Event('change'));
+        // Ook wanneer "nieuwe pagina" al geselecteerd was, behouden we ingevulde tekst.
+        if (samePage) {
+          status.textContent = 'Je bent al aan deze pagina bezig. Bewaar je wijzigingen als je klaar bent.';
+          name.focus({preventScroll: true});
+          return;
+        }
+        if (typeof window.allbizTrySelectBuilderPage !== 'function') {
+          choose.value = 'new';
+          choose.dispatchEvent(new Event('change'));
+        }
         name.value = title;
         // Alleen bij Over ons kunnen we reeds door de eigenaar ingevulde websitetekst overnemen.
         if (title === 'Over ons') body.value = byId('siteAbout')?.value?.trim().slice(0,2500) || '';
