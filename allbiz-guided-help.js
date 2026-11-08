@@ -10,7 +10,7 @@
         label: '📈 Trading oefenen',
         about: 'Leer hoe de tradingdemo werkt. Alleen fictieve bedragen: er zijn geen live koersen, geen brokerverbinding en geen echte orders.',
         steps: [
-          {title:'Open de tradingdemo', detail:'Ga naar Live trading. Je ziet testonderdelen en een calculator voor fictieve handelsresultaten. Er is geen echte handelsrekening verbonden.', tab:'trading', action:'Open Trading'},
+          {title:'Open Trading oefenen', detail:'Open Trading oefenen. Alle bedragen zijn fictief: er is geen broker verbonden en je kunt geen echte orders plaatsen.', tab:'trading', action:'Open Trading oefenen'},
           {title:'Bereken een oefenscenario', detail:'Vul een fictief handelsbedrag, een koersverandering en kosten in. Kies Bereken fictief resultaat. Dit koopt of verkoopt niets.', tab:'trading', action:'Open de testcalculator'},
           {title:'Bekijk het risico', detail:'Probeer ook een scenario met 100% verlies. Beleggen kan geld kosten en winst is nooit gegarandeerd. Echte handel blijft uit tot er een veilige, toegelaten brokerkoppeling is.', tab:'trading', action:'Bekijk de tradingrisico’s'}
         ]
@@ -19,34 +19,34 @@
         label: '🌐 Website maken',
         about: 'Bouw je bedrijfswebsite stap voor stap.',
         steps: [
-          {title:'Vul je bedrijf in', detail:'Open Website & domein. Vul je bedrijfsnaam, beschrijving, diensten en contactgegevens in.', tab:'site', action:'Open Website & domein'},
-          {title:'Kies een ontwerp', detail:'Kies een thema en bekijk de websitepreview. Je kunt teksten later aanpassen.', tab:'site', action:'Bekijk het ontwerp'},
-          {title:'Bewaar je website', detail:'Bewaar het ontwerp op dit toestel en download desgewenst de voorbeeldwebsite. Een echte domeinregistratie of publicatie gebeurt niet automatisch.', tab:'site', action:'Ga naar bewaren en downloaden'}
+          {title:'Vul je bedrijf in', detail:'Open Website & domein. Vul je bedrijfsnaam, beschrijving, diensten en contactgegevens in. Voor de website-editor is Starter of hoger nodig.', tab:'site', target:'brand', action:'Vul je bedrijfsgegevens in'},
+          {title:'Kies een ontwerp', detail:'Kies een thema en bekijk het voorbeeld. Je kunt alle teksten later aanpassen.', tab:'site', target:'sitePreview', action:'Bekijk het websitevoorbeeld'},
+          {title:'Bewaar je website', detail:'Gebruik Bewaar mijn ontwerp of download de voorbeeldwebsite. Alleen een bevestigd live abonnement en jouw toestemming kunnen een website later echt publiceren.', tab:'site', target:'makeSite', action:'Ga naar Bewaar mijn ontwerp'}
         ]
       },
       webshop: {
         label: '🛍️ Webshop maken',
-        about: 'Bereid je webshop voor met producten en een voorbeeldwinkel.',
+        about: 'Maak een webshopontwerp met Pro of hoger. Echte afrekening en bestellingen blijven uitgeschakeld totdat de betaalintegratie getest is.',
         steps: [
-          {title:'Voeg je producten toe', detail:'Open Producten en vul naam, prijs en beschrijving in. Bewaar je wijzigingen.', tab:'products', action:'Open Producten'},
-          {title:'Ontwerp de winkel', detail:'Open Mijn webshop, kies het thema en bekijk je producten in het winkelvoorbeeld.', tab:'shop', action:'Open Mijn webshop'},
-          {title:'Controleer je winkel', detail:'Gebruik Controleer mijn webshop en bekijk verzending, retouren en contact. De afrekening is nog een test; er worden geen echte bestellingen verwerkt.', tab:'shop', action:'Controleer mijn webshop'}
+          {title:'Vul je verkopersgegevens in', detail:'Open Mijn webshop en vul je echte bedrijfs- en contactgegevens in. Deze gegevens worden privé bewaard; ze zijn niet automatisch openbaar.', tab:'shop', target:'allbizSellerProfile', action:'Open verkopersgegevens'},
+          {title:'Maak je winkelpagina’s', detail:'Gebruik de knoppen Over ons, Contact, Verzending en Retouren. Vul je eigen teksten in en kies Pagina bewaren.', tab:'shop', target:'allbizVisibleBuilder', action:'Open de paginabouwer'},
+          {title:'Controleer en bewaar je ontwerp', detail:'Gebruik Controleer mijn pagina’s en bewaar het webshopontwerp privé in je account. Dit is geen echte winkelcheckout of juridische controle.', tab:'shop', target:'allbizPageAudit', action:'Controleer je webshoppagina’s'}
         ]
       },
       marketing: {
         label: '📣 Reclame maken',
-        about: 'Maak gratis advertentievoorstellen voor je bedrijf.',
+        about: 'Leer hoe je socialmedia-concepten maakt. Het bekijken van deze uitleg is gratis; berichten maken vereist Starter of hoger.',
         steps: [
-          {title:'Kies wat je promoot', detail:'Ga naar Advertenties & groei. Kies je kanaal en product of dienst.', tab:'ads', action:'Open Advertenties & groei'},
-          {title:'Schrijf je advertentie', detail:'Vul de gevraagde informatie in en maak een tekstvoorstel. Controleer alle claims voordat je de tekst gebruikt.', tab:'ads', action:'Maak een advertentieconcept'},
-          {title:'Controleer je budget', detail:'Bekijk het budget en download of kopieer je voorstel. AllBiz One plaatst nog geen echte advertenties en geeft geen gegarandeerde resultaten.', tab:'ads', action:'Bekijk het advertentieplan'}
+          {title:'Kies wat je promoot', detail:'Open Digitale marketing. Vul je product of bedrijf in, kies een doelgroep en een socialmediakanaal.', tab:'marketing', target:'marketingSubject', action:'Open Digitale marketing'},
+          {title:'Maak een berichtconcept', detail:'Klik op Maak mijn bericht. Controleer de tekst zelf voordat je hem gebruikt. Er wordt niets automatisch online geplaatst.', tab:'marketing', target:'marketingCreate', action:'Ga naar Maak mijn bericht'},
+          {title:'Bekijk en kopieer je bericht', detail:'Bekijk de gemaakte tekst en kopieer die om zelf te gebruiken. AllBiz One geeft geen garantie op klanten en geeft geen advertentiebudget uit.', tab:'marketing', target:'marketingOutput', action:'Bekijk je berichtconcept'}
         ]
       },
       affiliate: {
         label: '🔗 Affiliate marketing',
         about: 'Maak een promotietekst met je eigen partnerlink.',
         steps: [
-          {title:'Kies een affiliateproduct', detail:'Open Affiliate marketing. Voeg alleen een echte partnerlink toe waarvoor je bij een affiliateprogramma bent toegelaten.', tab:'affiliate', action:'Open Affiliate marketing'},
+          {title:'Kies een affiliateproduct', detail:'Open Affiliate marketing (Pro of hoger). Voeg alleen een echte partnerlink toe waarvoor je bij een affiliateprogramma bent toegelaten.', tab:'affiliate', target:'affiliateForm', action:'Open Affiliate marketing'},
           {title:'Maak een bericht', detail:'Ga naar Affiliatecampagne maken en kies Maak affiliatebericht. Met Test voorbeeldbericht kun je ook zonder partnerlink oefenen.', tab:'affiliate', action:'Maak een affiliatebericht'},
           {title:'Bewaar je concept', detail:'Gebruik Bewaar concept of Download tekst. Zet bij echte reclame duidelijk dat je commissie kunt ontvangen. De test verdient geen geld.', tab:'affiliate', action:'Open het campagneconcept'}
         ]
@@ -151,10 +151,20 @@
     });
     go.addEventListener('click',()=>{
       const current=steps[chosen]||0;
-      const tab=flows[chosen].steps[current].tab;
+      const step=flows[chosen].steps[current];
+      const tab=step.tab;
       // Gebruik de bestaande abonnementscontrole; activeer nooit verborgen functies.
       if (typeof switchTab==='function') switchTab(tab);
       else document.querySelector('[data-tab="'+tab+'"]')?.click();
+      // Richt de gebruiker op het juiste onderdeel, maar alleen wanneer die pagina
+      // werkelijk toegankelijk is. De bestaande abonneecontrole blijft leidend.
+      if(step.target)window.setTimeout(()=>{
+        const active=document.querySelector('.panel.active')?.id;
+        if(active!==tab)return;
+        const target=document.getElementById(step.target);
+        if(!target||!target.getClientRects().length)return;
+        target.scrollIntoView({behavior:'smooth',block:'center'});
+      },350);
     });
     draw();
     // Rechtstreekse links tonen de gekozen gratis stappenhulp ook na navigatieherstel.
