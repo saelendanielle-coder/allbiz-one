@@ -2317,22 +2317,39 @@ try {
   function markShopDesignOwner(id){
     try{localStorage.setItem(shopDesignOwnerKey,id);return true}catch(e){return false}
   }
-  window.allbizAutoSaveBuilder=async()=>{
-    try{
-      const {data,error:authError}=await client.auth.getUser();
-      const user=data?.user;if(authError||!user)return;
-      if(savedShopDesignOwner()!==user.id){
-        el('builderStatus').textContent='✅ Op dit toestel bewaard. Kies “Bewaar webshopontwerp privé” om dit ontwerp veilig aan je ingelogde account te koppelen.';
-        return;
+  // Eén wachtrij voor automatische en handmatige opslag. Hierdoor kan een oud
+  // netwerkantwoord niet na een nieuwere opslag het webshopontwerp overschrijven.
+  let shopDesignWriteQueue=Promise.resolve();
+  let builderSaveRevision=0;
+  function queueShopDesignWrite(task){
+    const pending=shopDesignWriteQueue.then(task);
+    shopDesignWriteQueue=pending.catch(()=>{});
+    return pending;
+  }
+  window.allbizAutoSaveBuilder=()=>{
+    const revision=++builderSaveRevision;
+    return queueShopDesignWrite(async()=>{
+      if(revision!==builderSaveRevision)return; // Een nieuwere bewerking staat al klaar.
+      try{
+        const {data,error:authError}=await client.auth.getUser();
+        const user=data?.user;if(authError||!user||revision!==builderSaveRevision)return;
+        if(savedShopDesignOwner()!==user.id){
+          el('builderStatus').textContent='✅ Op dit toestel bewaard. Kies “Bewaar webshopontwerp privé” om dit ontwerp veilig aan je ingelogde account te koppelen.';
+          return;
+        }
+        const snapshot=cleanBuilder(builderData);
+        // Het nieuwste ontwerp wordt opgeslagen onder de op de server gecontroleerde gebruiker.
+        const {error}=await client.from('allbiz_shop_designs').upsert({
+          user_id:user.id,builder_data:snapshot,updated_at:new Date().toISOString()
+        },{onConflict:'user_id'});
+        if(error)throw error;
+        if(revision===builderSaveRevision)
+          el('builderStatus').textContent='✅ Pagina’s en collecties privé gesynchroniseerd. Er is niets gepubliceerd.';
+      }catch(e){
+        if(revision===builderSaveRevision)
+          el('builderStatus').textContent='Lokaal bewaard. Privé synchronisatie mislukt; gebruik Bewaar webshopontwerp privé.';
       }
-      // Upsert maakt ook de eerste privé ontwerp-rij aan. UPDATE alleen kan 0 rijen raken
-      // en toch een misleidende succesmelding tonen.
-      const {error}=await client.from('allbiz_shop_designs').upsert({
-        user_id:user.id,builder_data:cleanBuilder(builderData),updated_at:new Date().toISOString()
-      },{onConflict:'user_id'});
-      if(error)throw error;
-      el('builderStatus').textContent='✅ Pagina’s en collecties privé gesynchroniseerd. Er is niets gepubliceerd.';
-    }catch(e){el('builderStatus').textContent='Lokaal bewaard. Privé synchronisatie mislukt; gebruik Bewaar webshopontwerp privé.'}
+    });
   };
   (async()=>{
     try{
@@ -2380,8 +2397,12 @@ try {
     if(error||!data?.user)throw new Error('Log eerst in bij Mijn account.');
     return data.user;
   }
-  shopCloudSave.addEventListener('click',async()=>{
+  shopCloudSave.addEventListener('click',()=>{
+    if(shopCloudSave.disabled)return;
     shopCloudSave.disabled=true;shopCloudStatus.textContent='Webshopontwerp privé opslaan...';
+    // De handmatige opslag krijgt altijd de laatste beurt na reeds gestarte autosaves.
+    ++builderSaveRevision;
+    void queueShopDesignWrite(async()=>{
     try{
       const user=await shopCloudUser();
       const localOwner=savedShopDesignOwner();
@@ -2412,10 +2433,15 @@ try {
       shopCloudStatus.textContent='✅ Webshopontwerp, pagina’s, menu, collecties en banners privé voor dit account bewaard. Er is niets gepubliceerd.';
     }catch(e){shopCloudStatus.textContent='Opslaan mislukt: '+(e.message||'onbekende fout')}
     finally{shopCloudSave.disabled=false}
+    });
   });
   shopCloudLoad.addEventListener('click',async()=>{
+    if(shopCloudLoad.disabled)return;
     shopCloudLoad.disabled=true;shopCloudStatus.textContent='Webshopontwerp ophalen...';
+    // Vóór het ophalen wachten tot eerdere schrijfacties klaar zijn.
+    ++builderSaveRevision;
     try{
+      await shopDesignWriteQueue;
       const user=await shopCloudUser();
       const {data,error}=await client.from('allbiz_shop_designs').select('brand,business_tagline,hero_title,hero_subtitle,announcement,banner_image_url,theme,builder_data').eq('user_id',user.id).maybeSingle();
       if(error)throw new Error(error.message);
