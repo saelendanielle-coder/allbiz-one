@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Contact & klantenservice | AllBiz One</title><meta name="description" content="Neem contact op met de klantenservice van AllBiz One.">
+<style>:root{font-family:system-ui,-apple-system,Segoe UI,Arial,sans-serif;color:#251c43;background:#f7f5ff}*{box-sizing:border-box}body{margin:0}header{background:linear-gradient(120deg,#211448,#6044c8);color:#fff;padding:28px 18px}header div,main{max-width:720px;margin:auto}a{color:#5638bd}header a{color:#fff}main{padding:25px 18px}.card{background:white;border:1px solid #e7e0f5;border-radius:18px;padding:25px;box-shadow:0 6px 22px #24164610}h1{margin:10px 0 0}p{line-height:1.6}.email{overflow-wrap:anywhere;font-weight:700}.button{display:inline-block;background:#6145cf;color:#fff;padding:13px 18px;border-radius:10px;text-decoration:none;font-weight:700;margin:12px 0}label{display:block;font-weight:650;margin-top:16px}input,select,textarea{width:100%;font:inherit;padding:12px;border:1px solid #ccc3e0;border-radius:10px;margin-top:7px}textarea{min-height:140px}button{background:#6145cf;color:white;padding:13px 18px;border:0;border-radius:10px;font:inherit;font-weight:700;cursor:pointer;margin-top:16px}small{color:#645c77}</style></head>
+<body><header><div><a href="./">← Terug naar AllBiz One</a><h1>Contact & klantenservice</h1></div></header>
+<main><div class="card"><h2>Waarmee kunnen we je helpen?</h2><p>Heb je een vraag over AllBiz One, je webshop, je account of een abonnement? Stuur ons gerust een e-mail.</p>
+<p>Ons contactadres: <a class="email" href="mailto:saelendanielle@gmail.com">saelendanielle@gmail.com</a></p>
+<form id="contactForm">
+<label for="name">Jouw naam</label><input id="name" name="name" maxlength="100" autocomplete="name" required>
+<label for="email">Jouw e-mailadres</label><input id="email" name="email" type="email" maxlength="160" autocomplete="email" required>
+<label for="topic">Onderwerp</label><select id="topic" name="topic"><option>Algemene vraag</option><option>Account of abonnement</option><option>Webshop of digitale producten</option><option>Betaling</option><option>Technisch probleem</option><option>Andere vraag</option></select>
+<label for="message">Jouw bericht</label><textarea id="message" name="message" maxlength="4000" required></textarea>
+<p><small>Wanneer je op 'Open mijn e-mailapp' klikt, wordt een e-mail voor je klaargezet. Controleer het bericht en druk zelf op Verzenden. Het formulier verstuurt niets automatisch. Deel geen wachtwoorden, betaalkaartgegevens of geheime API-sleutels.</small></p>
+<button type="submit">✉ Open mijn e-mailapp</button></form>
+</div></main>
+<script>document.getElementById('contactForm').addEventListener('submit',function(e){e.preventDefault();if(!this.reportValidity())return;const v=id=>document.getElementById(id).value.trim();const subject='AllBiz One - '+v('topic');const body='Naam: '+v('name')+'\nE-mail: '+v('email')+'\nOnderwerp: '+v('topic')+'\n\n'+v('message');window.location.href='mailto:saelendanielle@gmail.com?subject='+encodeURIComponent(subject)+'&body='+encodeURIComponent(body);});</script>
+</body></html>
