@@ -2,10 +2,36 @@
 (async()=>{'use strict';
 const $=id=>document.getElementById(id),p=new URLSearchParams(location.search);
 const order=p.get('order')||'',session=p.get('session_id')||'';
-if(p.get('provider')==='mollie'&&/^[a-f0-9-]{36}$/i.test(order)){
- $('status').textContent='Je bent terug van Mollie. De betaalbevestiging wordt beveiligd verwerkt. Betaal niet opnieuw. Je ontvangt pas toegang na bevestiging door Mollie.';
- $('details').textContent='Bestelnummer: '+order+' · Neem contact op met de verkoper als de bevestiging uitblijft.';
- return;
+if(p.get('provider')==='mollie'){
+ const token=p.get('token')||'';
+ if(!/^[a-f0-9-]{36}$/i.test(order)||!/^[A-Za-z0-9_-]{43}$/.test(token)){$('status').textContent='Ongeldige bestelreferentie.';return;}
+ history.replaceState(null,'',location.pathname+'?order='+encodeURIComponent(order)+'&provider=mollie');
+ const refresh=$('refreshDownloads');refresh.hidden=false;let attempts=0;
+ const checkMollie=async()=>{
+  refresh.disabled=true;
+  try{
+   const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-paid-download',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'mollie_buyer',order_id:order,token})});
+   const data=await response.json();
+   if(response.status===202){
+    $('status').textContent='Mollie verwerkt je betaling nog. Betaal niet opnieuw.';
+    if(attempts++<8)setTimeout(()=>{void checkMollie()},3500);
+    else $('status').textContent='Nog geen bevestiging ontvangen. Gebruik de knop om opnieuw te controleren; betaal niet opnieuw.';
+    return;
+   }
+   if(!response.ok||!data.paid)throw Error(data.error||'Betaling nog niet bevestigd');
+   $('status').textContent='✅ Betaling bevestigd. Je bestelling is geregistreerd.';
+   const details=$('details');details.replaceChildren();
+   for(const item of data.items||[]){const line=document.createElement('article');line.textContent=item.quantity+' × '+item.name+' · '+(item.kind==='digital'?'Digitale levering':'Fysieke levering');details.append(line);}
+   if(data.downloads?.length){const h=document.createElement('h2');h.textContent='📥 Jouw downloads';details.append(h);
+    for(const item of data.downloads){const line=document.createElement('p'),link=document.createElement('a');link.href=item.url;link.target='_blank';link.rel='noopener noreferrer';link.referrerPolicy='no-referrer';link.textContent='⬇ '+item.name;line.append(link);details.append(line);}
+   }
+   if((data.items||[]).some(i=>i.kind==='digital')&&!data.downloads?.length){const note=document.createElement('p');note.textContent='Het digitale bestand is nog niet beschikbaar. Betaal niet opnieuw en neem contact op met de verkoper.';details.append(note);}
+   if((data.items||[]).some(i=>i.kind==='physical')){const note=document.createElement('p');note.textContent='Verzendstatus: '+({awaiting_dispatch:'Wordt klaargemaakt',shipped:'Verzonden',delivered:'Afgeleverd'}[data.fulfillment_status]||'In behandeling');details.append(note);}
+  }catch(e){$('status').textContent='⚠️ '+(e.message||'Controle mislukt');}
+  finally{refresh.disabled=false;}
+ };
+ refresh.addEventListener('click',()=>{attempts=0;void checkMollie()});
+ await checkMollie();return;
 }
 if(!/^[a-f0-9-]{36}$/i.test(order)||!/^cs_live_[A-Za-z0-9]+$/.test(session)){$('status').textContent='Ongeldige bestelreferentie.';return;}
 const refresh=$('refreshDownloads');
