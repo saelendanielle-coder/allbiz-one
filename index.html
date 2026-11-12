@@ -383,7 +383,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 <p class="small muted">De kopie blijft op je toestel; er wordt niets naar een server verzonden. Het bestand kan bedrijfsgegevens, een contact-e-mailadres en affiliate-links bevatten. Deel het niet openbaar. Een kopie terugzetten vervangt de overeenkomstige lokale gegevens.</p>
 <p id="allbizBackupStatus" role="status" aria-live="polite" class="toast"></p>
 </div>
-<div class="card"><h2 data-tr="title">Start jouw eigen bedrijf 🚀</h2><p data-tr="intro">Van e-books en cursussen tot kleding, dropshipping en affiliate marketing. Alles komt samen in jouw webshop. Je kunt meteen starten: stappenplannen zijn optionele hulp, geen verplichte toegangspoort.</p><div class="stats"><div class="stat"><strong id="count">0</strong><span data-tr="products">Producten</span></div><div class="stat"><strong id="physicalCount">0</strong><span data-tr="physical">Fysieke producten</span></div><div class="stat"><strong id="digitalCount">0</strong><span data-tr="digital">Digitale producten</span></div></div><p class="muted" data-tr="noPay">Beheer je eigen producten en digitale bestanden onder Mijn webshop. Webshopbetalingen zijn nog niet beschikbaar zolang Stripe Connect niet is afgerond.</p><button data-goto="guides" data-tr="steps" type="button">✅ Bekijk vrijblijvend stappenplan</button> <button data-goto="import" data-tr="importBtn" type="button">🚚 Producten importeren</button> <button class="secondary" data-goto="shop" data-tr="addBtn" type="button">+ Product toevoegen</button> <button class="secondary" data-goto="shop" data-tr="shopBtn" type="button">Bekijk je webshop</button> <button class="secondary" data-goto="affiliate" data-tr="affiliateBtn" type="button">🔗 Affiliate toevoegen</button> <button class="secondary" data-goto="marketing" data-tr="adsBtn" type="button">📣 Maak advertenties</button></div><div class="card"><h2 data-tr="how">Zo werkt het</h2><p data-tr="howtext">Begin meteen met bouwen. Vink stappen pas af nadat je ze hebt uitgevoerd. Alles blijft toegankelijk.</p><p>1. Importeer producten van een leverancier of voeg zelf producten toe.<br/>2. Kies een websitethema en een gewenste domeinnaam.<br/>3. Bekijk jouw webshop en download een voorbeeldwebsite.<br/>4. Echte leveranciers-API’s, domeinen en betalingen sluiten we later aan.</p></div></section>
+<div class="card"><h2 data-tr="title">Start jouw eigen bedrijf 🚀</h2><p data-tr="intro">Van e-books en cursussen tot kleding, dropshipping en affiliate marketing. Alles komt samen in jouw webshop. Je kunt meteen starten: stappenplannen zijn optionele hulp, geen verplichte toegangspoort.</p><div class="stats"><div class="stat"><strong id="count">0</strong><span data-tr="products">Producten</span></div><div class="stat"><strong id="physicalCount">0</strong><span data-tr="physical">Fysieke producten</span></div><div class="stat"><strong id="digitalCount">0</strong><span data-tr="digital">Digitale producten</span></div></div><p class="muted" data-tr="noPay">Beheer je eigen producten en digitale bestanden onder Mijn webshop. Webshopbetalingen zijn nog niet beschikbaar zolang Mollie Connect niet is afgerond.</p><button data-goto="guides" data-tr="steps" type="button">✅ Bekijk vrijblijvend stappenplan</button> <button data-goto="import" data-tr="importBtn" type="button">🚚 Producten importeren</button> <button class="secondary" data-goto="shop" data-tr="addBtn" type="button">+ Product toevoegen</button> <button class="secondary" data-goto="shop" data-tr="shopBtn" type="button">Bekijk je webshop</button> <button class="secondary" data-goto="affiliate" data-tr="affiliateBtn" type="button">🔗 Affiliate toevoegen</button> <button class="secondary" data-goto="marketing" data-tr="adsBtn" type="button">📣 Maak advertenties</button></div><div class="card"><h2 data-tr="how">Zo werkt het</h2><p data-tr="howtext">Begin meteen met bouwen. Vink stappen pas af nadat je ze hebt uitgevoerd. Alles blijft toegankelijk.</p><p>1. Importeer producten van een leverancier of voeg zelf producten toe.<br/>2. Kies een websitethema en een gewenste domeinnaam.<br/>3. Bekijk jouw webshop en download een voorbeeldwebsite.<br/>4. Echte leveranciers-API’s, domeinen en betalingen sluiten we later aan.</p></div></section>
 <section id="products" class="panel"><div class="card"><h2>🛍️ Product toevoegen</h2><p class="muted">Kies wat je wilt verkopen.</p><button type="button" class="secondary" id="jumpToProductBackup" style="margin:8px 0 16px;width:100%">☁️ Naar automatisch producten bewaren</button><div class="switches"><label><input type="radio" name="type" value="physical" checked>📦 Fysiek product / dropshipping</label><label><input type="radio" name="type" value="digital">📥 Digitaal product</label></div><form id="productForm"><div class="fields"><div><label for="product">Naam van je product</label><input id="product" required placeholder="Bijv. Trendy hoodie"></div><div><label for="price">Verkoopprijs (€)</label><input id="price" type="number" min="0" step="0.01" required placeholder="29,99"></div></div><label for="productDescription">Beschrijving</label><textarea id="productDescription" placeholder="Vertel wat jouw product bijzonder maakt"></textarea>
 <div id="physicalFields"><div class="fields"><div><label for="cost">Inkoopprijs (€), optioneel</label><input id="cost" type="number" min="0" step="0.01" placeholder="12,00"></div><div><label for="shipping">Verzendkosten (€), optioneel</label><input id="shipping" type="number" min="0" step="0.01" placeholder="4,95"></div></div><label for="supplier">Link naar leverancier, optioneel</label><input id="supplier" type="url" placeholder="https://..." autocomplete="url"><span class="fieldhelp">Bijvoorbeeld de productlink van je dropshippingleverancier. Bestellingen worden nog niet doorgestuurd.</span><label for="stock">Voorraad of beschikbaar aantal, optioneel</label><input id="stock" type="number" min="0" step="1" placeholder="Bijv. 100"><span class="fieldhelp">Bij dropshipping is dit een handmatige inschatting, geen live leveranciersvoorraad.</span></div>
 <div id="digitalFields" class="hidden"><label for="file">Digitaal bestand (alleen lokaal voorbeeld)</label><input id="file" type="file"><span class="fieldhelp">Gebruik voor echte bestanden de privé-upload onder Mijn webshop. Beveiligde levering is voorbereid; webshopbetalingen zijn nog uitgeschakeld.</span></div>
@@ -441,38 +441,10 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <section id="shop" class="panel">
 <div class="card" id="allbizStoreMain">
 <h2>🏪 Mijn webshop en digitale producten</h2>
-<p class="muted">Beheer echte productgegevens en privé digitale bestanden met je eigen AllBiz One-account. Je productcatalogus en bestelverwerking zijn technisch voorbereid. <strong>Webshopkopers kunnen nog niet echt afrekenen</strong> totdat Stripe Connect, betaalbevestiging en levering volledig zijn gecontroleerd.</p>
+<p class="muted">Beheer echte productgegevens en privé digitale bestanden met je eigen AllBiz One-account. Je productcatalogus en bestelverwerking zijn technisch voorbereid. <strong>Webshopkopers kunnen nog niet echt afrekenen</strong> totdat Mollie Connect, betaalbevestiging en levering volledig zijn gecontroleerd.</p>
 <p class="hint">Een digitale download wordt pas aan de koper vrijgegeven nadat de server een echte betaling heeft bevestigd. Er worden nu geen betalingen gestart.</p>
 <button type="button" class="secondary" data-goto="site">🎨 Naar de website-service</button>
-<div class="shop-studio" style="margin-bottom:18px">
-<h3>💳 Stripe Connect — koppel je echte verkopersaccount</h3>
-<p class="muted">Webshopverkopers met een actief Pro- of Business-abonnement kunnen hun eigen echte Stripe-account koppelen en hun identiteit bij Stripe bevestigen. Dit is <b>niet</b> nodig om een AllBiz One-abonnement te kopen. Koppelen brengt nog geen betalingen of kosten voor jouw klanten op gang: de webshopcheckout blijft uit tot alles is getest.</p>
-<button type="button" id="sellerConnectStatus" class="secondary">🔍 Controleer Stripe Connect</button>
-<button type="button" id="sellerConnectStart">🔗 Koppel mijn echte Stripe-verkopersaccount</button>
-<p id="sellerConnectMessage" role="status" class="toast">Nog geen echte Connect-status gecontroleerd.</p>
-<script>
-/* Immediate feedback even when the deferred Supabase login module has not loaded. */
-(function(){
-  const msg=document.getElementById('sellerConnectMessage');
-  function onClick(buttonId,waitingMessage){
-    document.getElementById(buttonId)?.addEventListener('click',()=>{
-      if(!window.allbizAuth){
-        msg.textContent='⚠️ Stripe-controle is nog niet geladen. Vernieuw deze pagina, log in bij Mijn account en probeer opnieuw.';
-        return;
-      }
-      msg.textContent=waitingMessage;
-      setTimeout(()=>{
-        if(msg.textContent===waitingMessage){
-          msg.textContent='⚠️ Er komt geen antwoord op de Stripe-controle. Vernieuw de pagina en probeer opnieuw.';
-        }
-      },12000);
-    });
-  }
-  onClick('sellerConnectStatus','⏳ Echte Stripe Connect-status controleren...');
-  onClick('sellerConnectStart','⏳ Beveiligde echte Stripe-koppeling voorbereiden...');
-})();
-</script>
-</div>
+<div class="shop-studio" style="margin-bottom:18px"><p class="notice">Verkopersbetalingen worden later via Mollie Connect beschikbaar. Er is momenteel geen actieve verkoperskoppeling.</p></div>
 </div>
 <details id="allbizShopPractice" class="shop-legacy">
 <summary>🎨 Optioneel: ouder winkelontwerp en testmandje</summary>
@@ -685,7 +657,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
  <div class="card"><h3>ℹ️ Belangrijk om te weten</h3><div class="guide-note">Dit zijn praktische leerplannen, geen garantie op omzet of winst. Begin bij een kleine test, controleer de regels van de platforms en houd je inkomsten, uitgaven en verplichtingen bij. Bij trading kun je je volledige inleg verliezen. Echte trades en geldopnames verlopen alleen via een geschikte, gereguleerde broker; deze demo beheert geen geld.</div><p class="small muted">Je afgevinkte stappen worden alleen in deze browser op dit toestel opgeslagen, niet in een online account.</p></div>
 </section>
 
-<section class="panel" id="plans"><div class="card"><h2 data-tr="plansTitle">💎 Jouw abonnementen</h2><p>AllBiz One is een betaald platform met drie maandelijkse abonnementen. Stripe verwerkt echte maandelijkse betalingen. Na betaling controleert de app de abonnementsstatus automatisch.</p><button type="button" class="secondary" data-goto="account">🔐 Account maken of inloggen</button><div class="plans"><div class="plan"><h3>Starter</h3><strong>€ 10,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="starterDesc">Websitebouwer en beveiligde online publicatie, met een actief abonnement.</p><span class="subscription-pay-link" hidden aria-label="Betaling nog niet beschikbaar">Kies Starter · € 10,00/maand · betaling nog niet beschikbaar</span></div><div class="plan"><h3>Pro</h3><strong>€ 20,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="proDesc">Website, productcatalogus en privé digitale bestanden. Webshopklanten kunnen nog niet echt afrekenen.</p><span class="subscription-pay-link" hidden aria-label="Betaling nog niet beschikbaar">Kies Pro · € 20,00/maand · betaling nog niet beschikbaar</span></div><div class="plan"><h3>Business</h3><strong>€ 30,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="businessDesc">Extra marketing- en affiliate-tools. Echte trading en automatische advertentiepublicatie zijn nog niet beschikbaar.</p><span class="subscription-pay-link" hidden aria-label="Betaling nog niet beschikbaar">Kies Business · € 30,00/maand · betaling nog niet beschikbaar</span></div></div><div id="subscriptionStatus" class="hint" role="status" aria-live="polite">Log in om je echte abonnementsstatus te controleren.</div><div hidden id="sandboxSubscriptionStatus" class="hint" style="margin-top:10px" role="status" aria-live="polite">Log in om je gratis sandbox-testbetaling te controleren.</div><button type="button" id="refreshSubscription" class="secondary" style="margin-top:10px">↻ Controleer mijn abonnement</button><p class="muted"><strong>Dit is een echte maandelijkse betaling.</strong> Webshopbetalingen aan verkopers, automatische bestellingen en echte trading zijn nog niet actief. Koop geen pakket uitsluitend voor deze ontbrekende functies. De eerste volledige echte betaal- en activatiecyclus moet nog bevestigd worden.</p><p hidden data-allbiz-owner-note class="muted">Beheerder: controleer na een eerste echte betaling in Stripe en AllBiz One of het juiste abonnement automatisch geactiveerd is.</p><p class="notice">💳 Betaal rechtstreeks bij Stripe. Er is geen gratis klantenabonnement. Log na betaling opnieuw in en kies Controleer mijn abonnement. Staat de betaling niet als actief? Betaal niet opnieuw, maar neem contact op.</p></div></section>
+<section class="panel" id="plans"><div class="card"><h2 data-tr="plansTitle">💎 Jouw abonnementen</h2><p>AllBiz One is een betaald platform met drie maandelijkse abonnementen. Mollie verwerkt echte maandelijkse betalingen. Na betaling controleert de app de abonnementsstatus automatisch.</p><button type="button" class="secondary" data-goto="account">🔐 Account maken of inloggen</button><div class="plans"><div class="plan"><h3>Starter</h3><strong>€ 10,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="starterDesc">Websitebouwer en beveiligde online publicatie, met een actief abonnement.</p><button type="button" class="subscription-pay-link" data-mollie-plan="starter" hidden>Kies Starter · Mollie</button></div><div class="plan"><h3>Pro</h3><strong>€ 20,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="proDesc">Website, productcatalogus en privé digitale bestanden. Webshopklanten kunnen nog niet echt afrekenen.</p><button type="button" class="subscription-pay-link" data-mollie-plan="pro" hidden>Kies Pro · Mollie</button></div><div class="plan"><h3>Business</h3><strong>€ 30,00</strong><span class="muted" data-tr="monthly">per maand</span><p data-tr="businessDesc">Extra marketing- en affiliate-tools. Echte trading en automatische advertentiepublicatie zijn nog niet beschikbaar.</p><button type="button" class="subscription-pay-link" data-mollie-plan="business" hidden>Kies Business · Mollie</button></div></div><div id="subscriptionStatus" class="hint" role="status" aria-live="polite">Log in om je echte abonnementsstatus te controleren.</div><div hidden id="sandboxSubscriptionStatus" class="hint" style="margin-top:10px" role="status" aria-live="polite">Log in om je gratis sandbox-testbetaling te controleren.</div><button type="button" id="refreshSubscription" class="secondary" style="margin-top:10px">↻ Controleer mijn abonnement</button><p class="muted"><strong>Dit is een echte maandelijkse betaling.</strong> Webshopbetalingen aan verkopers, automatische bestellingen en echte trading zijn nog niet actief. Koop geen pakket uitsluitend voor deze ontbrekende functies. De eerste volledige echte betaal- en activatiecyclus moet nog bevestigd worden.</p><p hidden data-allbiz-owner-note class="muted">Beheerder: controleer na een eerste echte betaling in Stripe en AllBiz One of het juiste abonnement automatisch geactiveerd is.</p><p class="notice">💳 Betaal rechtstreeks bij Mollie. Er is geen gratis klantenabonnement. Log na betaling opnieuw in en kies Controleer mijn abonnement. Staat de betaling niet als actief? Betaal niet opnieuw, maar neem contact op.</p></div></section>
  <section id="radar" class="panel"><div class="card"><h2>🔥 Winnende-productradar</h2><p>Ontdek productideeën en onderzoek of ze populair zijn op TikTok, Google Trends en bij leveranciers.</p><div class="notice"><b>Geen live verkoopdata:</b> deze versie toont onderzoeksideeën, geen bewezen winnaars of actuele TikTok-ranglijst. Een echte live radar vereist databronnen/API-koppelingen.</div><label for="radarCategory">Categorie</label><select id="radarCategory"><option value="all">Alle categorieën</option><option value="beauty">Beauty</option><option value="home">Huis & keuken</option><option value="pets">Huisdieren</option><option value="tech">Gadgets</option><option value="fitness">Fitness</option></select><div id="radarList" class="products"></div><p class="muted">Controleer vraag, concurrentie, marges, levertijd, productveiligheid en retourregels voordat je iets aanbiedt.</p></div></section>
 <section id="builder" class="panel"><div class="card"><h2>✨ Website-assistent</h2><p>Beschrijf jouw bedrijf. Je krijgt gratis een voorstel voor een naam, websiteteksten en een thema. <b>Je bestaande website blijft bewaard:</b> jij kiest of je het voorstel wilt toepassen.</p><label for="builderPrompt">Wat wil je maken?</label><textarea id="builderPrompt" maxlength="500" rows="4" placeholder="Bijvoorbeeld: Ik wil een luxe webshop voor sieraden, met een korte pakkende tekst."></textarea><p class="fieldhelp">Je opdracht blijft tijdelijk in dit browsertabblad bewaard. Dit is een lokale hulp, geen betaalde AI.</p><button id="builderMake" type="button">✨ Stel mijn website samen</button><p id="websiteBuilderStatus" class="toast" role="status"></p><div id="builderResult" class="affiliate-output" aria-live="polite">Beschrijf je bedrijf om te beginnen.</div><button type="button" data-goto="site" class="secondary">🎨 Bekijk mijn website-instellingen</button> <button type="button" id="builderAdPlan" class="secondary">📣 Maak ook mijn advertentieplan</button><p class="muted">Deze lokale assistent gebruikt eenvoudige tekstregels, geen echte AI. Voor een assistent die vrijwel elke opdracht begrijpt en uitvoert, is een beveiligde AI-koppeling en een backend nodig.</p></div></section>
 
@@ -1667,7 +1639,7 @@ el('clearCart').addEventListener('click',()=>{
 /* Lokale klantenhulp: geeft uitleg, geen AI of privégegevens doorsturen. */
 const helpTopics=[
 {keys:['abonnement','stripe','betaling','betalen','starter','pro','business','factuur','betaald'],name:'Abonnementen',tab:'plans',reply:'Log in en open Abonnementen. Kies Starter, Pro of Business. Betaal alleen via een officieel ingeschakelde betaalpagina wanneer die beschikbaar is. Controleer na betaling bij Abonnementen of de toegang actief is. Staat die niet op actief? Betaal niet opnieuw voordat dit is nagekeken.'},
-{keys:['webshop','winkel','winkelmand','checkout','bestelling','verkoper','connect'],name:'Webshop',tab:'shop',reply:'Open Mijn webshop om producten, collecties en je winkelontwerp te bekijken. De checkout is nog een simulatie; klanten kunnen nog niet echt winkelen of betalen. Stripe Connect is alleen een test voor mogelijke toekomstige webshopverkopers.'},
+{keys:['webshop','winkel','winkelmand','checkout','bestelling','verkoper','connect'],name:'Webshop',tab:'shop',reply:'Open Mijn webshop om producten, collecties en je winkelontwerp te bekijken. De checkout is nog een simulatie; klanten kunnen nog niet echt winkelen of betalen. Mollie Connect is alleen een test voor mogelijke toekomstige webshopverkopers.'},
 {keys:['website','domein','publiceren','online','hosting','bedrijfswebsite','webservice'],name:'Website',tab:'site',reply:'Ga naar Website & domein, vul je bedrijfsgegevens in, kies een thema en bewaar je ontwerp. Je kunt een websitevoorbeeld downloaden. Een gewenste domeinnaam is niet automatisch geregistreerd. Online publiceren is een aparte stap die een echt abonnement en jouw toestemming vereist.'},
 {keys:['youtube','video','shorts','filmpje'],name:'YouTube',tab:'video',reply:'Ga naar YouTube-video’s. Kies teksten, foto’s en eventueel audio, bekijk het voorbeeld en download je video. Je moet de video nog zelf uploaden naar YouTube. Gebruik alleen materiaal waarop je rechten hebt.'},
 {keys:['marketing','socialmedia','sociale media','instagram','facebook','tiktok','linkedin','bericht','posts'],name:'Digitale marketing',tab:'marketing',reply:'Open Digitale marketing om een concept voor een socialmedia-bericht te maken. Voor het maken of bewaren van berichten heb je Starter of hoger nodig. Berichten worden niet automatisch geplaatst of als advertentie uitgegeven.'},
@@ -2332,26 +2304,26 @@ try {
       body:JSON.stringify({action})
     });
     const data=await res.json().catch(()=>({}));
-    if(!res.ok||data.error)throw Error(data.error||'Stripe Connect is nog niet beschikbaar.');
+    if(!res.ok||data.error)throw Error(data.error||'Mollie Connect is nog niet beschikbaar.');
     return data;
   }
   document.getElementById('sellerConnectStatus').addEventListener('click',async e=>{
     const btn=e.currentTarget;btn.disabled=true;
-    connectMsg.textContent='Live Stripe Connect-status controleren...';
+    connectMsg.textContent='Live Mollie Connect-status controleren...';
     try{
       const data=await callConnectLive('status');
-      connectMsg.textContent=data.connected?'✅ Je echte Stripe-verkopersaccount is verbonden. Webshopbetalingen blijven voorlopig uit.':data.configured?(data.hasAccount?'🔒 Stripe-account gevonden. De verificatie is nog niet afgerond.':'🔒 Stripe Connect staat klaar. Klik op Koppel om je verificatie te starten.'):'🔒 De geheime live Stripe-sleutel ontbreekt nog in de serverinstellingen. Er wordt niets betaald.';
+      connectMsg.textContent=data.connected?'✅ Je echte Stripe-verkopersaccount is verbonden. Webshopbetalingen blijven voorlopig uit.':data.configured?(data.hasAccount?'🔒 Mollie-account gevonden. De verificatie is nog niet afgerond.':'🔒 Mollie Connect staat klaar. Klik op Koppel om je verificatie te starten.'):'🔒 De geheime live Mollie-sleutel ontbreekt nog in de serverinstellingen. Er wordt niets betaald.';
     }catch(err){connectMsg.textContent=String(err.message||'Controleren mislukt.')}
     finally{btn.disabled=false}
   });
   document.getElementById('sellerConnectStart').addEventListener('click',async e=>{
     const btn=e.currentTarget;btn.disabled=true;
-    connectMsg.textContent='Beveiligde Stripe-onboarding voorbereiden...';
+    connectMsg.textContent='Beveiligde Mollie-onboarding voorbereiden...';
     try{
       const data=await callConnectLive('onboard');
       if(data.connected){connectMsg.textContent='✅ Je echte Stripe-verkopersaccount is al gekoppeld.';return}
       if(data.onboardingUrl){window.location.assign(data.onboardingUrl);return}
-      connectMsg.textContent='🔒 De server heeft een veilige live Stripe-sleutel nodig. Webshopbetalingen blijven uit.';
+      connectMsg.textContent='🔒 De server heeft een veilige live Mollie-sleutel nodig. Webshopbetalingen blijven uit.';
     }catch(err){connectMsg.textContent=String(err.message||'De echte verkoperskoppeling kon niet starten.')}
     finally{btn.disabled=false}
   });
@@ -2827,21 +2799,20 @@ try {
     }
     showSubscriptionMessage('Je abonnementsstatus wordt gecontroleerd...');
     try {
-      const { data, error } = await client.from('account_subscriptions')
-        .select('plan,status,current_period_end,updated_at')
+      const { data, error } = await client.from('allbiz_mollie_subscriptions')
+        .select('plan,status,next_payment_at,updated_at')
         .eq('user_id',user.id)
         .order('updated_at',{ascending:false})
         .limit(20);
       if (requestId !== subscriptionRequestId) return;
       if (error) throw error;
       const rows = data || [];
-      const isActive = row => ['active','trialing'].includes(row.status) &&
-        (!row.current_period_end || new Date(row.current_period_end).getTime() > Date.now());
+      const isActive = row => row.status === 'active';
       const active = rows.filter(isActive)
         .sort((a,b) => ({starter:1,pro:2,business:3}[b.plan]||0)-({starter:1,pro:2,business:3}[a.plan]||0))[0];
       window.allbizApplyAccess?.('live',active?.plan||null);
       activePaidPlan=active?.plan||null;
-      document.querySelectorAll('#plans a.subscription-pay-link').forEach(a=>{a.hidden=!currentCheckoutUser||!!activePaidPlan;});
+      document.querySelectorAll('#plans button.subscription-pay-link').forEach(a=>{a.hidden=!currentCheckoutUser||!!activePaidPlan;});
       const displayPlan = active && planLabels[active.plan];
       if (displayPlan) {
         showSubscriptionMessage('Je abonnement: ' + displayPlan + ' — actief. Je betaling is in het accountsysteem geregistreerd.');
@@ -2868,7 +2839,7 @@ try {
     target.className = 'notice';
     target.setAttribute('role','status');
     target.setAttribute('aria-live','polite');
-    target.textContent = '💳 Je komt terug van Stripe. We controleren of je abonnement al is geactiveerd...';
+    target.textContent = '💳 Je komt terug van Mollie. We controleren of je abonnement al is geactiveerd...';
     const accountCard = document.querySelector('#account .account-card');
     if (accountCard) accountCard.prepend(target);
     let attempts = 0;
@@ -2893,7 +2864,7 @@ try {
       }
       if (attempts < delays.length) {
         const wait = delays[attempts++];
-        target.textContent = '⏳ We wachten op de bevestiging van Stripe. Betaal niet opnieuw; de controle gebeurt automatisch.';
+        target.textContent = '⏳ We wachten op de bevestiging van Mollie. Betaal niet opnieuw; de controle gebeurt automatisch.';
         window.setTimeout(verify,wait);
       } else {
         target.textContent = '⚠️ Je betaling is hier nog niet bevestigd. Betaal niet opnieuw. Klik op Controleer mijn abonnement of neem contact op met de ondersteuning.';
@@ -2906,7 +2877,7 @@ try {
     if (error) { showSubscriptionMessage('Log eerst opnieuw in om je abonnement te controleren.'); return; }
     await refreshSubscriptionStatus(data.user);
   });
-  // Automatically recheck subscriptions when returning from Stripe Checkout.
+  // Automatically recheck subscriptions when returning from Mollie Checkout.
   // The server-side webhook remains the only source of paid access.
   let lastReturnCheck = Date.now();
   let checkingAfterReturn = false;
@@ -2943,7 +2914,7 @@ try {
     const details=document.createElement('section');
     details.id='aboOwnerDetails';
     details.style.marginTop='20px';
-    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten & betaalbeheer</h3><p id="aboRevenueInfo" class="muted">Nog geen gekoppelde omzetrapportage. Testbetalingen tellen niet mee.</p><p class="small muted">Controleer in Stripe de echte betalingen, terugbetalingen en kosten. In AllBiz One kun je abonnementen voorlopig alleen bekijken, niet wijzigen.</p><div class="import-buttons"><a href="https://dashboard.stripe.com/payments" target="_blank" rel="noopener noreferrer">🔒 Bekijk echte betalingen in Stripe</a><a href="https://dashboard.stripe.com/payouts" target="_blank" rel="noopener noreferrer">🏦 Bekijk uitbetalingen in Stripe</a></div><p class="small muted">Stripe betaalt uit volgens het schema en de voorwaarden van jouw Stripe-account. De transactiekosten en eventuele terugbetalingen worden niet als inkomsten in dit overzicht berekend.</p>';
+    details.innerHTML='<h3>👥 Klanten & abonnementen</h3><p class="small muted">Alleen voor de eigenaar. Echte abonnementen en testabonnementen worden apart weergegeven.</p><p id="aboDetailsStatus" role="status">Klantenlijst laden…</p><div id="aboCustomerList"></div><div class="import-buttons"><button type="button" class="secondary" id="aboPreviousCustomers" disabled>← Vorige</button><button type="button" class="secondary" id="aboNextCustomers" disabled>Volgende →</button></div><h3>💶 Inkomsten & betaalbeheer</h3><p id="aboRevenueInfo" class="muted">Nog geen gekoppelde omzetrapportage. Testbetalingen tellen niet mee.</p><p class="small muted">Controleer in Stripe de echte betalingen, terugbetalingen en kosten. In AllBiz One kun je abonnementen voorlopig alleen bekijken, niet wijzigen.</p><div class="import-buttons"><a href="https://my.mollie.com/dashboard" target="_blank" rel="noopener noreferrer">🔒 Bekijk echte betalingen in Stripe</a><a href="https://my.mollie.com/dashboard" target="_blank" rel="noopener noreferrer">🏦 Bekijk uitbetalingen in Stripe</a></div><p class="small muted">Mollie betaalt uit volgens het schema en de voorwaarden van jouw Mollie-account. De transactiekosten en eventuele terugbetalingen worden niet als inkomsten in dit overzicht berekend.</p>';
     summaryHost.append(details);
   }
   let ownerClientFilter='all';
@@ -3136,14 +3107,7 @@ try {
       if(ownerAccessStatus)ownerAccessStatus.textContent='Je bent niet ingelogd op dit toestel. Tik op Naar inloggen met je bestaande testaccount.';
     }
     currentCheckoutUser=user||null;
-    document.querySelectorAll('#plans a.subscription-pay-link').forEach(a => {
-      const original=a.dataset.baseHref||a.getAttribute('href');
-      a.dataset.baseHref=original;
-      a.hidden=!user;
-      a.href=user?original+'?client_reference_id='+encodeURIComponent(user.id):'#account';
-      a.target=user?'_blank':'_self';
-      a.rel='noopener noreferrer';
-    });
+    document.querySelectorAll('#plans button.subscription-pay-link').forEach(a => {a.hidden=!user;});
     Promise.allSettled([refreshSubscriptionStatus(user)]).then(()=>{
       window.allbizAccessChecking=false;
       window.allbizNavigationReady=true;
@@ -3151,14 +3115,20 @@ try {
       window.allbizFinishAccessCheck?.();
     });
   };
-  document.querySelectorAll('#plans a.subscription-pay-link').forEach(a=>a.addEventListener('click',ev=>{
-    if(!currentCheckoutUser||a.hidden||activePaidPlan){
-      ev.preventDefault();
-      status(activePaidPlan?'Je hebt al een actief abonnement. Betaal niet opnieuw.':'Log eerst in bij Mijn account.');
-      document.querySelector('[data-tab="account"]')?.click();
-      return;
-    }
-    if(!confirm('Dit is een ECHTE MAANDELIJKSE betaling, geen test. Webshopbetalingen voor jouw klanten en echte trading zijn nog niet beschikbaar. Wil je echt doorgaan naar Stripe?'))ev.preventDefault();
+  document.querySelectorAll('#plans button.subscription-pay-link').forEach(button=>button.addEventListener('click',async()=>{
+    if(!currentCheckoutUser||activePaidPlan){status('Log in of controleer je bestaande abonnement.');return;}
+    const plan=button.dataset.molliePlan;
+    if(!confirm('Dit is een ECHT abonnement van €'+({starter:10,pro:20,business:30}[plan])+' per maand via Mollie. Doorgaan naar betalen?'))return;
+    button.disabled=true;
+    try{
+      const {data:{session}}=await client.auth.getSession();
+      if(!session?.access_token)throw Error('Log eerst opnieuw in.');
+      const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-mollie-checkout',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+session.access_token,'apikey':session.access_token?client.supabaseKey||'':''},body:JSON.stringify({plan})});
+      const result=await response.json();
+      if(!response.ok||!result.checkout_url)throw Error(result.error||'Checkout niet beschikbaar.');
+      window.location.assign(result.checkout_url);
+    }catch(error){status('Mollie: '+(error.message||'Probeer later opnieuw.'));}
+    finally{button.disabled=false;}
   }));
   const {data: sessionData, error: sessionError} = await client.auth.getSession();
   renderUser(sessionError ? null : (sessionData?.session?.user ?? null));
