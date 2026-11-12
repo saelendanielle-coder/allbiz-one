@@ -835,7 +835,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons">
 <button type="button" id="allbizCheckOwnerAccess">🔄 Controleer mijn beheerdersrechten</button>
 
-<button type="button" id="allbizOwnerSignIn" class="secondary">🔐 Naar inloggen</button>
+<button type="button" id="allbizOwnerSignIn" class="secondary" onclick="var form=document.getElementById('authForm');if(form){form.scrollIntoView({behavior:'smooth',block:'center'});setTimeout(function(){document.getElementById('authEmail')?.focus({preventScroll:true})},350)}else{alert('Inlogformulier niet gevonden. Vernieuw de pagina.')}">🔐 Naar inloggen</button>
 </div>
 <div id="allbizOwnerDashboard" hidden style="margin:12px 0 0;padding-top:14px;border-top:1px solid #ddd3f1">
 <p class="small muted">Dit is jouw beveiligde overzicht. De aantallen komen van de server. Je testaccount telt ook mee bij Accounts. Omzetrapportage is nog niet aangesloten.</p>
