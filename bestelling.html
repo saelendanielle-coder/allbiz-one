@@ -2,6 +2,11 @@
 (async()=>{'use strict';
 const $=id=>document.getElementById(id),p=new URLSearchParams(location.search);
 const order=p.get('order')||'',session=p.get('session_id')||'';
+if(p.get('provider')==='mollie'&&/^[a-f0-9-]{36}$/i.test(order)){
+ $('status').textContent='Je bent terug van Mollie. De betaalbevestiging wordt beveiligd verwerkt. Betaal niet opnieuw. Je ontvangt pas toegang na bevestiging door Mollie.';
+ $('details').textContent='Bestelnummer: '+order+' · Neem contact op met de verkoper als de bevestiging uitblijft.';
+ return;
+}
 if(!/^[a-f0-9-]{36}$/i.test(order)||!/^cs_live_[A-Za-z0-9]+$/.test(session)){$('status').textContent='Ongeldige bestelreferentie.';return;}
 const refresh=$('refreshDownloads');
 let pendingAttempts=0;
