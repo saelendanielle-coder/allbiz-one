@@ -2810,12 +2810,15 @@ try {
       const isActive = row => row.status === 'active';
       const active = rows.filter(isActive)
         .sort((a,b) => ({starter:1,pro:2,business:3}[b.plan]||0)-({starter:1,pro:2,business:3}[a.plan]||0))[0];
+      const pendingCheckout = rows.some(row => ['awaiting_first_payment','pending'].includes(row.status));
       window.allbizApplyAccess?.('live',active?.plan||null);
       activePaidPlan=active?.plan||null;
-      document.querySelectorAll('#plans button.subscription-pay-link').forEach(a=>{a.hidden=!currentCheckoutUser||!!activePaidPlan;});
+      document.querySelectorAll('#plans button.subscription-pay-link').forEach(a=>{a.hidden=!currentCheckoutUser||!!activePaidPlan||pendingCheckout;});
       const displayPlan = active && planLabels[active.plan];
       if (displayPlan) {
         showSubscriptionMessage('Je abonnement: ' + displayPlan + ' — actief. Je betaling is in het accountsysteem geregistreerd.');
+      } else if (pendingCheckout) {
+        showSubscriptionMessage('Er staat al een Mollie-betaling open. Rond die af of contacteer ondersteuning; start geen tweede betaling.');
       } else if (rows.length) {
         showSubscriptionMessage('Er is momenteel geen actief abonnement. Laatste betaalstatus: ' + rows[0].status + '.');
       } else {
