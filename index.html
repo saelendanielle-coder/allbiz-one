@@ -3829,6 +3829,31 @@ setTimeout(function(){
   const {data,error}=await client.auth.getSession();
   if(error)throw error;
   set(data?.session?.user||null);
+  const checkButton=document.getElementById('allbizCheckOwnerAccess');
+  const ownerBox=document.getElementById('allbizOwnerDashboard');
+  const ownerSignIn=document.getElementById('allbizOwnerSignIn');
+  let checking=false;
+  const verifyOwner=async()=>{
+   if(checking)return;
+   checking=true;
+   if(owner)owner.textContent='Beheerdersrechten veilig controleren…';
+   try{
+    const {data:verified,error:verifyError}=await client.auth.getUser();
+    if(verifyError)throw verifyError;
+    const verifiedUser=verified?.user;
+    set(verifiedUser||null);
+    const isOwner=verifiedUser?.app_metadata?.allbiz_role==='owner';
+    if(ownerBox)ownerBox.hidden=!isOwner;
+    window.allbizOwnerVerified=isOwner;
+    if(ownerSignIn)ownerSignIn.hidden=!!verifiedUser;
+    if(owner)owner.textContent=isOwner?'✅ Beheerdersrechten bevestigd. Je bent eigenaar van AllBiz One.':verifiedUser?'Je bent ingelogd, maar dit account heeft geen beheerdersrechten.':'Je bent niet ingelogd. Gebruik Naar inloggen.';
+    if(isOwner&&checkButton)checkButton.hidden=true;
+   }catch(e){if(owner)owner.textContent='Beheerderscontrole mislukt: '+String(e?.message||'verbindingsfout')}
+   finally{checking=false}
+  };
+  checkButton?.addEventListener('click',()=>{void verifyOwner()});
+  if(data?.session?.user)void verifyOwner();
+
   client.auth.onAuthStateChange((_event,session)=>set(session?.user||null));
   window.addEventListener('pageshow',async()=>{const {data}=await client.auth.getSession();set(data?.session?.user||null)});
  }catch(e){failure()}
