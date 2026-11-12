@@ -837,6 +837,7 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 
 <a id="allbizOwnerSignIn" class="secondary" href="./inloggen.html" style="display:inline-flex;align-items:center;justify-content:center;min-height:48px;padding:12px 18px;border-radius:12px;background:#eee8fc;color:#3b247e;font-weight:700;text-decoration:none">🔐 Naar inloggen</a>
 </div>
+<div id="allbizMollieConnectPanel" style="margin:16px 0;padding:16px;border:1px solid #d9d0f4;border-radius:14px;background:#faf8ff"><h3>💳 Mollie verbinden met mijn webshop</h3><p>Verbind je eigen Mollie-account veilig. Je geeft zelf toestemming bij Mollie; er wordt geen betaling uitgevoerd.</p><button type="button" id="allbizMollieConnectStart" style="padding:13px 18px;background:#5840b6;color:#fff;border:0;border-radius:10px;font-weight:700">Mollie-account verbinden</button><p id="allbizMollieConnectMessage" role="status" aria-live="polite"></p></div>
 <div id="allbizOwnerDashboard" hidden style="margin:12px 0 0;padding-top:14px;border-top:1px solid #ddd3f1">
 <p class="small muted">Dit is jouw beveiligde overzicht. De aantallen komen van de server. Je testaccount telt ook mee bij Accounts. Omzetrapportage is nog niet aangesloten.</p>
 </div>
@@ -3860,6 +3861,30 @@ setTimeout(function(){
   window.addEventListener('pageshow',async()=>{const {data}=await client.auth.getSession();set(data?.session?.user||null)});
  }catch(e){failure()}
 })();
+</script>
+<script type="module" id="allbiz-mollie-connect-ui">
+const btn=document.getElementById('allbizMollieConnectStart'),msg=document.getElementById('allbizMollieConnectMessage');
+btn?.addEventListener('click',async()=>{
+ btn.disabled=true;msg.textContent='Beveiligde verbinding voorbereiden…';
+ try{
+  let auth=window.allbizAuth;
+  if(!auth){
+   const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').catch(()=>import('https://esm.sh/@supabase/supabase-js@2'));
+   const client=createClient('https://woaifabvfqnnunxmhpkc.supabase.co',"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYWlmYWJ2ZnFubnVueG1ocGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4Njk3MzMsImV4cCI6MjEwODQ0NTczM30.uDYHF8yKt48Fc6nVrgPpgy_TiizUFM6tAsVRc2dCT10",{auth:{persistSession:true,autoRefreshToken:true,storageKey:'sb-woaifabvfqnnunxmhpkc-auth-token'}});
+   auth=client.auth;
+  }
+  const {data,error}=await auth.getSession();
+  if(error)throw error;
+  if(!data?.session?.access_token){msg.textContent='Je bent niet ingelogd. Open eerst de aparte inlogpagina.';return}
+  const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-mollie-authorize',{method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+data.session.access_token},body:'{}'});
+  const result=await response.json();
+  if(!response.ok||!result.authorization_enabled||!result.authorization_url)throw Error(result.error||'Mollie is nog niet klaar voor koppeling.');
+  const target=new URL(result.authorization_url);
+  if(target.origin!=='https://my.mollie.com')throw Error('Ongeldige Mollie-link.');
+  location.assign(target.href);
+ }catch(e){msg.textContent='Koppeling niet gestart: '+String(e?.message||'onbekende fout')}
+ finally{btn.disabled=false}
+});
 </script>
 </body>
 </html>
