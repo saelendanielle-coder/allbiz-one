@@ -3807,5 +3807,32 @@ setTimeout(function(){
  }
 },9000);
 </script>
+<script type="module" id="allbiz-auth-status-recovery">
+(async()=>{
+ const badge=document.getElementById('allbizHeaderAuthStatus');
+ const owner=document.getElementById('allbizOwnerAccessStatus');
+ const welcome=document.getElementById('allbizCustomerWelcome');
+ const signIn=document.querySelector('.header-account-link');
+ const set=(user)=>{
+  if(badge){badge.textContent=user?'✅ Ingelogd: '+(user.email||'mijn account'):'🔒 Niet ingelogd';badge.style.background=user?'#e4f8ec':'#fff';badge.style.color=user?'#125c32':'#392279'}
+  if(signIn)signIn.textContent=user?'👤 Mijn account':'🔐 Account maken / Inloggen';
+  if(welcome)welcome.textContent=user?'✅ Ingelogd met '+(user.email||'jouw account'):'Log in bij Mijn account om je eigen projecten te openen.';
+  if(owner&&owner.textContent.includes('gecontroleerd'))owner.textContent=user?'Ingelogd. Controleer hieronder je beheerdersrechten.':'Niet ingelogd. Gebruik de knop Naar inloggen.';
+ };
+ const failure=()=>{
+  if(badge)badge.textContent='⚠️ Accountstatus niet beschikbaar';
+  if(owner&&owner.textContent.includes('gecontroleerd'))owner.textContent='De inlogdienst reageert niet. Open de aparte inlogpagina.';
+ };
+ try{
+  const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm').catch(()=>import('https://esm.sh/@supabase/supabase-js@2'));
+  const client=createClient('https://woaifabvfqnnunxmhpkc.supabase.co',"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYWlmYWJ2ZnFubnVueG1ocGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4Njk3MzMsImV4cCI6MjEwODQ0NTczM30.uDYHF8yKt48Fc6nVrgPpgy_TiizUFM6tAsVRc2dCT10",{auth:{persistSession:true,autoRefreshToken:true,detectSessionInUrl:true,storageKey:'sb-woaifabvfqnnunxmhpkc-auth-token'}});
+  const {data,error}=await client.auth.getSession();
+  if(error)throw error;
+  set(data?.session?.user||null);
+  client.auth.onAuthStateChange((_event,session)=>set(session?.user||null));
+  window.addEventListener('pageshow',async()=>{const {data}=await client.auth.getSession();set(data?.session?.user||null)});
+ }catch(e){failure()}
+})();
+</script>
 </body>
 </html>
