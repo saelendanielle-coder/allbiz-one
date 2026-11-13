@@ -84,6 +84,33 @@
     el('p','Voor echte handel moeten we nog een toegelaten broker en een beveiligde koppeling toevoegen, transacties afzonderlijk testen en de geldende regels controleren. Je kunt hier niet storten, kopen, verkopen of opnemen.','small muted'));
   trading.querySelector('.card')?.after(trade);
 
+  // Tastytrade: authenticated read-only connection check; never submits orders.
+  const tasty=el('section',undefined,'abo-tools');tasty.id='aboTastytradeConnection';
+  tasty.append(el('h3','🔗 Tastytrade verbinden'),
+    el('p','Controleer de bestaande brokerverbinding. Alleen rekeninggegevens lezen; geen orders, stortingen of opnames.','muted'));
+  const tastyStatus=el('div','Nog niet gecontroleerd. Live trading is uitgeschakeld.','abo-output');
+  tastyStatus.setAttribute('role','status');
+  const tastyActions=el('div',undefined,'abo-actions');
+  const tastyCheck=button('🔍 Controleer Tastytrade-verbinding',async()=>{
+    tastyCheck.disabled=true;tastyStatus.textContent='Verbinding controleren…';
+    try{
+      const client=window.allbizClient;
+      if(!client?.auth){tastyStatus.textContent='Log eerst in bij Mijn account en probeer opnieuw.';return;}
+      const {data,error}=await client.auth.getSession();
+      if(error||!data?.session?.access_token){tastyStatus.textContent='Je bent niet ingelogd. Ga naar Mijn account en log in.';return;}
+      const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-tastytrade-read-check',{
+        method:'POST',headers:{'Authorization':'Bearer '+data.session.access_token,'Content-Type':'application/json'},body:'{}'
+      });
+      const result=await response.json().catch(()=>({status:'invalid_response'}));
+      const names={account_read_success:'✅ Tastytrade-rekeninggegevens zijn bereikbaar. Alleen-lezen werkt.',connection_not_found:'Geen Tastytrade-verbinding gevonden voor dit ingelogde account.',refresh_failed:'Tastytrade heeft het vernieuwen van de verbinding geweigerd.',account_read_failed:'Verbinding bestaat, maar rekeninggegevens konden niet worden gelezen.',refresh_credentials_missing:'De bestaande brokergegevens zijn onvolledig.',connection_test_failed:'De verbindingstest is mislukt. Controleer de functie-logboeken.',invalid_session:'Je sessie is verlopen. Log opnieuw in.'};
+      tastyStatus.textContent=(names[result.status]||('Testresultaat: '+String(result.status||response.status)))+'\nLive trading blijft uitgeschakeld.';
+    }catch{tastyStatus.textContent='Netwerkfout bij de verbindingstest. Probeer later opnieuw.';}
+    finally{tastyCheck.disabled=false;}
+  });
+  tastyActions.append(tastyCheck);
+  tasty.append(tastyActions,tastyStatus);
+  trade.after(tasty);
+
   // Affiliate: campagnevoorstellen met expliciete reclamemelding en linkcontrole.
   const aff=el('section',undefined,'abo-tools');aff.id='aboAffiliateCampaign';
   aff.append(el('h3','📣 Affiliatecampagne maken'),
