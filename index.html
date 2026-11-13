@@ -2801,14 +2801,21 @@ try {
     }
     showSubscriptionMessage('Je abonnementsstatus wordt gecontroleerd...');
     try {
-      const { data, error } = await client.from('allbiz_mollie_subscriptions')
-        .select('plan,status,next_payment_at,updated_at')
-        .eq('user_id',user.id)
-        .order('updated_at',{ascending:false})
-        .limit(20);
+      // Read subscription access from the authenticated server endpoint.
+      // The service role stays on the server and is never exposed to the browser.
+      const { data: sessionData, error: sessionError } = await client.auth.getSession();
+      if (sessionError || !sessionData?.session?.access_token) throw Error('Login required');
+      const response = await fetch(SUPABASE_URL + '/functions/v1/allbiz-mollie-status', {
+        headers: {
+          Authorization: 'Bearer ' + sessionData.session.access_token,
+          apikey: SUPABASE_ANON_KEY
+        },
+        cache: 'no-store'
+      });
+      const result = await response.json();
       if (requestId !== subscriptionRequestId) return;
-      if (error) throw error;
-      const rows = data || [];
+      if (!response.ok || !Array.isArray(result.subscriptions)) throw Error(result.error || 'Subscription status unavailable');
+      const rows = result.subscriptions;
       const isActive = row => row.status === 'active';
       const active = rows.filter(isActive)
         .sort((a,b) => ({starter:1,pro:2,business:3}[b.plan]||0)-({starter:1,pro:2,business:3}[a.plan]||0))[0];
