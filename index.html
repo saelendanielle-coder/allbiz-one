@@ -2880,9 +2880,24 @@ try {
     window.setTimeout(verify,750);
   }
   $('refreshSubscription').addEventListener('click', async () => {
-    const { data, error } = await client.auth.getUser();
-    if (error) { showSubscriptionMessage('Log eerst opnieuw in om je abonnement te controleren.'); return; }
-    await refreshSubscriptionStatus(data.user);
+    const button = $('refreshSubscription');
+    button.disabled = true;
+    showSubscriptionMessage('⏳ Je inlogsessie en abonnement worden gecontroleerd...');
+    try {
+      const { data, error } = await Promise.race([
+        client.auth.getUser(),
+        new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 12000))
+      ]);
+      if (error || !data?.user) {
+        showSubscriptionMessage('Je inlogsessie is niet meer geldig. Open Mijn account en log opnieuw in met je bestaande account.');
+        return;
+      }
+      await refreshSubscriptionStatus(data.user);
+    } catch (error) {
+      showSubscriptionMessage('De controle reageert niet. Controleer je internetverbinding en probeer opnieuw. Betaal niet opnieuw.');
+    } finally {
+      button.disabled = false;
+    }
   });
   // Automatically recheck subscriptions when returning from Mollie Checkout.
   // The server-side webhook remains the only source of paid access.
