@@ -2828,10 +2828,12 @@ try {
       }
       return active?.plan || null;
     } catch (error) {
-      if (requestId === subscriptionRequestId) {
-        showSubscriptionMessage('Je abonnementsstatus kan momenteel niet worden opgehaald. Probeer opnieuw; betaal niet om dit op te lossen.');
-      }
+      // Een verouderd verzoek mag een nieuwere, geldige sessie niet overschrijven.
+      if (requestId !== subscriptionRequestId) return null;
+      activePaidPlan = null;
       window.allbizApplyAccess?.('live',null);
+      document.querySelectorAll('#plans button.subscription-pay-link').forEach(a=>{a.hidden=!currentCheckoutUser;});
+      showSubscriptionMessage('Je abonnementsstatus kan momenteel niet worden opgehaald. Probeer opnieuw; betaal niet om dit op te lossen.');
       console.error('AllBiz One subscription lookup:', error);
       return null;
     }
