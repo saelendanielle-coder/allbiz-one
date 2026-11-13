@@ -2808,7 +2808,7 @@ try {
       const response = await fetch(SUPABASE_URL + '/functions/v1/allbiz-mollie-status', {
         headers: {
           Authorization: 'Bearer ' + sessionData.session.access_token,
-          apikey: SUPABASE_ANON_KEY
+          apikey: SUPABASE_PUBLIC_KEY
         },
         cache: 'no-store'
       });
