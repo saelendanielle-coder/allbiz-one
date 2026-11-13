@@ -3150,8 +3150,15 @@ try {
   const {data: sessionData, error: sessionError} = await client.auth.getSession();
   renderUser(sessionError ? null : (sessionData?.session?.user ?? null));
   status(sessionError ? 'Je vorige sessie kon niet hersteld worden. Probeer opnieuw in te loggen.' : '');
+  let lastRenderedAuthUserId = undefined;
   client.auth.onAuthStateChange((event, session) => {
-    renderUser(session?.user ?? null);
+    const nextUser = session?.user ?? null;
+    const nextId = nextUser?.id ?? null;
+    // TOKEN_REFRESHED mag de lopende abonnementcontrole niet opnieuw resetten.
+    if (lastRenderedAuthUserId !== nextId || event === 'SIGNED_IN' || event === 'SIGNED_OUT' || event === 'INITIAL_SESSION') {
+      lastRenderedAuthUserId = nextId;
+      renderUser(nextUser);
+    }
     // Voorkom dat een oud herstelformulier zichtbaar blijft na een sessiewissel.
     if (event !== 'PASSWORD_RECOVERY') $('authRecovery').hidden = true;
     if (event === 'PASSWORD_RECOVERY') {
