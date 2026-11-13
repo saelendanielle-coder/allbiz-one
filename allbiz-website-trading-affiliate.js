@@ -103,7 +103,7 @@
       });
       const result=await response.json().catch(()=>({status:'invalid_response'}));
       const names={account_read_success:'✅ Tastytrade-rekeninggegevens zijn bereikbaar. Alleen-lezen werkt.',connection_not_found:'Geen Tastytrade-verbinding gevonden voor dit ingelogde account.',refresh_failed:'Tastytrade heeft het vernieuwen van de verbinding geweigerd.',account_read_failed:'Verbinding bestaat, maar rekeninggegevens konden niet worden gelezen.',refresh_credentials_missing:'De bestaande brokergegevens zijn onvolledig.',connection_test_failed:'De verbindingstest is mislukt. Controleer de functie-logboeken.',invalid_session:'Je sessie is verlopen. Log opnieuw in.'};
-      tastyStatus.textContent=(names[result.status]||('Testresultaat: '+String(result.status||response.status)))+(result.status==='refresh_failed'?'\nTastytrade HTTP-code: '+String(result.provider_http_status||'onbekend')+'; fouttype: '+String(result.provider_error||'onbekend'):'')+'\nLive trading blijft uitgeschakeld.';
+      tastyStatus.textContent=(names[result.status]||('Testresultaat: '+String(result.status||response.status)))+(result.status==='account_read_success'?'\nAantal rekeningen: '+(Number.isInteger(result.account_count)?result.account_count:'niet beschikbaar')+'\nGecontroleerd: '+new Date(result.checked_at||Date.now()).toLocaleString('nl-BE'):'')+(result.status==='refresh_failed'?'\nTastytrade HTTP-code: '+String(result.provider_http_status||'onbekend')+'; fouttype: '+String(result.provider_error||'onbekend'):'')+'\nLive trading blijft uitgeschakeld.';
     }catch{tastyStatus.textContent='Netwerkfout bij de verbindingstest. Probeer later opnieuw.';}
     finally{tastyCheck.disabled=false;}
   });
