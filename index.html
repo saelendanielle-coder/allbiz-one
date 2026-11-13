@@ -2309,7 +2309,7 @@ try {
     if(!res.ok||data.error)throw Error(data.error||'Mollie Connect is nog niet beschikbaar.');
     return data;
   }
-  document.getElementById('sellerConnectStatus').addEventListener('click',async e=>{
+  document.getElementById('sellerConnectStatus')?.addEventListener('click',async e=>{
     const btn=e.currentTarget;btn.disabled=true;
     connectMsg.textContent='Live Mollie Connect-status controleren...';
     try{
@@ -2318,7 +2318,7 @@ try {
     }catch(err){connectMsg.textContent=String(err.message||'Controleren mislukt.')}
     finally{btn.disabled=false}
   });
-  document.getElementById('sellerConnectStart').addEventListener('click',async e=>{
+  document.getElementById('sellerConnectStart')?.addEventListener('click',async e=>{
     const btn=e.currentTarget;btn.disabled=true;
     connectMsg.textContent='Beveiligde Mollie-onboarding voorbereiden...';
     try{
