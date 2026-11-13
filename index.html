@@ -3166,7 +3166,12 @@ try {
       const checkout=new URL(result.checkout_url);
       if(checkout.protocol!=='https:'||!(checkout.hostname==='mollie.com'||checkout.hostname.endsWith('.mollie.com')))throw Error('Ongeldige Mollie-betaallink.');
       window.location.assign(checkout.href);
-    }catch(error){status('Mollie: '+(error.message||'Probeer later opnieuw.'));}
+    }catch(error){
+      const message='Mollie: '+(error.message||'Probeer later opnieuw.');
+      status(message);
+      showSubscriptionMessage('⚠️ '+message+' Er is geen betaling uitgevoerd.');
+      $('subscriptionStatus')?.scrollIntoView({behavior:'smooth',block:'center'});
+    }
     finally{button.disabled=false;}
   }));
   const {data: sessionData, error: sessionError} = await client.auth.getSession();
