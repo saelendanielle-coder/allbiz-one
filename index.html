@@ -3274,7 +3274,7 @@ try {
   guest.hidden=true;
   signedIn.hidden=true;
   unavailable.hidden=false;
-  status('Het inloggen kon niet geladen worden. Controleer je internetverbinding. Test zo nodig de online GitHub-versie van AllBiz One.');
+  status('Inloggen kan niet starten (' + (error instanceof TypeError && /fetch|import|network|module/i.test(error.message) ? 'netwerk of inlogbibliotheek' : 'opstartfout') + '). Technische melding: ' + String(error?.message || 'onbekende fout').slice(0,180) + '. Deel deze melding met de ondersteuning; voer geen wachtwoord in zolang het formulier niet zichtbaar is.');
   console.error('AllBiz One auth startup:', error);
 }
 </script>
