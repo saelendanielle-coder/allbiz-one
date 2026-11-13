@@ -3274,7 +3274,7 @@ try {
   guest.hidden=true;
   signedIn.hidden=true;
   unavailable.hidden=false;
-  status('Inloggen kan niet starten (' + (error instanceof TypeError && /fetch|import|network|module/i.test(error.message) ? 'netwerk of inlogbibliotheek' : 'opstartfout') + '). Technische melding: ' + String(error?.message || 'onbekende fout').slice(0,180) + '. Deel deze melding met de ondersteuning; voer geen wachtwoord in zolang het formulier niet zichtbaar is.');
+  status('Inloggen kan niet starten (' + (error instanceof TypeError && /fetch|import|network|module/i.test(error.message) ? 'netwerk of inlogbibliotheek' : 'opstartfout') + '). Technische melding: ' + String(error?.message || 'onbekende fout').slice(0,180) + ' | Locatie: ' + String(error?.stack || '').split('\n').slice(1,3).join(' ').slice(0,220) + '. Deel deze melding met de ondersteuning; voer geen wachtwoord in zolang het formulier niet zichtbaar is.');
   console.error('AllBiz One auth startup:', error);
 }
 </script>
