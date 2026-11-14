@@ -340,6 +340,18 @@ html,body{max-width:100%;overflow-x:clip}
  #allbizFloatingHelp{display:none!important}
 }
 </style>
+<style id="allbiz-front-only-three">
+/* Voorkant: uitsluitend assistent met onderwerpen en Mijn account. Overige functies niet wissen. */
+body:not(.splash-open)>header{display:none!important}
+body:not(.splash-open)>main> :not(#help):not(#account){display:none!important}
+body:not(.splash-open) #allbizTopAssistant,
+body:not(.splash-open) #allbizFloatingHelp,
+body:not(.splash-open) [id*="FloatingAssistant"],
+body:not(.splash-open) .mobile-feature-picker{display:none!important}
+body:not(.splash-open) #help,
+body:not(.splash-open) #account{display:block!important;position:static!important}
+body:not(.splash-open) main{padding-top:14px!important}
+</style>
 </head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
