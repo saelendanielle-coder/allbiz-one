@@ -1930,30 +1930,7 @@ el('exportSite').addEventListener('click',()=>{
  serviceCards?'<section id="diensten"><h2>Onze diensten</h2><ul>'+serviceCards+'</ul></section>':'',
  '<section id="contact"><h2>Contact</h2>'+contact+'</section></main>',
  '<footer>© '+new Date().getFullYear()+' '+title+'</footer>',
- '<script>
-/* All Assistent: concrete websitebewerkingen, alleen lokaal tot gebruiker bewaart. */
-(()=>{
- const btn=document.getElementById('allbizSiteCommandRun'),input=document.getElementById('allbizSiteCommandText'),status=document.getElementById('allbizSiteCommandStatus');
- if(!btn||!input||!status)return;
- btn.addEventListener('click',()=>{
-  const command=input.value.trim(),text=command.replace(/[.!]+$/,'').trim();
-  if(!text){status.textContent='Schrijf eerst een opdracht.';return}
-  const rules=[
-   {re:/^(?:zet|verander|wijzig|pas aan) (?:de |mijn )?(?:bedrijfsnaam|naam) (?:naar|in|op) (.+)$/i,id:'brand',label:'Bedrijfsnaam'},
-   {re:/^(?:zet|verander|wijzig|pas aan) (?:de |mijn )?(?:slogan|omschrijving) (?:naar|in|op) (.+)$/i,id:'description',label:'Slogan'},
-   {re:/^(?:zet|verander|wijzig|pas aan) (?:de |mijn )?(?:over ons|bedrijfstekst) (?:naar|in|op) (.+)$/i,id:'siteAbout',label:'Over ons'},
-   {re:/^(?:zet|verander|wijzig|pas aan) (?:het |mijn )?(?:contactmail|e-mailadres|emailadres) (?:naar|in|op) (\S+@\S+\.\S+)$/i,id:'siteEmail',label:'Contactmail'}
-  ];
-  for(const rule of rules){const match=text.match(rule.re);if(!match)continue;const el=document.getElementById(rule.id);if(!el)break;el.value=match[1].trim().slice(0,500);el.dispatchEvent(new Event('input',{bubbles:true}));status.textContent='✅ '+rule.label+' aangepast in het ontwerp. Klik op "Bewaar mijn ontwerp" om het op te slaan.';return}
-  const service=text.match(/^(?:voeg|plaats) (?:de )?dienst (.+?) toe$/i);
-  if(service){const el=document.getElementById('siteServices'),value=service[1].trim();if(value&&el){const lines=el.value.split('\n').map(x=>x.trim()).filter(Boolean);if(!lines.some(x=>x.toLowerCase()===value.toLowerCase()))lines.push(value);el.value=lines.join('\n');el.dispatchEvent(new Event('input',{bubbles:true}));status.textContent='✅ Dienst toegevoegd. Bewaar je ontwerp om de wijziging op te slaan.';return}}
-  const theme=text.match(/^(?:kies|gebruik|zet|verander naar) (?:een |het )?(modern|klassiek|luxe|natuur|groen|trendy|pop)(?: thema)?$/i);
-  if(theme){const key=({modern:'classic',klassiek:'classic',luxe:'luxe',natuur:'nature',groen:'nature',trendy:'pop',pop:'pop'})[theme[1].toLowerCase()];const button=document.querySelector('[data-theme="'+key+'"]');if(button){button.click();status.textContent='✅ Thema gekozen. Bewaar je ontwerp om de wijziging op te slaan.';return}}
-  status.textContent='Deze opdracht kan ik nog niet veilig uitvoeren. Probeer bedrijfsnaam, slogan, over ons, contactmail, een dienst toevoegen of een thema kiezen. Er is niets gewijzigd.';
- });
-})();
-</script>
-</body></html>'
+ '</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
