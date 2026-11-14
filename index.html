@@ -465,6 +465,32 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <div class="import-buttons"><button type="button" id="allbizPublishButton">🌍 Website echt publiceren</button><button type="button" class="secondary" id="allbizUnpublishButton">Website offline halen</button></div>
 <p id="allbizPublishStatus" role="status" class="toast">Er is nog niets gepubliceerd via deze functie.</p>
 </div>
+<div class="card" id="allbizSiteDigitalCatalog"><h3>📄 Digitale producten op je website</h3><p class="muted">Gebruik dezelfde veilige productcatalogus als je webshop. Je hoeft je PDF niet opnieuw te uploaden. De koopknop opent je bestaande Mollie-webshop; het bestand zelf blijft privé.</p><button type="button" class="secondary" id="allbizSiteShowDigital">📦 Toon mijn digitale producten op deze website</button><p id="allbizSiteDigitalStatus" role="status" aria-live="polite"></p><div id="allbizSiteDigitalList"></div></div>
+<script>
+document.getElementById('allbizSiteShowDigital').addEventListener('click',async function(){
+ const status=document.getElementById('allbizSiteDigitalStatus'),list=document.getElementById('allbizSiteDigitalList');
+ this.disabled=true;list.replaceChildren();status.textContent='Digitale producten ophalen…';
+ try{
+  const client=window.allbizClient;
+  if(!client)throw Error('De accountverbinding is nog niet geladen.');
+  const {data:{user},error:authError}=await client.auth.getUser();
+  if(authError||!user)throw Error('Log eerst in bij Mijn account.');
+  const {data,error}=await client.from('allbiz_catalog_products').select('name,description,price_cents,is_listed,kind').eq('seller_id',user.id).eq('kind','digital').eq('is_listed',true).order('created_at',{ascending:false});
+  if(error)throw Error('De productcatalogus kon niet worden opgehaald.');
+  if(!data?.length){status.textContent='Er staan nog geen zichtbare digitale producten in je catalogus.';return}
+  const shopUrl='https://saelendanielle-coder.github.io/allbiz-one/winkel.html?seller='+encodeURIComponent(user.id);
+  for(const p of data){
+   const card=document.createElement('div');card.className='notice';
+   const name=document.createElement('strong');name.textContent=p.name;card.append(name);
+   if(p.description){const d=document.createElement('p');d.textContent=p.description;card.append(d)}
+   const price=document.createElement('p');price.textContent='€ '+(p.price_cents/100).toFixed(2).replace('.',',');card.append(price);
+   const link=document.createElement('a');link.href=shopUrl;link.target='_blank';link.rel='noopener noreferrer';link.textContent='🛍️ Bekijk in mijn webshop';card.append(link);list.append(card);
+  }
+  status.textContent='✅ '+data.length+' digitale product(en) uit dezelfde catalogus getoond. Dit is een voorbeeld in de websitebouwer; voor een openbare website moet de gepubliceerde site nog apart worden gekoppeld.';
+ }catch(e){status.textContent='⚠️ '+(e.message||'Ophalen mislukt')}
+ finally{this.disabled=false}
+});
+</script>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel">
 <div class="card"><h3>📦 Mijn webshopproducten</h3><p><strong>Heb je al een productbestand in Supabase geplaatst?</strong> Upload het niet opnieuw. Het bestand <em>Stop_met_geld_verspillen_Albiz_One.pdf</em> is al in de privéopslag geplaatst; dat betekent nog niet dat het aan een verkoopbaar product gekoppeld is.</p><p class="notice">De beveiligde koppeling tussen een bestaand PDF-bestand, de productcatalogus en de betaalbevestiging is nog niet actief. Daarom kun je dit product hier nog niet veilig aan klanten verkopen of automatisch laten downloaden.</p><details><summary>Nieuw product als concept voorbereiden (nog geen online verkoop)</summary><p>Het onderstaande productformulier slaat een concept lokaal op. Gebruik het niet om een bestaand digitaal bestand opnieuw te uploaden.</p><button type="button" class="secondary" data-goto="products">📦 Open concept-producten</button></details></div>
