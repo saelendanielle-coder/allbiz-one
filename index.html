@@ -4332,14 +4332,44 @@ window.allbizOpenAssistant=showAssistant;
 (function(){
  function hideDuplicateStartCard(){
   document.querySelectorAll('h1,h2,h3').forEach(function(h){
-   if((h.textContent||'').trim().replace(/^[^\\p{L}]*/u,'').trim()==='Wat wil je maken?'){
+   if((h.textContent||'').trim().replace(/^[^A-Za-zÀ-ÿ]*/,'').trim()==='Wat wil je maken?'){
     var card=h.closest('.card, .panel, section');
     if(card && card.id!=='dashboard' && card.id!=='help')card.style.setProperty('display','none','important');
    }
   });
  }
+ function enableMobileHelpNavigation(){
+  var grid=document.getElementById('allbizHelpQuick');
+  if(!grid||grid.dataset.mobileNavigationReady)return;
+  grid.dataset.mobileNavigationReady='1';
+  grid.addEventListener('click',function(event){
+   var button=event.target.closest('button');
+   if(!button||!grid.contains(button))return;
+   var label=(button.textContent||'').toLowerCase();
+   var destination=button.getAttribute('data-goto');
+   if(!destination){
+    if(label.includes('webshopcheck'))destination='shop';
+    else if(label.includes('website')||label.includes('domein')||label.includes('ontwerp'))destination='site';
+    else if(label.includes('webshop')||label.includes('product toevoegen')||label.includes('verzending'))destination='shop';
+    else if(label.includes('youtube'))destination='video';
+    else if(label.includes('digitale producten'))destination='shop';
+    else if(label.includes('trading'))destination='trading';
+    else if(label.includes('winnende producten'))destination='radar';
+    else if(label.includes('abonnement'))destination='plans';
+    else if(label.includes('affiliate'))destination='affiliate';
+    else if(label.includes('advertentie'))destination='ads';
+    else if(label.includes('wachtwoord')){window.location.href='./inloggen.html';return;}
+    else if(label.includes('gratis ai'))return;
+   }
+   if(!destination)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   var nav=document.querySelector('nav.nav button[data-tab="'+destination+'"]');
+   if(nav){nav.click();setTimeout(function(){document.getElementById(destination)?.scrollIntoView({block:'start'});},80);}
+  },true);
+ }
  function start(){
   hideDuplicateStartCard();
+  enableMobileHelpNavigation();
   var account=document.getElementById('account');
   var dashboard=document.getElementById('dashboard');
   if(account&&account.classList.contains('active')&&dashboard){
