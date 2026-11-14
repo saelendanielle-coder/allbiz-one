@@ -1720,7 +1720,7 @@ const helpTopics=[
 {keys:['webshop','winkel','winkelmand','checkout','bestelling','verkoper','connect'],name:'Webshop',tab:'shop',reply:'Open Mijn webshop om producten, collecties en je winkelontwerp te bekijken. De checkout is nog een simulatie; klanten kunnen nog niet echt winkelen of betalen. Mollie Connect is alleen een test voor mogelijke toekomstige webshopverkopers.'},
 {keys:['website','domein','publiceren','online','hosting','bedrijfswebsite','webservice'],name:'Website',tab:'site',reply:'Ga naar Website & domein, vul je bedrijfsgegevens in, kies een thema en bewaar je ontwerp. Je kunt een websitevoorbeeld downloaden. Een gewenste domeinnaam is niet automatisch geregistreerd. Online publiceren is een aparte stap die een echt abonnement en jouw toestemming vereist.'},
 {keys:['youtube','video','shorts','filmpje'],name:'YouTube',tab:'video',reply:'Ga naar YouTube-video’s. Kies teksten, foto’s en eventueel audio, bekijk het voorbeeld en download je video. Je moet de video nog zelf uploaden naar YouTube. Gebruik alleen materiaal waarop je rechten hebt.'},
-{keys:['marketing','socialmedia','sociale media','instagram','facebook','tiktok','linkedin','bericht','posts'],name:'Digitale marketing',tab:'marketing',reply:'Open Digitale marketing om een concept voor een socialmedia-bericht te maken. Voor het maken of bewaren van berichten heb je Starter of hoger nodig. Berichten worden niet automatisch geplaatst of als advertentie uitgegeven.'},
+{keys:['marketing','socialmedia','sociale media','instagram','facebook','tiktok','linkedin','bericht','posts'],name:'Digitale marketing',tab:'marketing',reply:'Digitale marketing betekent dat je via internet klanten probeert te bereiken. Stap 1: bepaal wie je klant is. Stap 2: kies een kanaal zoals Instagram, Facebook, TikTok of Google. Stap 3: maak een duidelijke boodschap met je aanbod en een knop of link. Stap 4: publiceer regelmatig en meet hoeveel mensen klikken of contact opnemen. Begin gratis met nuttige berichten voordat je geld uitgeeft aan advertenties. In Albiz One kun je via Digitale marketing een berichtconcept maken; de app plaatst het niet automatisch.'},
 {keys:['advertentie','reclame','google ads','campagne','budget','adverteren'],name:'Advertentieplan',tab:'ads',reply:'Open Advertenties & groei om concepten en een geschat budgetplan te maken. Hiervoor is Business nodig. Er worden geen advertenties automatisch gepubliceerd, er wordt niets uitgegeven en de schattingen zijn geen echte campagneresultaten.'},
 {keys:['trading','crypto','broker','beleggen','aandelen','opname','portefeuille'],name:'Trading',tab:'trading',reply:'Echt traden is nog niet mogelijk in AllBiz One. Er is geen broker verbonden en de app kan geen geld storten, kopen, verkopen of opnemen. Deel nooit je brokerwachtwoord of bankcodes.'},
 {keys:['inloggen','inlog','account','wachtwoord','registreren','aanmelden'],name:'Mijn account',tab:'account',reply:'Open Mijn account om je te registreren of in te loggen. Bevestig zo nodig je e-mailadres. Gebruik de wachtwoordhersteloptie als je je wachtwoord vergeten bent. Deel je wachtwoord nooit.'},
@@ -1750,7 +1750,7 @@ function answerHelp(q){
   const score=topic.keys.reduce((total,k)=>total+(clean.includes(k)?k.length:0),0);
   if(score>highest){highest=score;best=topic}
  }
- if(!best)addHelpMessage('Deze vraag kan ik nog niet betrouwbaar beantwoorden. Kies een onderwerp hieronder. Er is nog geen live AI-medewerker beschikbaar.',false);
+ if(!best)addHelpMessage('Ik kan hierover nog geen betrouwbaar specifiek antwoord geven. Probeer je vraag met een onderwerp zoals digitale marketing, website, webshop, advertenties, YouTube of abonnementen. Voor vrije vragen over alle onderwerpen is de gratis AI-chat nog niet beschikbaar.',false);
  else addHelpMessage(best.reply,false,best);
 }
 el('allbizHelpForm').addEventListener('submit',e=>{e.preventDefault();const f=el('allbizHelpQuestion');answerHelp(f.value);f.value='';f.focus()});
@@ -4171,6 +4171,15 @@ window.allbizOpenAssistant=showAssistant;
 </script>
 <script>
 (function(){
+ var businessButton=document.getElementById('allbizBusinessAsk');
+ if(businessButton)businessButton.addEventListener('click',function(e){
+  var field=document.getElementById('allbizBusinessPrompt');
+  var q=field?.value?.trim()||'';
+  if(/^(hoe|wat|waarom|wanneer|waar|wie|welke|leg uit|vertel|kan je uitleggen)\\b/i.test(q)){
+   e.preventDefault();e.stopImmediatePropagation();
+   document.getElementById('allbizFreeInfoAsk')?.click();
+  }
+ },true);
  var free=document.getElementById('allbizFreeInfoAsk');
  if(!free)return;
  free.addEventListener('click',function(){
