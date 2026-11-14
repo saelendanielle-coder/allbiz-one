@@ -2220,7 +2220,7 @@ openRequestedSection();
  const title=document.getElementById('mobileFeatureLabel');
  if(!select||!nav)return;
  const titles={nl:'📱 Kies wat je wilt doen',en:'📱 Choose a feature',fr:'📱 Choisir une fonction',de:'📱 Funktion auswählen',es:'📱 Elige una función',pt:'📱 Escolha uma função',it:'📱 Scegli una funzione',ar:'📱 اختر وظيفة',hi:'📱 कोई सुविधा चुनें',zh:'📱 选择功能'};
- const allNavButtons=[...nav.querySelectorAll('button[data-tab]')].filter(b=>b.dataset.tab!=='products');
+ const allNavButtons=[...nav.querySelectorAll('button[data-tab]')];
  // Android opent de native keuzelijst bij de huidige selectie.
  // Houd Mijn account eerst, zodat belangrijke functies niet boven die selectie verdwijnen.
  const preferred=['account','marketing','adaccounts','trading','affiliate','help'];
