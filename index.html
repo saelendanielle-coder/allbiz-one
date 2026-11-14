@@ -4095,5 +4095,21 @@ check?.addEventListener('click',async()=>{
  finally{check.disabled=false;}
 });
 </script>
+
+<script>
+(function(){
+function installAllAssistent(){
+ if(document.getElementById('allbizAssistantDock'))return;
+ var dock=document.createElement('div');dock.id='allbizAssistantDock';
+ dock.style.cssText='position:fixed!important;right:14px!important;bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;z-index:2147483647!important;display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important';
+ var root=dock.attachShadow({mode:'open'});var btn=document.createElement('button');btn.type='button';btn.textContent='🤖 All Assistent';btn.setAttribute('aria-label','Open All Assistent');
+ btn.style.cssText='display:block;cursor:pointer;background:#4230a2;color:white;border:2px solid white;border-radius:999px;padding:13px 16px;font:700 15px system-ui,sans-serif;box-shadow:0 6px 22px #18123a77;max-width:calc(100vw - 28px)';
+ btn.addEventListener('click',function(){var nav=document.querySelector('[data-tab="help"]');if(nav)nav.click();else{document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p.id==='help')});}document.getElementById('help')?.scrollIntoView({behavior:'smooth',block:'start'});});
+ root.appendChild(btn);document.body.appendChild(dock);
+ var old=document.getElementById('allbizFloatingHelp');if(old)old.style.setProperty('display','none','important');
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAllAssistent);else installAllAssistent();
+})();
+</script>
 </body>
 </html>
