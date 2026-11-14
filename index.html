@@ -309,6 +309,10 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
  #help .card h2{font-size:22px}
  #help #allbizHelpQuestion{min-height:68px}
 }
+/* All Assistent: zichtbaar op elke pagina, ook op mobiel. */
+#allbizFloatingHelp{position:fixed!important;right:16px!important;bottom:calc(18px + env(safe-area-inset-bottom,0px))!important;display:flex!important;visibility:visible!important;opacity:1!important;z-index:2147483000!important;width:auto!important;max-width:calc(100vw - 32px)!important;margin:0!important;box-shadow:0 7px 23px #28204d66!important}
+body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #allbizFloatingHelp{display:flex!important}
+@media(max-width:650px){#allbizFloatingHelp{position:fixed!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;padding:11px 13px!important}}
 </style>
 </head>
 <body class="splash-open">
@@ -874,8 +878,8 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </section>
 
 <section id="help" class="panel"><div class="card">
-<h2>🤖 Hulp-assistent</h2>
-<p class="muted" style="margin:5px 0 10px">Stel je vraag. Je krijgt direct uitleg over AllBiz One.</p>
+<h2>🤖 All Assistent</h2>
+<p class="muted" style="margin:5px 0 10px">Stel je vraag over websites, webshops, marketing of je account. All Assistent geeft uitleg en kan je naar de juiste functie brengen. Websitewijzigingen kun je uitvoeren in de websitebouwer. Een volledige AI-koppeling voor vrije opdrachten is nog niet actief.</p>
 <form id="allbizHelpForm"><label for="allbizHelpQuestion">Waarmee kunnen we helpen?</label><textarea id="allbizHelpQuestion" maxlength="500" rows="2" placeholder="Bijvoorbeeld: Hoe kan ik mijn webshop maken?" required></textarea><div class="row"><button type="submit">➤ Vraag hulp</button><button type="button" class="secondary" id="allbizHelpClear">Wis gesprek</button></div></form>
 <div id="allbizHelpConversation" role="log" aria-live="polite" aria-label="Hulpgesprek" style="min-height:65px;max-height:205px;overflow-y:auto;background:#f8f6fe;border:1px solid #ded8f4;border-radius:14px;padding:12px;display:grid;gap:9px;margin:12px 0"></div>
 <p class="muted" style="margin:8px 0 3px">Of kies een onderwerp:</p>
