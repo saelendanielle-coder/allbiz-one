@@ -1018,8 +1018,9 @@ function switchTab(tab,options={}){
  const required=allbizRequiredTier[tab]||0;
  const notice=el('allbizAccessNotice');
  if(!allbizUiTierAllowed(tab)){
-  el('allbizAccessNoticeTitle').textContent='💎 '+allbizTierLabel[required]+' of hoger nodig';
-  el('allbizAccessNoticeText').textContent='Dit onderdeel vraagt een echt actief '+allbizTierLabel[required]+'-abonnement of hoger.';
+  const offer={1:{name:'Starter',price:10,features:'Websitebouwer en websitefuncties'},2:{name:'Pro',price:20,features:'Extra webshops en marketingfuncties'},3:{name:'Business',price:30,features:'Uitgebreide marketingtools en productradar'}}[required];
+  el('allbizAccessNoticeTitle').textContent='🔒 '+offer.name+' · €'+offer.price+' per maand';
+  el('allbizAccessNoticeText').textContent='Je hebt nog geen toegang tot dit onderdeel. '+offer.name+' (€'+offer.price+'/maand): '+offer.features+'. Kies dit abonnement om toegang te krijgen. Betaling verloopt via Mollie.';
   notice.hidden=false;tab='plans';
  }else notice.hidden=true;
  document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id===tab));
