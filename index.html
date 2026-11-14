@@ -947,7 +947,7 @@ window.addEventListener('resize',()=>updateMobilePicker(),{passive:true});
 updateMobilePicker();
 // Remember where the user was, including the scroll position of each section.
 const navProgressKey='allbiz-navigation-progress-v1';
-const navAllowed=new Set([...document.querySelectorAll('nav.nav [data-tab]')].map(b=>b.dataset.tab).filter(tab=>tab!=='products'));
+const navAllowed=new Set([...document.querySelectorAll('nav.nav [data-tab]')].map(b=>b.dataset.tab));
 let navProgress={tab:'account',previous:'',positions:{}};
 try{
  const saved=JSON.parse(localStorage.getItem(navProgressKey)||'null');
@@ -1010,7 +1010,7 @@ window.allbizResumeLastSection=()=>{
  switchTab(tab,{automatic:true});
 };
 function switchTab(tab,options={}){
- if(tab==='products'||tab==='orders')tab='shop'; // Legacy practice modules are removed from visible navigation.
+ if(tab==='orders')tab='shop'; // Only the retired orders demo redirects to the webshop.
  if(!navAllowed.has(tab))return;
  const previous=document.querySelector('.panel.active')?.id;
  if(previous!==tab)rememberScrollPosition();
