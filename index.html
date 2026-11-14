@@ -4611,5 +4611,28 @@ body.allbiz-page-open #allbizMobileBack{display:block}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
-</body>
-</html>
+
+<style id="allbiz-mobile-route-v2">
+body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) header,body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) nav.nav{display:none!important}
+body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) .panel{display:none!important}
+body[data-allbiz-route="site"] #site,body[data-allbiz-route="shop"] #shop,body[data-allbiz-route="video"] #video,body[data-allbiz-route="products"] #products,body[data-allbiz-route="trading"] #trading,body[data-allbiz-route="radar"] #radar,body[data-allbiz-route="plans"] #plans,body[data-allbiz-route="affiliate"] #affiliate,body[data-allbiz-route="ads"] #ads,body[data-allbiz-route="help"] #help,body[data-allbiz-route="account"] #account{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
+body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) #allbizMobileBack{display:block!important}
+@media(max-width:650px){body[data-allbiz-route] main{padding:12px!important}body[data-allbiz-route] .panel{max-width:100%;overflow-wrap:anywhere}}
+</style>
+<script id="allbiz-mobile-route-v2-script">
+(function(){
+ var routes=['dashboard','site','shop','video','products','trading','radar','plans','affiliate','ads','help','account'];
+ function route(){var id=new URLSearchParams(location.search).get('page')||'dashboard';return routes.includes(id)?id:'dashboard';}
+ function render(){var id=route();document.body.setAttribute('data-allbiz-route',id);document.querySelectorAll('.panel').forEach(function(p){p.hidden=id!=='dashboard'&&p.id!==id;if(id!=='dashboard')p.classList.toggle('active',p.id===id);});}
+ window.addEventListener('click',function(e){
+  var b=e.target.closest&&e.target.closest('button[data-goto],button[data-open-plans],nav.nav [data-tab],.allbiz-plan-links a,.allbiz-plan-links button');if(!b)return;
+  var id=b.dataset.goto||b.dataset.tab||(b.hasAttribute('data-open-plans')||b.closest('.allbiz-plan-links')?'plans':null);
+  if(!routes.includes(id))return;
+  e.preventDefault();e.stopImmediatePropagation();
+  var url=new URL(location.href);url.searchParams.set('page',id);url.hash='';location.assign(url.href);
+ },true);
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
+ window.addEventListener('load',render);
+})();
+</script>
+</body></html>
