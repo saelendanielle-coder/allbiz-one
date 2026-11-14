@@ -2888,7 +2888,7 @@ try {
       });
       const result = await response.json();
       if (!response.ok || result.status !== 'canceled') throw Error(result.error || 'Opzegging niet bevestigd.');
-      cancelFeedback.textContent = 'Je abonnement is opgezegd. Mollie zal dit abonnement niet opnieuw maandelijks afschrijven.';
+      cancelFeedback.textContent = 'Je abonnement is opgezegd.';
       const message = cancelFeedback.textContent;
       await refreshSubscriptionStatus(data.session.user);
       cancelFeedback.textContent = message;
