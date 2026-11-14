@@ -341,11 +341,13 @@ html,body{max-width:100%;overflow-x:clip}
 }
 </style>
 <style id="allbiz-front-only-three">
-/* Voorkant: precies de assistent met onderwerpen en het account. */
+/* Publieke voorkant: bovenste balk en één All Assistent met onderwerpknoppen. */
 body>header{display:block!important}
-body>main> :not(#help):not(#account){display:none!important}
+body>main> :not(#help){display:none!important}
+body>main>#account{display:none!important}
+#account{display:none!important}
+#help{display:block!important;position:static!important;margin:0 auto 18px!important}
 #allbizFloatingHelp,[id*="FloatingAssistant"],.mobile-feature-picker{display:none!important}
-#help,#account{display:block!important;position:static!important}
 body>main{padding-top:14px!important}
 html,body{overflow-x:hidden;max-width:100%}
 </style>
