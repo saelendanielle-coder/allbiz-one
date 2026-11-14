@@ -2898,7 +2898,7 @@ try {
         cache: 'no-store'
       });
       const result = await response.json();
-      if (requestId !== subscriptionRequestId) return;
+      if (requestId !== subscriptionRequestId || window.allbizCurrentUserId !== user.id) return;
       if (!response.ok || !Array.isArray(result.subscriptions)) throw Error(result.error || 'Subscription status unavailable');
       const rows = result.subscriptions;
       const isActive = row => row.status === 'active';
@@ -2925,7 +2925,7 @@ try {
       return active?.plan || null;
     } catch (error) {
       // Een verouderd verzoek mag een nieuwere, geldige sessie niet overschrijven.
-      if (requestId !== subscriptionRequestId) return null;
+      if (requestId !== subscriptionRequestId || window.allbizCurrentUserId !== user.id) return null;
       activePaidPlan = null;
       cancelControls.hidden = true;
       cancelButton.dataset.subscriptionId = '';
