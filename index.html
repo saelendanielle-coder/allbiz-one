@@ -1958,7 +1958,54 @@ el('exportSite').addEventListener('click',()=>{
  serviceCards?'<section id="diensten"><h2>Onze diensten</h2><ul>'+serviceCards+'</ul></section>':'',
  '<section id="contact"><h2>Contact</h2>'+contact+'</section></main>',
  '<footer>© '+new Date().getFullYear()+' '+title+'</footer>',
- '</body></html>'
+ '
+<!-- Mobiele navigatie en abonnementkeuze: herstel klikbare klantflow. -->
+<style>
+.panel.allbiz-locked-preview{pointer-events:auto!important}
+.panel.allbiz-locked-preview button,.panel.allbiz-locked-preview input,.panel.allbiz-locked-preview select,.panel.allbiz-locked-preview textarea{pointer-events:none}
+#plans .plan{cursor:pointer}
+#plans .plan:focus-visible{outline:3px solid #6245d1}
+</style>
+<script>
+(function(){
+ function go(id){
+  var panel=document.getElementById(id);
+  if(!panel||!panel.classList.contains('panel'))return false;
+  var nav=document.querySelector('nav.nav button[data-tab="'+id+'"]');
+  if(nav)nav.click();
+  if(!panel.classList.contains('active')){
+   document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p===panel)});
+  }
+  panel.scrollIntoView({block:'start',behavior:'instant'});
+  return true;
+ }
+ document.addEventListener('click',function(e){
+  var btn=e.target.closest('[data-open-plans]');
+  if(btn){
+   e.preventDefault();e.stopImmediatePropagation();
+   go('plans');
+   var n={starter:0,pro:1,business:2}[btn.getAttribute('data-open-plans')];
+   var card=document.querySelectorAll('#plans .plan')[n];
+   if(card){card.style.outline='3px solid #6245d1';card.scrollIntoView({block:'center',behavior:'instant'});}
+   return;
+  }
+  var card=e.target.closest('#plans .plan');
+  if(card&&!e.target.closest('button,a,input')){
+   var name=(card.querySelector('h3')?.textContent||'').trim();
+   document.querySelectorAll('#plans .plan').forEach(function(p){p.style.outline=''});
+   card.style.outline='3px solid #6245d1';
+   var status=document.getElementById('subscriptionStatus');
+   if(status)status.textContent=name+' geselecteerd. Gebruik de Mollie-knop wanneer deze beschikbaar is, of maak eerst een account aan.';
+   return;
+  }
+  var goto=e.target.closest('[data-goto],[data-tab]');
+  if(goto&&!goto.closest('#allbizHelpQuick')&&goto.getAttribute('data-goto')==='account'){
+   e.preventDefault();e.stopImmediatePropagation();go('account');
+  }
+ },true);
+})();
+</script>
+</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
@@ -4353,7 +4400,7 @@ window.allbizOpenAssistant=showAssistant;
 </script>
 <!-- Verberg alleen de twee dubbele startpagina-onderdelen; behoud alle accountlogica. -->
 <style>
-#account, nav.nav button[data-tab="account"], #quickCustomerDashboard {display:none!important}
+#quickCustomerDashboard {display:none!important}
 </style>
 <script>
 (function(){
