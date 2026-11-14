@@ -327,6 +327,19 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 #help,#account{display:block!important}
 #help{margin:0 0 18px!important}
 </style>
+<style id="allbiz-mobile-repair-20261114">
+html,body{max-width:100%;overflow-x:clip}
+*,*::before,*::after{box-sizing:border-box}
+@media(max-width:700px){
+ header,header .inner,main,main>*,section,.card,.panel,.global-wrap{max-width:100%;min-width:0}
+ header{width:100%;overflow:hidden}
+ header .inner{width:100%;padding-inline:0}
+ .card,.panel{overflow-wrap:anywhere}
+ img,video,iframe,canvas,svg{max-width:100%;height:auto}
+ pre,code{max-width:100%;overflow-wrap:anywhere;white-space:pre-wrap}
+ #allbizFloatingHelp{display:none!important}
+}
+</style>
 </head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
