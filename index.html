@@ -324,7 +324,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 #account > div:first-child:not(.account-card){display:none!important}
 #allbizAdminAccess,#allbizCustomerDashboard{display:none!important}
 #account .account-guest-intro{display:none!important}
-#help,#account{display:block!important}
+/* Section visibility is controlled by the active navigation state. */
 #help{margin:0 0 18px!important}
 </style>
 <style id="allbiz-mobile-repair-20261114">
@@ -346,6 +346,7 @@ body>header{display:block!important}
 /* Show only the active section, never permanently force the assistant on top. */
 body>main>.panel{display:none!important}
 body>main>.panel.active{display:block!important;visibility:visible!important;position:relative!important}
+body>main>#help:not(.active),body>main>#account:not(.active){display:none!important}
 body>main>.panel.active[hidden]{display:none!important}
 #allbizFloatingHelp,[id*="FloatingAssistant"],.mobile-feature-picker{display:none!important}
 body>main{padding-top:14px!important}
@@ -457,7 +458,7 @@ document.addEventListener('click',function(e){
 <div class="top-settings"><a href="./status.html" style="color:#fff;font-weight:700;padding:8px 10px;border:1px solid #ffffff77;border-radius:10px;text-decoration:none">📋 Functiestatus</a><a href="./contact.html" style="color:#fff;font-weight:700;padding:8px 10px;border:1px solid #ffffff77;border-radius:10px;text-decoration:none">✉ Contact &amp; klantenservice</a><label for="appLang">🌐 Language / Taal</label><select id="appLang" aria-label="App language"></select><span class="status-chip">🌍 Global edition</span><span id="allbizHeaderAuthStatus" role="status" aria-live="polite" style="display:inline-block;background:#fff;color:#392279;padding:9px 12px;border-radius:12px;font-weight:700">⏳ Account controleren…</span><a id="allbizDirectLoginLink" href="./inloggen.html" style="display:inline-block;background:#fff;color:#392279;padding:10px 14px;border-radius:12px;font-weight:700;text-decoration:none">🔐 Rechtstreeks inloggen</a><button type="button" data-goto="account" class="header-account-link" onclick="document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p.id==='account'));document.getElementById('account')?.scrollIntoView({behavior:'smooth',block:'start'});">🔐 Mijn account</button></div>
 </div></header>
 <main>
-<section id="help" class="panel active" style="display:block!important;margin:0 0 18px!important;scroll-margin-top:90px"><div class="card">
+<section id="help" class="panel active" style="margin:0 0 18px;scroll-margin-top:90px"><div class="card">
 <h2>🤖 All Assistent</h2><p class="hint"><b>Voor iedereen:</b> stel vragen en krijg uitleg. <b>Business (€30/maand):</b> opdrachten laten uitvoeren, zoals websiteontwerpen aanpassen, zodra de beveiligde AI-koppeling en abonnementstoegang geactiveerd zijn. De huidige hulp geeft vaste antwoorden en voert geen vrije AI-opdrachten uit.</p>
 <p class="muted" style="margin:5px 0 10px">Stel je vraag over websites, webshops, marketing of je account. All Assistent geeft uitleg en kan je naar de juiste functie brengen. Websitewijzigingen kun je uitvoeren in de websitebouwer. Een volledige AI-koppeling voor vrije opdrachten is nog niet actief.</p>
 <p style="font-weight:700;color:#35266d">💬 Gratis uitleg — geen Business-abonnement nodig</p><div id="allbizFreeAnswer" role="status" aria-live="polite" style="display:none;background:#f4f0ff;border:2px solid #7156ce;border-radius:12px;padding:16px;margin:12px 0;white-space:pre-line;color:#261b46;font-size:16px;line-height:1.6"></div>
