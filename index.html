@@ -4421,5 +4421,38 @@ window.allbizOpenAssistant=showAssistant;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+
+<style>@media(max-width:650px){.allbiz-plan-links{display:grid!important;grid-template-columns:1fr!important}.allbiz-plan-links button{width:100%;min-height:50px}nav.nav{overflow-x:auto}nav.nav button{min-height:44px}}</style>
+<script>
+(function(){
+function show(id){
+ var p=document.getElementById(id);if(!p||!p.classList.contains('panel'))return false;
+ document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x===p)});
+ document.querySelectorAll('nav.nav [data-tab]').forEach(function(x){x.classList.toggle('active',x.dataset.tab===id)});
+ document.body.classList.toggle('allbiz-help-active',id==='help');
+ var n=document.getElementById('allbizAccessNotice');if(n)n.hidden=true;
+ p.removeAttribute('inert');p.classList.remove('allbiz-locked-preview');
+ requestAnimationFrame(function(){p.scrollIntoView({block:'start',behavior:'instant'})});return true;
+}
+document.addEventListener('click',function(e){
+ var b=e.target.closest('button');if(!b)return;
+ var plan=b.getAttribute('data-open-plans');
+ var id=plan?'plans':b.getAttribute('data-goto')||b.getAttribute('data-tab');
+ if(!id&&b.closest('#allbizHelpQuick')){
+  var t=(b.textContent||'').toLowerCase();
+  if(t.includes('website')||t.includes('domein'))id='site';
+  else if(t.includes('webshop')||t.includes('digitale producten'))id='shop';
+  else if(t.includes('youtube'))id='video';
+  else if(t.includes('trading'))id='trading';
+  else if(t.includes('radar'))id='radar';
+  else if(t.includes('abonnement'))id='plans';
+ }
+ if(!id||!document.getElementById(id)?.classList.contains('panel'))return;
+ e.preventDefault();e.stopImmediatePropagation();if(!show(id))return;
+ if(plan){var card=document.querySelectorAll('#plans .plan')[{starter:0,pro:1,business:2}[plan]];
+ if(card){document.querySelectorAll('#plans .plan').forEach(function(x){x.style.outline=''});card.style.outline='3px solid #6245d1';card.scrollIntoView({block:'center',behavior:'instant'})}}
+},true);
+})();
+</script>
 </body>
 </html>
