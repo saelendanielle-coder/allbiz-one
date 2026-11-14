@@ -389,6 +389,7 @@ document.addEventListener('click',function(e){
  const a=e.target.closest?.('#allbizHelpQuick a[data-quick-section]');
  if(!a)return;
  const id=a.dataset.quickSection;
+ window.location.hash=id;
  if(typeof switchTab==='function'){
   e.preventDefault();e.stopImmediatePropagation();switchTab(id,{automatic:false});
   const panel=document.getElementById(id);
