@@ -881,6 +881,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <h2>🤖 All Assistent</h2><p class="hint"><b>Voor iedereen:</b> stel vragen en krijg uitleg. <b>Business (€30/maand):</b> opdrachten laten uitvoeren, zoals websiteontwerpen aanpassen, zodra de beveiligde AI-koppeling en abonnementstoegang geactiveerd zijn. De huidige hulp geeft vaste antwoorden en voert geen vrije AI-opdrachten uit.</p>
 <p class="muted" style="margin:5px 0 10px">Stel je vraag over websites, webshops, marketing of je account. All Assistent geeft uitleg en kan je naar de juiste functie brengen. Websitewijzigingen kun je uitvoeren in de websitebouwer. Een volledige AI-koppeling voor vrije opdrachten is nog niet actief.</p>
 <form id="allbizHelpForm"><label for="allbizHelpQuestion">Waarmee kunnen we helpen?</label><textarea id="allbizHelpQuestion" maxlength="500" rows="2" placeholder="Bijvoorbeeld: Hoe kan ik mijn webshop maken?" required></textarea><div class="row"><button type="submit">➤ Vraag hulp</button><button type="button" class="secondary" id="allbizHelpClear">Wis gesprek</button></div></form>
+<div class="card" style="margin:12px 0;padding:13px;border:1px solid #d7ccf6"><h3>✨ Business · AI-opdrachten</h3><p class="muted">Voor een actief Business-abonnement. Stel een vrije vraag of vraag om een websiteconcept. De AI maakt voorstellen; automatische publicatie en wijzigingen aan accounts of betalingen zijn niet beschikbaar.</p><label for="allbizBusinessPrompt">Jouw opdracht</label><textarea id="allbizBusinessPrompt" maxlength="500" rows="2" placeholder="Maak een websiteconcept voor mijn kapsalon"></textarea><button type="button" id="allbizBusinessAsk">✨ Vraag All Assistent (Business)</button><p id="allbizBusinessResult" class="toast" role="status" aria-live="polite">Business-toegang wordt beveiligd gecontroleerd wanneer je een opdracht verstuurt.</p></div>
 <div id="allbizHelpConversation" role="log" aria-live="polite" aria-label="Hulpgesprek" style="min-height:65px;max-height:205px;overflow-y:auto;background:#f8f6fe;border:1px solid #ded8f4;border-radius:14px;padding:12px;display:grid;gap:9px;margin:12px 0"></div>
 <p class="muted" style="margin:8px 0 3px">Of kies een onderwerp:</p>
 <div id="allbizHelpQuick" class="import-buttons" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
@@ -4109,6 +4110,29 @@ function installAllAssistent(){
  var old=document.getElementById('allbizFloatingHelp');if(old)old.style.setProperty('display','none','important');
 }
 if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',installAllAssistent);else installAllAssistent();
+})();
+</script>
+<script>
+(function(){
+const btn=document.getElementById('allbizBusinessAsk'),input=document.getElementById('allbizBusinessPrompt'),out=document.getElementById('allbizBusinessResult');
+if(!btn||!input||!out)return;
+btn.addEventListener('click',async function(){
+ const message=input.value.trim();if(!message){out.textContent='Schrijf eerst een opdracht.';return;}
+ btn.disabled=true;out.textContent='Business-abonnement en AI-verbinding controleren…';
+ try{
+  const auth=window.allbizAuth;if(!auth)throw Error('Log eerst in bij Mijn account.');
+  const session=await auth.getSession();const token=session?.data?.session?.access_token;
+  if(!token)throw Error('Log eerst in bij Mijn account.');
+  const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-ai-assistant',{
+   method:'POST',headers:{'Content-Type':'application/json','Authorization':'Bearer '+token},
+   body:JSON.stringify({message})
+  });
+  const data=await response.json();
+  if(!response.ok)throw Error(data.error||'De AI-opdracht is niet beschikbaar.');
+  out.textContent=data.answer||'De AI is nog niet geactiveerd. Je kunt de gratis hulp gebruiken.';
+ }catch(error){out.textContent=error.message||'Er ging iets mis.'}
+ finally{btn.disabled=false}
+});
 })();
 </script>
 </body>
