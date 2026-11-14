@@ -4209,10 +4209,10 @@ window.allbizOpenAssistant=showAssistant;
  if(!answer||!freeField||!form)return;
  function respond(q){
   var text=String(q||'').trim();if(!text){answer.style.display='block';answer.textContent='Schrijf eerst je vraag hierboven.';return;}
-  var norm=text.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g,'');
+  var norm=text.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
   var message='';
   if(/marketing|reclame|sociale media|socialmedia|instagram|tiktok|facebook|adverteren|advertentie/.test(norm))
-   message='Digitale marketing is klanten bereiken via internet.\\n\\n1. Kies je doelgroep: wie wil je bereiken?\\n2. Kies een kanaal: bijvoorbeeld Instagram, Facebook, TikTok of Google.\\n3. Maak een bericht met je aanbod, een foto en een duidelijke oproep om contact op te nemen.\\n4. Plaats regelmatig nuttige berichten en reageer op vragen.\\n5. Meet reacties, klikken en aanvragen om te zien wat werkt.\\n\\nVoorbeeld: een kapsalon plaatst voor-en-na-foto’s (met toestemming), deelt prijzen en laat klanten via een boekingslink reserveren. Je hoeft niet meteen advertenties te betalen.';
+   message='Digitale marketing is klanten bereiken via internet.\n\n1. Kies je doelgroep: wie wil je bereiken?\n2. Kies een kanaal: bijvoorbeeld Instagram, Facebook, TikTok of Google.\n3. Maak een bericht met je aanbod, een foto en een duidelijke oproep om contact op te nemen.\n4. Plaats regelmatig nuttige berichten en reageer op vragen.\n5. Meet reacties, klikken en aanvragen om te zien wat werkt.\n\nVoorbeeld: een kapsalon plaatst voor-en-na-foto’s (met toestemming), deelt prijzen en laat klanten via een boekingslink reserveren. Je hoeft niet meteen advertenties te betalen.';
   else if(/website|domein|webpagina/.test(norm))
    message='Een website maken begint met je bedrijfsnaam, aanbod en contactgegevens. Kies een ontwerp, voeg een startpagina, diensten, over-ons-pagina en contactpagina toe, bekijk alles op mobiel en bewaar het ontwerp. Publiceren en een eigen domein koppelen zijn aparte stappen. In Albiz One vind je de websitebouwer bij Website & domein.';
   else if(/webshop|winkel|product|bestelling/.test(norm))
@@ -4224,14 +4224,14 @@ window.allbizOpenAssistant=showAssistant;
   else if(/trading|beleggen|aandelen|broker/.test(norm))
    message='Trading betekent financiële producten kopen en verkopen met kans op winst én verlies. Begin met een oefenaccount, leer over risico’s en gebruik nooit geld dat je niet kunt missen. Live trading in Albiz One is nog niet bevestigd als werkend.';
   else message='Ik heb nog geen betrouwbaar specifiek antwoord op deze vraag. De gratis hulp bevat nu uitleg over digitale marketing, websites, webshops, abonnementen, affiliate marketing en trading. Probeer je vraag met een van die onderwerpen. Dit is nog geen onbeperkte AI-chat.';
-  answer.style.display='block';answer.textContent='💬 Gratis uitleg over: '+text+'\\n\\n'+message;
+  answer.style.display='block';answer.textContent='💬 Gratis uitleg over: '+text+'\n\n'+message;
   answer.scrollIntoView({behavior:'smooth',block:'center'});
  }
  form.addEventListener('submit',function(e){e.preventDefault();e.stopImmediatePropagation();respond(freeField.value);},true);
  if(freeButton)freeButton.addEventListener('click',function(e){e.preventDefault();e.stopImmediatePropagation();respond(businessField?.value||freeField.value);},true);
  if(businessButton)businessButton.addEventListener('click',function(e){
   var q=businessField?.value||'';
-  if(/^(hoe|wat|waarom|wanneer|waar|wie|welke|leg uit|vertel|kan je uitleggen)\\b/i.test(q.trim())){
+  if(/^(hoe|wat|waarom|wanneer|waar|wie|welke|leg uit|vertel|kan je uitleggen)\b/i.test(q.trim())){
    e.preventDefault();e.stopImmediatePropagation();respond(q);
   }
  },true);
