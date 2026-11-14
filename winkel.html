@@ -34,7 +34,7 @@ buy.addEventListener('click',async()=>{
  const response=await fetch('https://woaifabvfqnnunxmhpkc.supabase.co/functions/v1/allbiz-store-mollie-checkout',{
  method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({action:'checkout',seller:id,product:p.id,quantity:1})});
  const payload=await response.json();
- if(!response.ok||!/^https:\\/\\/checkout\\.stripe\\.com\\//.test(payload.checkout_url||''))throw Error(payload.error||'Betalen is tijdelijk niet mogelijk');
+ if(!response.ok||typeof payload.checkout_url!=='string'||!['www.mollie.com','checkout.mollie.com','my.mollie.com'].includes((()=>{try{const u=new URL(payload.checkout_url);return u.protocol==='https:'?u.hostname:''}catch{return ''}})()))throw Error(payload.error||'Betalen is tijdelijk niet mogelijk');
  location.assign(payload.checkout_url);
  }catch(e){feedback.textContent='⚠️ '+e.message;buy.disabled=false;}
 });
