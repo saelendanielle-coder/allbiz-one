@@ -341,16 +341,13 @@ html,body{max-width:100%;overflow-x:clip}
 }
 </style>
 <style id="allbiz-front-only-three">
-/* Voorkant: uitsluitend assistent met onderwerpen en Mijn account. Overige functies niet wissen. */
-body:not(.splash-open)>header{display:none!important}
-body:not(.splash-open)>main> :not(#help):not(#account){display:none!important}
-body:not(.splash-open) #allbizTopAssistant,
-body:not(.splash-open) #allbizFloatingHelp,
-body:not(.splash-open) [id*="FloatingAssistant"],
-body:not(.splash-open) .mobile-feature-picker{display:none!important}
-body:not(.splash-open) #help,
-body:not(.splash-open) #account{display:block!important;position:static!important}
-body:not(.splash-open) main{padding-top:14px!important}
+/* Voorkant: precies de assistent met onderwerpen en het account. */
+body>header{display:none!important}
+body>main> :not(#help):not(#account){display:none!important}
+#allbizTopAssistant,#allbizFloatingHelp,[id*="FloatingAssistant"],.mobile-feature-picker{display:none!important}
+#help,#account{display:block!important;position:static!important}
+body>main{padding-top:14px!important}
+html,body{overflow-x:hidden;max-width:100%}
 </style>
 </head>
 <body class="splash-open">
