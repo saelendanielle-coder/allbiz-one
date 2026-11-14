@@ -314,6 +314,10 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #allbizFloatingHelp{display:flex!important}
 @media(max-width:650px){#allbizFloatingHelp{position:fixed!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;padding:11px 13px!important}}
 </style>
+<style>/* Eén samenhangende accountpagina, zonder dubbele inloguitleg. */
+.account-card #allbizCustomerDashboard{border-bottom:1px solid #e7e1f2;padding-bottom:16px;margin-bottom:18px}
+.account-card:has(#authSignedIn:not([hidden])) .account-guest-intro{display:none}
+</style>
 </head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
@@ -946,7 +950,8 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </div>
 <p class="small muted" id="allbizOwnerPrivacyHint">Andere klanten kunnen deze cijfers niet ophalen. Er worden geen bankgegevens getoond of betalingen aangepast.</p>
 </div>
-<div class="card" id="allbizCustomerDashboard" aria-label="Mijn klantendashboard">
+<div class="card account-card">
+<div id="allbizCustomerDashboard" aria-label="Mijn klantendashboard">
   <h2>👤 Mijn klantendashboard</h2>
   <p id="allbizCustomerWelcome" role="status">Log in bij Mijn account om je eigen projecten te openen.</p>
   <p id="allbizCustomerPlan" class="muted">Je abonnement wordt zichtbaar zodra je ingelogd bent.</p>
@@ -960,9 +965,9 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
   </div>
   <p class="small muted">Sommige ontwerpen zijn nog lokaal op dit toestel opgeslagen. Gebruik de privé-bewaarknoppen en reservekopieën. Bewaar geen gevoelige klantgegevens in de demo.</p>
 </div>
-<div class="card account-card">
+
 <h2>🔐 Mijn account</h2>
-<p>Maak een account aan of log in. Hierna kun je via <b>Overzicht</b> de andere onderdelen van AllBiz One gebruiken.</p>
+<p class="account-guest-intro">Maak een account aan of log in. Hierna kun je via <b>Overzicht</b> de andere onderdelen van AllBiz One gebruiken.</p>
 <button type="button" class="secondary" data-goto="dashboard">🏠 Naar overzicht</button>
 <button type="button" class="secondary" data-goto="plans">💎 Bekijk abonnementen en betaalopties</button>
 <div id="authUnavailable" class="auth-notice" role="status" hidden>
