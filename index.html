@@ -336,7 +336,7 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 <h2>🤖 All Assistent</h2><p class="hint"><b>Voor iedereen:</b> stel vragen en krijg uitleg. <b>Business (€30/maand):</b> opdrachten laten uitvoeren, zoals websiteontwerpen aanpassen, zodra de beveiligde AI-koppeling en abonnementstoegang geactiveerd zijn. De huidige hulp geeft vaste antwoorden en voert geen vrije AI-opdrachten uit.</p>
 <p class="muted" style="margin:5px 0 10px">Stel je vraag over websites, webshops, marketing of je account. All Assistent geeft uitleg en kan je naar de juiste functie brengen. Websitewijzigingen kun je uitvoeren in de websitebouwer. Een volledige AI-koppeling voor vrije opdrachten is nog niet actief.</p>
 <form id="allbizHelpForm"><label for="allbizHelpQuestion">Waarmee kunnen we helpen?</label><textarea id="allbizHelpQuestion" maxlength="500" rows="2" placeholder="Bijvoorbeeld: Hoe kan ik mijn webshop maken?" required></textarea><div class="row"><button type="submit">➤ Vraag hulp</button><button type="button" class="secondary" id="allbizHelpClear">Wis gesprek</button></div></form>
-<div class="card" style="margin:12px 0;padding:13px;border:1px solid #d7ccf6"><h3>✨ Business · AI-opdrachten</h3><p class="muted">Voor een actief Business-abonnement. Stel een vrije vraag of vraag om een websiteconcept. De AI maakt voorstellen; automatische publicatie en wijzigingen aan accounts of betalingen zijn niet beschikbaar.</p><label for="allbizBusinessPrompt">Jouw opdracht</label><textarea id="allbizBusinessPrompt" maxlength="500" rows="2" placeholder="Maak een websiteconcept voor mijn kapsalon"></textarea><button type="button" id="allbizBusinessAsk">✨ Vraag All Assistent (Business)</button><p id="allbizBusinessResult" class="toast" role="status" aria-live="polite">Business-toegang wordt beveiligd gecontroleerd wanneer je een opdracht verstuurt.</p></div>
+<div class="card" style="margin:12px 0;padding:13px;border:1px solid #d7ccf6"><h3>✨ Business · AI-opdrachten</h3><p class="muted"><b>Alleen voor opdrachten laten uitvoeren.</b> Voor gratis informatie en uitleg gebruik je hierboven “➤ Vraag hulp”. Stel een vrije vraag of vraag om een websiteconcept. De AI maakt voorstellen; automatische publicatie en wijzigingen aan accounts of betalingen zijn niet beschikbaar.</p><label for="allbizBusinessPrompt">Jouw opdracht</label><textarea id="allbizBusinessPrompt" maxlength="500" rows="2" placeholder="Maak een websiteconcept voor mijn kapsalon"></textarea><button type="button" id="allbizFreeInfoAsk" class="secondary" style="display:block!important;width:100%!important;margin:8px 0!important">💬 Stel deze vraag gratis (informatie)</button><button type="button" id="allbizBusinessAsk">✨ Vraag All Assistent (Business)</button><p id="allbizBusinessResult" class="toast" role="status" aria-live="polite">Business-toegang wordt beveiligd gecontroleerd wanneer je een opdracht verstuurt.</p></div>
 <div id="allbizHelpConversation" role="log" aria-live="polite" aria-label="Hulpgesprek" style="min-height:65px;max-height:205px;overflow-y:auto;background:#f8f6fe;border:1px solid #ded8f4;border-radius:14px;padding:12px;display:grid;gap:9px;margin:12px 0"></div>
 <p class="muted" style="margin:8px 0 3px">Of kies een onderwerp:</p>
 <div id="allbizHelpQuick" class="import-buttons" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;margin-top:8px">
@@ -4167,6 +4167,23 @@ document.querySelectorAll('#allbizTopAssistantButton,[data-goto="help"],#allbizA
  b.addEventListener('click',showAssistant);
 });
 window.allbizOpenAssistant=showAssistant;
+})();
+</script>
+<script>
+(function(){
+ var free=document.getElementById('allbizFreeInfoAsk');
+ if(!free)return;
+ free.addEventListener('click',function(){
+  var q=document.getElementById('allbizBusinessPrompt');
+  var target=document.getElementById('allbizHelpQuestion');
+  var form=document.getElementById('allbizHelpForm');
+  if(!q||!target||!form)return;
+  target.value=q.value;
+  if(!target.value.trim()){target.focus();target.scrollIntoView({block:'center',behavior:'smooth'});return;}
+  if(typeof form.requestSubmit==='function')form.requestSubmit();
+  else form.querySelector('button[type="submit"]')?.click();
+  document.getElementById('allbizHelpConversation')?.scrollIntoView({block:'center',behavior:'smooth'});
+ });
 })();
 </script>
 </body>
