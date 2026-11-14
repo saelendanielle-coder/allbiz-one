@@ -37,7 +37,7 @@
         ]
       },
       marketing: {
-        label: '📣 Reclame maken',
+        label: '📣 Digitale marketing / Reclame maken',
         access: 'Starter of hoger nodig om berichten te maken',
         about: 'De uitleg en de digitale-marketingpagina kun je bekijken. Een bericht maken vereist Starter of hoger; er worden geen advertenties gepubliceerd.',
         steps: [
@@ -104,7 +104,7 @@
     detail.append(description,access,progress,stepTitle,stepText,actions);
     const privacy=make('p','Je voortgang wordt alleen op dit toestel bewaard. Dit is een stappenhulp met vaste uitleg; de aparte echte AI-chat is nog niet actief.','small muted');
     block.append(heading,intro,choices,detail,privacy);
-    panel.insertBefore(block,panel.firstElementChild);
+    panel.appendChild(block); // All Assistent first; guided steps below it.
 
     const key='allbiz-guided-help-v1';
     let saved=null;
@@ -166,13 +166,22 @@
       // De app beslist welke functies het ingelogde account mag openen.
       // Een vergrendelde functie leidt alleen naar de abonnementenpagina.
       const locked=typeof window.allbizUiTierAllowed==='function' && !window.allbizUiTierAllowed(tab);
+      const destination=locked?'plans':tab;
+      // switchTab is scoped to another script; navigate via its existing menu listener.
+      const navButton=document.querySelector('nav.nav [data-tab="'+destination+'"]');
+      if(navButton) navButton.click();
+      else {
+        const panelTarget=document.getElementById(destination);
+        if(panelTarget){
+          document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p===panelTarget));
+          panelTarget.scrollIntoView({behavior:'smooth',block:'start'});
+        }
+      }
       if(locked){
-        if(typeof switchTab==='function') switchTab('plans');
-        else document.querySelector('[data-tab="plans"]')?.click();
+        access.textContent='🔒 Voor deze functie is een actief abonnement nodig. Bekijk de abonnementen hieronder.';
+        document.getElementById('plans')?.scrollIntoView({behavior:'smooth',block:'start'});
         return;
       }
-      if (typeof switchTab==='function') switchTab(tab);
-      else document.querySelector('[data-tab="'+tab+'"]')?.click();
       if(step.target)window.setTimeout(()=>{
         // De abonneecontrole kan de pagina ondertussen vergrendeld hebben.
         if(document.querySelector('.panel.active')?.id!==tab)return;
