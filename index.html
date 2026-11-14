@@ -903,7 +903,7 @@ try{const next=JSON.parse(localStorage.getItem(storeKey)||'null');if(Array.isArr
 function save(){try{localStorage.setItem(storeKey,JSON.stringify(items));if(!window.allbizSuspendProductAutoSync)window.allbizQueueProductBackup?.();return true}catch(e){return false}}
 /* The frontend gate merely guides people through the demo.
    Any paid server function must separately verify the live subscription with Supabase. */
-const allbizRequiredTier={products:1,site:1,builder:1,shop:2,orders:2,import:2,video:2,affiliate:2,radar:3,ads:3};
+const allbizRequiredTier={products:1,site:1,builder:1,shop:2,orders:2,import:2,video:2,affiliate:2,marketing:2,radar:3,ads:3};
 const allbizTierRank={starter:1,pro:2,business:3};
 const allbizTierLabel=['Gratis','Starter','Pro','Business'];
 let allbizLiveTier=0,allbizSandboxTier=0;
@@ -916,7 +916,7 @@ window.allbizApplyAccess=(kind,plan)=>{
  if(kind==='reset'){allbizLiveTier=0;allbizSandboxTier=0}
  else if(kind==='live')allbizLiveTier=allbizTierRank[plan]||0;
  else if(kind==='sandbox')allbizSandboxTier=0;
- window.allbizMarketingUnlocked = allbizLiveTier > 0 || window.allbizOwnerVerified===true;
+ window.allbizMarketingUnlocked = allbizLiveTier >= 2 || window.allbizOwnerVerified===true;
  const banner=el('allbizSandboxBanner');
  banner.hidden=true;
  
@@ -3357,7 +3357,7 @@ try {
  };
  create.addEventListener('click', () => {
    if (!window.allbizMarketingUnlocked) {
-     status.textContent = '💎 Log in en kies Starter of hoger om marketingberichten te maken. Alleen de eigenaar kan een testabonnement gebruiken.';
+     status.textContent = '💎 Log in en kies Pro (€20/maand) of Business (€30/maand) om marketingberichten te maken.';
      return;
    }
    const subject = byId('marketingSubject').value.trim().slice(0,100);
