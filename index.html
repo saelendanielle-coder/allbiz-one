@@ -480,16 +480,6 @@ html:not(.allbiz-embedded-mode) body #allbizFloatingHelp{display:none!important}
  },true);
 })();
 </script>
-<script id="allbiz-embedded-early">if(new URLSearchParams(location.search).has('embedded'))document.documentElement.classList.add('allbiz-embedded');</script>
-<style id="allbiz-embedded-isolation">
-html.allbiz-embedded body{background:#f7f5ff!important;min-height:100vh!important;overflow:auto!important}
-html.allbiz-embedded header,html.allbiz-embedded nav,html.allbiz-embedded #allbizMobileBack,html.allbiz-embedded #allbizFloatingHelp,html.allbiz-embedded #allbizAccessNotice,html.allbiz-embedded .mobile-feature-picker,html.allbiz-embedded .allbiz-plan-links,html.allbiz-embedded #allbizSandboxBanner{display:none!important}
-html.allbiz-embedded body>main{display:block!important;padding:12px!important;max-width:100%!important;margin:0!important;transform:none!important;opacity:1!important}
-html.allbiz-embedded main>.panel{display:none!important;position:static!important;transform:none!important;opacity:1!important;visibility:visible!important}
-html.allbiz-embedded main>.panel.active{display:block!important}
-html.allbiz-embedded .panel.active .card{max-width:100%!important;overflow-wrap:anywhere}
-html.allbiz-embedded body::before,html.allbiz-embedded body::after{display:none!important}
-</style>
 </head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
@@ -4583,93 +4573,5 @@ window.allbizOpenAssistant=showAssistant;
 })();
 </script>
 
-<style id="allbiz-mobile-navigation-stable">
-@media(max-width:650px){button,[role="button"],a{touch-action:manipulation}nav.nav button,.allbiz-plan-links button,#allbizHelpQuick button{min-height:48px}}
-body.allbiz-page-open main>.card:not(.panel):not(:has(.panel.active)){display:none!important}
-body.allbiz-page-open .panel:not(.active){display:none!important}
-#allbizMobileBack{position:sticky;top:0;z-index:9999;background:#fff;padding:10px 16px;border-bottom:1px solid #ded8f4;display:none}
-body.allbiz-page-open #allbizMobileBack{display:block}
-</style>
-<script id="allbiz-mobile-navigation-stable-script">
-(function(){
- var pages=['dashboard','site','shop','video','products','trading','radar','plans','affiliate','ads','help','account'];
- function openPage(id){
-  var panel=document.getElementById(id);
-  if(!panel||!panel.classList.contains('panel'))return false;
-  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p===panel);p.hidden=p!==panel;});
-  document.querySelectorAll('nav.nav [data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id);});
-  document.body.classList.toggle('allbiz-page-open',id!=='dashboard');
-  try{history.pushState({allbizPage:id},'',id==='dashboard'?location.pathname:('#'+id));}catch(err){}
-  window.scrollTo(0,0);return true;
- }
- function init(){
-  if(document.getElementById('allbizMobileBack'))return;
-  var back=document.createElement('div');back.id='allbizMobileBack';
-  var btn=document.createElement('button');btn.type='button';btn.textContent='← Terug naar voorpagina';
-  btn.addEventListener('click',function(e){e.preventDefault();openPage('dashboard');});
-  back.appendChild(btn);document.body.insertBefore(back,document.querySelector('main')||document.body.firstChild);
-  document.addEventListener('click',function(e){
-   var b=e.target.closest&&e.target.closest('nav.nav [data-tab],button[data-goto],button[data-open-plans],.allbiz-plan-links button');
-   if(!b)return;
-   var id=b.dataset.tab||b.dataset.goto||(b.hasAttribute('data-open-plans')?'plans':null);
-   if(!id&&b.closest('.allbiz-plan-links'))id='plans';
-   if(!pages.includes(id))return;
-   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openPage(id);
-  },true);
-  window.addEventListener('popstate',function(){openPage(location.hash.slice(1)||'dashboard');});
-  if(pages.includes(location.hash.slice(1)))openPage(location.hash.slice(1));
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();
-</script>
-
-<style id="allbiz-mobile-route-v2">
-body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) header,body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) nav.nav{display:none!important}
-body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) .panel{display:none!important}
-body[data-allbiz-route="site"] #site,body[data-allbiz-route="shop"] #shop,body[data-allbiz-route="video"] #video,body[data-allbiz-route="products"] #products,body[data-allbiz-route="trading"] #trading,body[data-allbiz-route="radar"] #radar,body[data-allbiz-route="plans"] #plans,body[data-allbiz-route="affiliate"] #affiliate,body[data-allbiz-route="ads"] #ads,body[data-allbiz-route="help"] #help,body[data-allbiz-route="account"] #account{display:block!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important}
-body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) #allbizMobileBack{display:block!important}
-@media(max-width:650px){body[data-allbiz-route] main{padding:12px!important}body[data-allbiz-route] .panel{max-width:100%;overflow-wrap:anywhere}}
-</style>
-<script id="allbiz-mobile-route-v2-script">
-(function(){
- var routes=['dashboard','site','shop','video','products','trading','radar','plans','affiliate','ads','help','account'];
- function route(){var id=new URLSearchParams(location.search).get('page')||'dashboard';return routes.includes(id)?id:'dashboard';}
- function render(){var id=route();document.body.setAttribute('data-allbiz-route',id);document.querySelectorAll('.panel').forEach(function(p){p.hidden=id!=='dashboard'&&p.id!==id;if(id!=='dashboard')p.classList.toggle('active',p.id===id);});}
- window.addEventListener('click',function(e){
-  var b=e.target.closest&&e.target.closest('button[data-goto],button[data-open-plans],nav.nav [data-tab],.allbiz-plan-links a,.allbiz-plan-links button');if(!b)return;
-  var id=b.dataset.goto||b.dataset.tab||(b.hasAttribute('data-open-plans')||b.closest('.allbiz-plan-links')?'plans':null);
-  if(!routes.includes(id))return;
-  e.preventDefault();e.stopImmediatePropagation();
-  var url=new URL(location.href);url.searchParams.set('page',id);url.hash='';location.assign(url.href);
- },true);
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',render);else render();
- window.addEventListener('load',render);
-})();
-</script>
-
-<style id="allbiz-home-cleanup-v3">
-body:not([data-allbiz-route]),body[data-allbiz-route="dashboard"]{--allbiz-home:1}
-body[data-allbiz-route="dashboard"] #allbizMobileBack,body:not([data-allbiz-route]) #allbizMobileBack{display:none!important}
-body[data-allbiz-route="dashboard"] main>.panel:not(#help){display:none!important}
-body[data-allbiz-route="dashboard"] #help{display:block!important;visibility:visible!important}
-body[data-allbiz-route="dashboard"] #help .card{margin-top:0}
-body[data-allbiz-route="dashboard"] header{display:none!important}
-body[data-allbiz-route="dashboard"] #allbizHelpQuick a{display:flex;align-items:center;justify-content:center;text-align:center;min-height:68px;border-radius:14px;background:#eee9fc;color:#322861;text-decoration:none;font-weight:700;padding:12px}
-</style>
-<script id="allbiz-home-cleanup-v3-script">
-(function(){
- function clean(){
-  var q=new URLSearchParams(location.search);
-  if(q.has('embedded'))return;
-  var page=q.get('page')||'dashboard';
-  if(page==='dashboard'){
-   document.body.setAttribute('data-allbiz-route','dashboard');
-   var back=document.getElementById('allbizMobileBack');if(back)back.style.setProperty('display','none','important');
-   document.querySelectorAll('main>.panel').forEach(function(p){p.classList.toggle('active',p.id==='help');});
-  }
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
- window.addEventListener('load',clean);
-})();
-</script>
-</body></html>
+</body>
+</html>
