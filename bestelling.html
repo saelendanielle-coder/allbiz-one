@@ -3,7 +3,10 @@
 const $=id=>document.getElementById(id),p=new URLSearchParams(location.search);
 const order=p.get('order')||'',session=p.get('session_id')||'';
 if(p.get('provider')==='mollie'){
- const token=p.get('token')||'';
+ const storageKey='allbiz-mollie-return:'+order;
+ const incomingToken=p.get('token')||'';
+ if(/^[a-f0-9-]{36}$/i.test(order)&&/^[A-Za-z0-9_-]{43}$/.test(incomingToken)){try{sessionStorage.setItem(storageKey,incomingToken)}catch{}}
+ const token=incomingToken||(function(){try{return sessionStorage.getItem(storageKey)||''}catch{return ''}})();
  if(!/^[a-f0-9-]{36}$/i.test(order)||!/^[A-Za-z0-9_-]{43}$/.test(token)){$('status').textContent='Ongeldige bestelreferentie.';return;}
  history.replaceState(null,'',location.pathname+'?order='+encodeURIComponent(order)+'&provider=mollie');
  const refresh=$('refreshDownloads');refresh.hidden=false;let attempts=0;
