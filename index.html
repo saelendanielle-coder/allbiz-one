@@ -318,6 +318,15 @@ body.allbiz-help-active #allbizFloatingHelp,body:has(#account.panel.active) #all
 .account-card #allbizCustomerDashboard{border-bottom:1px solid #e7e1f2;padding-bottom:16px;margin-bottom:18px}
 .account-card:has(#authSignedIn:not([hidden])) .account-guest-intro{display:none}
 </style>
+<style id="allbiz-single-page-layout">
+/* Eén overzichtspagina met de vier gevraagde onderdelen; functies blijven in de code. */
+.mobile-feature-picker{display:none!important}
+#account > div:first-child:not(.account-card){display:none!important}
+#allbizAdminAccess,#allbizCustomerDashboard{display:none!important}
+#account .account-guest-intro{display:none!important}
+#help,#account{display:block!important}
+#help{margin:0 0 18px!important}
+</style>
 </head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
