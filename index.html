@@ -458,6 +458,27 @@ document.addEventListener('click',function(e){
    document.getElementById(id)?.scrollIntoView({block:'start'});
  });
 })();
+</script><style id="allbiz-home-isolation-final">
+/* The public landing page shows only the assistant menu. Feature pages use ?embedded=. */
+html:not(.allbiz-embedded-mode) body>main>section.panel:not(#help){display:none!important;visibility:hidden!important}
+html:not(.allbiz-embedded-mode) body>main>section#help{display:block!important;visibility:visible!important}
+html:not(.allbiz-embedded-mode) body>main>section#help .card{display:block}
+html:not(.allbiz-embedded-mode) body>main>section#help #allbizHelpQuick{display:grid!important}
+html:not(.allbiz-embedded-mode) body>main>section#help .card> :not(h2):not(#allbizHelpQuick):not(#allbizHelpWebsiteStatus){display:none!important}
+html:not(.allbiz-embedded-mode) body>main>section#help .card #allbizHelpQuick>*{display:flex}
+html:not(.allbiz-embedded-mode) body>main>section#help .card #allbizHelpQuick #allbizHelpWebsiteStatus{display:none!important}
+html:not(.allbiz-embedded-mode) body #allbizFloatingHelp{display:none!important}
+</style>
+<script id="allbiz-home-routing-final">
+(function(){
+ if(new URLSearchParams(location.search).has('embedded'))return;
+ document.addEventListener('click',function(event){
+   var link=event.target.closest&&event.target.closest('#allbizHelpQuick a[data-quick-section]');
+   if(!link)return;
+   event.preventDefault();event.stopImmediatePropagation();
+   window.location.assign(link.getAttribute('href'));
+ },true);
+})();
 </script></head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
