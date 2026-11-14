@@ -1060,7 +1060,7 @@ window.allbizApplyAccess=(kind,plan)=>{
  banner.hidden=true;
  
  const current=document.querySelector('.panel.active')?.id;
- if(kind!=='reset'&&!window.allbizAccessChecking&&current&&!allbizUiTierAllowed(current))switchTab('account',{automatic:true,keepSavedTab:true});
+ if(kind!=='reset'&&!window.allbizAccessChecking&&current&&!allbizUiTierAllowed(current))switchTab('plans',{automatic:true,keepSavedTab:true});
 };
 // On mobile, the section picker stays visible while quick shortcuts collapse on scroll.
 const mobilePicker=document.querySelector('.mobile-feature-picker');
