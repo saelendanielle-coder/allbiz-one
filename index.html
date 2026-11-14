@@ -4237,5 +4237,28 @@ window.allbizOpenAssistant=showAssistant;
  },true);
 })();
 </script>
+<script>
+(function(){
+ function updateProductTopic(){
+  var container=document.getElementById('allbizHelpTopics');
+  if(!container)container=document.querySelector('#help');
+  if(!container)return;
+  container.querySelectorAll('button[data-q]').forEach(function(button){
+   var label=button.textContent.trim();
+   if(/^(📣\\s*)?Marketing$/i.test(label)||/socialmedia-bericht/i.test(button.getAttribute('data-q')||'')){
+    button.textContent='📦 Digitale producten';
+    button.setAttribute('data-q','Hoe maak en verkoop ik digitale producten?');
+   }
+  });
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',updateProductTopic);
+ else updateProductTopic();
+ var help=document.getElementById('help');
+ if(help){
+  var scheduled=false;
+  new MutationObserver(function(){if(scheduled)return;scheduled=true;queueMicrotask(function(){scheduled=false;updateProductTopic();});}).observe(help,{subtree:true,childList:true,characterData:true,attributes:true,attributeFilter:['data-q']});
+ }
+})();
+</script>
 </body>
 </html>
