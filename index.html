@@ -4364,7 +4364,16 @@ window.allbizOpenAssistant=showAssistant;
    if(!destination)return;
    event.preventDefault();event.stopImmediatePropagation();
    var nav=document.querySelector('nav.nav button[data-tab="'+destination+'"]');
-   if(nav){nav.click();setTimeout(function(){document.getElementById(destination)?.scrollIntoView({block:'start'});},80);}
+   if(nav){
+    nav.click();
+    setTimeout(function(){
+     var active=document.querySelector('.panel.active');
+     var target=active&&active.id==='plans'?document.getElementById('allbizAccessNotice'):document.getElementById(destination);
+     if(!target||target.hidden)target=active;
+     if(target){target.scrollIntoView({block:'start',behavior:'instant'});}
+     if(active){try{history.replaceState(null,'','#'+active.id);}catch(e){}}
+    },120);
+   }
   },true);
  }
  function start(){
