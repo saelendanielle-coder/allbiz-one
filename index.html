@@ -4582,5 +4582,7 @@ window.allbizOpenAssistant=showAssistant;
 })();
 </script>
 
-</body>
-</html>
+
+<style id="allbiz-assistant-button-fix">#allbizFloatingHelp{display:flex!important;visibility:visible!important;pointer-events:auto!important;touch-action:manipulation!important;min-height:48px!important}body.allbiz-help-active #allbizFloatingHelp{display:none!important}#help.panel.active{display:block!important;visibility:visible!important;opacity:1!important}#help.panel.active[hidden]{display:block!important}</style>
+<script id="allbiz-assistant-button-fix-script">(function(){function showHelp(){var help=document.getElementById('help');if(!help)return;document.querySelectorAll('main>.panel').forEach(function(p){p.classList.toggle('active',p===help);p.hidden=p!==help;});help.hidden=false;help.removeAttribute('inert');help.classList.add('active');document.body.classList.add('allbiz-help-active');document.querySelectorAll('nav.nav [data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==='help')});try{history.replaceState(null,'','#help')}catch(e){}setTimeout(function(){help.scrollIntoView({block:'start',behavior:'instant'});var q=document.getElementById('allbizHelpQuestion');if(q)q.focus({preventScroll:true})},40)}document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#allbizFloatingHelp,button[data-goto="help"],nav.nav button[data-tab="help"]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showHelp()},true);})();</script>
+</body></html>
