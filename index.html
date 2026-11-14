@@ -440,6 +440,31 @@ Zacht katoen, meerdere kleuren..." style="min-height:130px"></textarea><button t
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel">
 <div class="card"><h3>📦 Mijn webshopproducten</h3><p><strong>Heb je al een productbestand in Supabase geplaatst?</strong> Upload het niet opnieuw. Het bestand <em>Stop_met_geld_verspillen_Albiz_One.pdf</em> is al in de privéopslag geplaatst; dat betekent nog niet dat het aan een verkoopbaar product gekoppeld is.</p><p class="notice">De beveiligde koppeling tussen een bestaand PDF-bestand, de productcatalogus en de betaalbevestiging is nog niet actief. Daarom kun je dit product hier nog niet veilig aan klanten verkopen of automatisch laten downloaden.</p><details><summary>Nieuw product als concept voorbereiden (nog geen online verkoop)</summary><p>Het onderstaande productformulier slaat een concept lokaal op. Gebruik het niet om een bestaand digitaal bestand opnieuw te uploaden.</p><button type="button" class="secondary" data-goto="products">📦 Open concept-producten</button></details></div>
+<div class="card" id="allbizExistingCatalog"><h3>📚 Mijn bestaande online producten</h3><p class="muted">Bekijk producten die al veilig in je Supabase-account staan. Je hoeft geen bestand opnieuw te uploaden.</p><button type="button" class="secondary" id="allbizLoadExistingCatalog">🔄 Toon mijn opgeslagen producten</button><p id="allbizExistingCatalogStatus" role="status" aria-live="polite">Klik om je producten op te halen. Er worden geen betalingen gestart.</p><div id="allbizExistingCatalogItems"></div></div>
+<script>
+document.getElementById('allbizLoadExistingCatalog').addEventListener('click',async function(){
+ const btn=this,status=document.getElementById('allbizExistingCatalogStatus'),list=document.getElementById('allbizExistingCatalogItems');
+ btn.disabled=true;list.replaceChildren();status.textContent='Producten ophalen...';
+ try{
+  const client=window.allbizClient;
+  if(!client)throw new Error('De accountverbinding is nog niet geladen. Ververs de pagina en probeer opnieuw.');
+  const {data:userData,error:userError}=await client.auth.getUser();
+  if(userError||!userData?.user)throw new Error('Log eerst in bij Mijn account.');
+  const {data,error}=await client.from('allbiz_catalog_products').select('id,name,description,kind,price_cents,is_listed,digital_file_path').eq('seller_id',userData.user.id).order('created_at',{ascending:false});
+  if(error)throw new Error(error.message);
+  status.textContent=data.length?'Je bestaande producten ('+data.length+')':'Er staan nog geen online producten in dit account.';
+  for(const p of data){
+   const card=document.createElement('div');card.className='notice';
+   const title=document.createElement('strong');title.textContent=p.name||'Product';card.append(title);
+   const info=document.createElement('p');info.textContent=(p.kind==='digital'?'📄 Digitaal':'📦 Fysiek')+' · € '+(p.price_cents/100).toFixed(2).replace('.',',')+' · '+(p.is_listed?'Gepubliceerd':'Niet gepubliceerd');card.append(info);
+   if(p.description){const d=document.createElement('p');d.textContent=p.description;card.append(d)}
+   if(p.kind==='digital'){const f=document.createElement('p');f.textContent=p.digital_file_path?'✅ Privébestand gekoppeld':'⚠️ Nog geen privébestand gekoppeld';card.append(f)}
+   list.append(card);
+  }
+ }catch(e){status.textContent='Ophalen mislukt: '+(e.message||'onbekende fout')}
+ finally{btn.disabled=false}
+});
+</script>
 <div class="card" id="allbizStoreMain">
 <h2>🏪 Mijn webshop en digitale producten</h2>
 <p class="muted">Beheer echte productgegevens en privé digitale bestanden met je eigen AllBiz One-account. Je productcatalogus en bestelverwerking zijn technisch voorbereid. <strong>Webshopkopers kunnen nog niet echt afrekenen</strong> totdat Mollie Connect, betaalbevestiging en levering volledig zijn gecontroleerd.</p>
