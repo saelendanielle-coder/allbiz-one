@@ -1954,35 +1954,7 @@ el('exportSite').addEventListener('click',()=>{
  serviceCards?'<section id="diensten"><h2>Onze diensten</h2><ul>'+serviceCards+'</ul></section>':'',
  '<section id="contact"><h2>Contact</h2>'+contact+'</section></main>',
  '<footer>© '+new Date().getFullYear()+' '+title+'</footer>',
- '
-<!-- Verberg alleen de twee dubbele startpagina-onderdelen; behoud alle accountlogica. -->
-<style>
-#account, nav.nav button[data-tab="account"], #quickCustomerDashboard {display:none!important}
-</style>
-<script>
-(function(){
- function hideDuplicateStartCard(){
-  document.querySelectorAll('h1,h2,h3').forEach(function(h){
-   if((h.textContent||'').trim().replace(/^[^\\p{L}]*/u,'').trim()==='Wat wil je maken?'){
-    var card=h.closest('.card, .panel, section');
-    if(card && card.id!=='dashboard' && card.id!=='help')card.style.setProperty('display','none','important');
-   }
-  });
- }
- function start(){
-  hideDuplicateStartCard();
-  var account=document.getElementById('account');
-  var dashboard=document.getElementById('dashboard');
-  if(account&&account.classList.contains('active')&&dashboard){
-   account.classList.remove('active');dashboard.classList.add('active');
-   document.querySelectorAll('nav.nav button[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==='dashboard');});
-  }
-  new MutationObserver(hideDuplicateStartCard).observe(document.body,{childList:true,subtree:true});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
-</script>
-</body></html>'
+ '</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
@@ -4349,6 +4321,34 @@ window.allbizOpenAssistant=showAssistant;
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',replaceTestOrdersTopic);else replaceTestOrdersTopic();
  var grid=document.getElementById('allbizHelpQuick');
  if(grid){var queued=false;new MutationObserver(function(){if(queued)return;queued=true;queueMicrotask(function(){queued=false;replaceTestOrdersTopic();});}).observe(grid,{childList:true,subtree:true,characterData:true});}
+})();
+</script>
+
+<!-- Verberg alleen de twee dubbele startpagina-onderdelen; behoud alle accountlogica. -->
+<style>
+#account, nav.nav button[data-tab="account"], #quickCustomerDashboard {display:none!important}
+</style>
+<script>
+(function(){
+ function hideDuplicateStartCard(){
+  document.querySelectorAll('h1,h2,h3').forEach(function(h){
+   if((h.textContent||'').trim().replace(/^[^\\p{L}]*/u,'').trim()==='Wat wil je maken?'){
+    var card=h.closest('.card, .panel, section');
+    if(card && card.id!=='dashboard' && card.id!=='help')card.style.setProperty('display','none','important');
+   }
+  });
+ }
+ function start(){
+  hideDuplicateStartCard();
+  var account=document.getElementById('account');
+  var dashboard=document.getElementById('dashboard');
+  if(account&&account.classList.contains('active')&&dashboard){
+   account.classList.remove('active');dashboard.classList.add('active');
+   document.querySelectorAll('nav.nav button[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==='dashboard');});
+  }
+  new MutationObserver(hideDuplicateStartCard).observe(document.body,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
 </body>
