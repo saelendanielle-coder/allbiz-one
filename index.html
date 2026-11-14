@@ -2005,6 +2005,49 @@ el('exportSite').addEventListener('click',()=>{
  },true);
 })();
 </script>
+
+<!-- Onafhankelijke mobiele kliknavigatie: werkt ook wanneer hoofdapp niet initialiseert. -->
+<style>
+@media(max-width:700px){.allbiz-plan-links{display:grid!important;grid-template-columns:1fr!important;width:100%}.allbiz-plan-links button{width:100%;min-height:52px}nav.nav{overflow-x:auto;max-width:100vw}nav.nav button{min-height:44px}}
+</style>
+<script>
+(function(){
+ function navigate(id){
+  var target=document.getElementById(id);
+  if(!target||!target.classList.contains('panel'))return;
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p===target);});
+  document.querySelectorAll('nav.nav [data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});
+  target.removeAttribute('inert');target.classList.remove('allbiz-locked-preview');
+  document.body.classList.toggle('allbiz-help-active',id==='help');
+  if(id==='site'||id==='shop'||id==='trading'||id==='video'||id==='radar'){
+   var required={site:'Starter',shop:'Pro',video:'Pro',radar:'Business',trading:'Business'}[id];
+   var notice=document.getElementById('allbizAccessNotice');
+   if(notice&&!notice.hidden){notice.hidden=false;}
+  }
+  requestAnimationFrame(function(){target.scrollIntoView({block:'start',behavior:'instant'});});
+ }
+ document.addEventListener('click',function(e){
+  var button=e.target.closest('button');if(!button)return;
+  var id=button.getAttribute('data-open-plans')?'plans':button.getAttribute('data-goto')||button.getAttribute('data-tab');
+  if(!id&&button.closest('#allbizHelpQuick')){
+   var label=(button.textContent||'').toLowerCase();
+   if(label.includes('website')||label.includes('domein'))id='site';
+   else if(label.includes('webshop')||label.includes('digitale producten'))id='shop';
+   else if(label.includes('youtube'))id='video';
+   else if(label.includes('trading'))id='trading';
+   else if(label.includes('radar'))id='radar';
+   else if(label.includes('abonnement'))id='plans';
+  }
+  if(!id||!document.getElementById(id)?.classList.contains('panel'))return;
+  e.preventDefault();e.stopImmediatePropagation();navigate(id);
+  if(button.hasAttribute('data-open-plans')){
+   var index={starter:0,pro:1,business:2}[button.getAttribute('data-open-plans')];
+   var card=document.querySelectorAll('#plans .plan')[index];
+   if(card){document.querySelectorAll('#plans .plan').forEach(function(p){p.style.outline=''});card.style.outline='3px solid #6245d1';card.scrollIntoView({block:'center',behavior:'instant'});}
+  }
+ },true);
+})();
+</script>
 </body></html>'
  ].join('');
  saveSiteSettings();
