@@ -4635,4 +4635,30 @@ body[data-allbiz-route]:not([data-allbiz-route="dashboard"]) #allbizMobileBack{d
  window.addEventListener('load',render);
 })();
 </script>
+
+<style id="allbiz-home-cleanup-v3">
+body:not([data-allbiz-route]),body[data-allbiz-route="dashboard"]{--allbiz-home:1}
+body[data-allbiz-route="dashboard"] #allbizMobileBack,body:not([data-allbiz-route]) #allbizMobileBack{display:none!important}
+body[data-allbiz-route="dashboard"] main>.panel:not(#help){display:none!important}
+body[data-allbiz-route="dashboard"] #help{display:block!important;visibility:visible!important}
+body[data-allbiz-route="dashboard"] #help .card{margin-top:0}
+body[data-allbiz-route="dashboard"] header{display:none!important}
+body[data-allbiz-route="dashboard"] #allbizHelpQuick a{display:flex;align-items:center;justify-content:center;text-align:center;min-height:68px;border-radius:14px;background:#eee9fc;color:#322861;text-decoration:none;font-weight:700;padding:12px}
+</style>
+<script id="allbiz-home-cleanup-v3-script">
+(function(){
+ function clean(){
+  var q=new URLSearchParams(location.search);
+  if(q.has('embedded'))return;
+  var page=q.get('page')||'dashboard';
+  if(page==='dashboard'){
+   document.body.setAttribute('data-allbiz-route','dashboard');
+   var back=document.getElementById('allbizMobileBack');if(back)back.style.setProperty('display','none','important');
+   document.querySelectorAll('main>.panel').forEach(function(p){p.classList.toggle('active',p.id==='help');});
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',clean);else clean();
+ window.addEventListener('load',clean);
+})();
+</script>
 </body></html>
