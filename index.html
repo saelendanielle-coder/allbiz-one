@@ -343,10 +343,10 @@ html,body{max-width:100%;overflow-x:clip}
 <style id="allbiz-front-only-three">
 /* Publieke voorkant: bovenste balk en één All Assistent met onderwerpknoppen. */
 body>header{display:block!important}
-body>main> :not(#help){display:none!important}
-body>main>#account{display:none!important}
-#account{display:none!important}
-#help{display:block!important;position:static!important;margin:0 auto 18px!important}
+/* Show only the active section, never permanently force the assistant on top. */
+body>main>.panel{display:none!important}
+body>main>.panel.active{display:block!important;visibility:visible!important;position:relative!important}
+body>main>.panel.active[hidden]{display:none!important}
 #allbizFloatingHelp,[id*="FloatingAssistant"],.mobile-feature-picker{display:none!important}
 body>main{padding-top:14px!important}
 html,body{overflow-x:hidden;max-width:100%}
