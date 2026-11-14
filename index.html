@@ -396,6 +396,50 @@ document.addEventListener('click',function(e){
   if(panel)setTimeout(()=>panel.scrollIntoView({block:'start',behavior:'smooth'}),60);
  }
 },true);
+</script><script id="allbiz-quick-navigation-v3">
+(function(){
+  function navigate(id){
+    var allowed=['site','shop','video','trading','radar','plans','affiliate','ads','products','help'];
+    if(!allowed.includes(id))return;
+    var button=document.querySelector('nav.nav button[data-tab="'+id+'"]');
+    if(button)button.click();
+    var panel=document.getElementById(id);
+    var notice=document.getElementById('allbizAccessNotice');
+    if(panel){
+      // Navigation is allowed to show a locked preview, but never unlock paid controls.
+      document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p===panel)});
+      if(panel.hasAttribute('inert'))panel.classList.add('allbiz-locked-preview');
+      document.querySelectorAll('nav.nav button[data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id)});
+      history.replaceState(null,'','#'+id);
+      setTimeout(function(){(notice&&!notice.hidden?notice:panel).scrollIntoView({behavior:'smooth',block:'start'})},50);
+    }
+  }
+  document.addEventListener('click',function(e){
+    var el=e.target.closest&&e.target.closest('#allbizHelpQuick [data-quick-section], #allbizHelpQuick button');
+    if(!el)return;
+    var id=el.getAttribute('data-quick-section')||el.getAttribute('data-goto');
+    if(!id){
+      var text=(el.textContent||'').toLowerCase();
+      if(text.includes('website'))id='site';
+      else if(text.includes('webshop')||text.includes('digitale producten'))id='shop';
+      else if(text.includes('youtube'))id='video';
+      else if(text.includes('trading'))id='trading';
+      else if(text.includes('radar'))id='radar';
+      else if(text.includes('abonnement'))id='plans';
+      else if(text.includes('affiliate'))id='affiliate';
+      else if(text.includes('advertentie'))id='ads';
+    }
+    if(!id)return;
+    e.preventDefault();e.stopImmediatePropagation();
+    navigate(id);
+  },true);
+  window.addEventListener('DOMContentLoaded',function(){
+    var id=location.hash.substring(1);
+    if(['site','shop','video','trading','radar','plans','affiliate','ads'].includes(id)){
+      setTimeout(function(){navigate(id)},550);
+    }
+  });
+})();
 </script></head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
