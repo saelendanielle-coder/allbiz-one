@@ -4571,5 +4571,45 @@ window.allbizOpenAssistant=showAssistant;
   },true);
 })();
 </script>
+
+<style id="allbiz-mobile-navigation-stable">
+@media(max-width:650px){button,[role="button"],a{touch-action:manipulation}nav.nav button,.allbiz-plan-links button,#allbizHelpQuick button{min-height:48px}}
+body.allbiz-page-open main>.card:not(.panel):not(:has(.panel.active)){display:none!important}
+body.allbiz-page-open .panel:not(.active){display:none!important}
+#allbizMobileBack{position:sticky;top:0;z-index:9999;background:#fff;padding:10px 16px;border-bottom:1px solid #ded8f4;display:none}
+body.allbiz-page-open #allbizMobileBack{display:block}
+</style>
+<script id="allbiz-mobile-navigation-stable-script">
+(function(){
+ var pages=['dashboard','site','shop','video','products','trading','radar','plans','affiliate','ads','help','account'];
+ function openPage(id){
+  var panel=document.getElementById(id);
+  if(!panel||!panel.classList.contains('panel'))return false;
+  document.querySelectorAll('.panel').forEach(function(p){p.classList.toggle('active',p===panel);p.hidden=p!==panel;});
+  document.querySelectorAll('nav.nav [data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab===id);});
+  document.body.classList.toggle('allbiz-page-open',id!=='dashboard');
+  try{history.pushState({allbizPage:id},'',id==='dashboard'?location.pathname:('#'+id));}catch(err){}
+  window.scrollTo(0,0);return true;
+ }
+ function init(){
+  if(document.getElementById('allbizMobileBack'))return;
+  var back=document.createElement('div');back.id='allbizMobileBack';
+  var btn=document.createElement('button');btn.type='button';btn.textContent='← Terug naar voorpagina';
+  btn.addEventListener('click',function(e){e.preventDefault();openPage('dashboard');});
+  back.appendChild(btn);document.body.insertBefore(back,document.querySelector('main')||document.body.firstChild);
+  document.addEventListener('click',function(e){
+   var b=e.target.closest&&e.target.closest('nav.nav [data-tab],button[data-goto],button[data-open-plans],.allbiz-plan-links button');
+   if(!b)return;
+   var id=b.dataset.tab||b.dataset.goto||(b.hasAttribute('data-open-plans')?'plans':null);
+   if(!id&&b.closest('.allbiz-plan-links'))id='plans';
+   if(!pages.includes(id))return;
+   e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();openPage(id);
+  },true);
+  window.addEventListener('popstate',function(){openPage(location.hash.slice(1)||'dashboard');});
+  if(pages.includes(location.hash.slice(1)))openPage(location.hash.slice(1));
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body>
 </html>
