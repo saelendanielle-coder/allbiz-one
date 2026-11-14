@@ -4261,5 +4261,26 @@ window.allbizOpenAssistant=showAssistant;
  }
 })();
 </script>
+<script>
+(function(){
+ function replaceTestOrdersTopic(){
+  var grid=document.getElementById('allbizHelpQuick');
+  if(!grid)return;
+  var buttons=Array.from(grid.querySelectorAll('button'));
+  var test=buttons.find(function(b){return /testbestellingen/i.test(b.textContent||'');});
+  var radar=buttons.find(function(b){return /winnende producten radar/i.test(b.textContent||'');});
+  if(test){
+   if(radar&&radar!==test)radar.remove();
+   test.textContent='🔥 Winnende producten radar';
+   test.removeAttribute('data-q');
+   test.setAttribute('data-goto','radar');
+   test.onclick=function(e){e.preventDefault();var nav=document.querySelector('nav.nav button[data-tab="radar"]');if(nav)nav.click();else document.getElementById('radar')?.scrollIntoView({behavior:'smooth'});};
+  }
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',replaceTestOrdersTopic);else replaceTestOrdersTopic();
+ var grid=document.getElementById('allbizHelpQuick');
+ if(grid){var queued=false;new MutationObserver(function(){if(queued)return;queued=true;queueMicrotask(function(){queued=false;replaceTestOrdersTopic();});}).observe(grid,{childList:true,subtree:true,characterData:true});}
+})();
+</script>
 </body>
 </html>
