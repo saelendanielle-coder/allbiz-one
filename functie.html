@@ -37,6 +37,6 @@ document.getElementById('heading').textContent=item.title;
 document.getElementById('intro').textContent=item.intro;
 document.getElementById('note').textContent=item.note;
 document.getElementById('features').replaceChildren(...item.features.map(function(value){var li=document.createElement('li');li.textContent=value;return li;}));
-document.getElementById('open').href='./index.html?embedded='+encodeURIComponent(item.panel)+'&werkruimte=1';
+document.getElementById('open').href='./index.html?workspace='+encodeURIComponent(item.panel)+'&versie=48671f';
 })();
 </script></body></html>
