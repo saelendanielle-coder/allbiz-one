@@ -491,19 +491,32 @@ body>header .allbiz-plan-links>a small{display:block!important;font-size:clamp(1
 </style>
 <style id="allbiz-device-notice-style">.allbiz-device-notice{display:flex;flex-direction:column;gap:5px;padding:13px 16px;margin:12px 0 18px;border:1px solid #ffffff88;border-radius:14px;background:#ffffff15;color:#fff;line-height:1.45}.allbiz-device-notice strong{font-size:16px}.allbiz-device-notice span{font-size:14px}</style><style id="allbiz-device-notice-visibility-fix">body>header .allbiz-device-notice{display:flex!important;visibility:visible!important;opacity:1!important;position:relative!important;z-index:3!important;flex-direction:column!important;gap:6px!important;width:100%!important;min-height:76px!important;margin:16px 0!important;padding:16px!important;background:#ffffff22!important;border:2px solid #ffffffaa!important;border-radius:14px!important;color:#fff!important;transform:none!important}body>header .allbiz-device-notice strong,body>header .allbiz-device-notice span{display:block!important;color:#fff!important;visibility:visible!important;opacity:1!important}</style><style id="allbiz-help-anchor-reliability">body:has(#help:target) main>.panel:not(#help){display:none!important}body:has(#help:target) main>#help{display:block!important;visibility:visible!important;opacity:1!important}a#allbizFloatingHelp{cursor:pointer!important;text-decoration:none!important;pointer-events:auto!important}</style><style id="allbiz-assistant-direct-mobile-link">@media(max-width:900px){a[href="./assistent.html"]{pointer-events:auto!important;touch-action:manipulation!important}}</style><script id="allbiz-mobile-nav-capture">
 (function(){
-  // Single capture-phase router: legacy document handlers cannot override these links.
+  // Route assistant buttons and quick links before older document handlers.
+  function destinationFor(target){
+    if(!target||!target.closest)return null;
+    var assistant=target.closest('#allbizFloatingHelp, #allbizTopAssistantButton, #allbizAssistantDock, a[href="./assistent.html"], button[data-goto="help"], nav.nav button[data-tab="help"]');
+    if(assistant)return './assistent.html';
+    var link=target.closest('#allbizHelpQuick a[data-quick-section]');
+    if(link)return link.getAttribute('href')||('./functie.html?onderdeel='+encodeURIComponent(link.getAttribute('data-quick-section')));
+    return null;
+  }
   window.addEventListener('click',function(event){
-    var el=event.target && event.target.closest && event.target.closest('a[href="./assistent.html"], #allbizFloatingHelp, #allbizHelpQuick a[data-quick-section]');
-    if(!el)return;
-    var destination=el.getAttribute('href');
-    if(!destination){
-      var id=el.getAttribute('data-quick-section');
-      destination=id?'./functie.html?onderdeel='+encodeURIComponent(id):'./assistent.html';
-    }
+    var destination=destinationFor(event.target);
+    if(!destination)return;
     event.preventDefault();
     event.stopImmediatePropagation();
-    window.location.href=destination;
+    window.location.assign(destination);
   },true);
+  // Back/forward cache can restore a previous screen with an open overlay.
+  window.addEventListener('pageshow',function(event){
+    if(!event.persisted)return;
+    var splash=document.getElementById('splashScreen');
+    if(splash&&splash.classList.contains('is-closed')){
+      splash.style.display='none';
+      splash.setAttribute('aria-hidden','true');
+      document.body.classList.remove('splash-open');
+    }
+  });
 })();
 </script>
 </head>
