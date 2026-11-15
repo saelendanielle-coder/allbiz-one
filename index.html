@@ -556,6 +556,38 @@ html.allbiz-workspace-mode[data-workspace="radar"] #radar,
 html.allbiz-workspace-mode[data-workspace="plans"] #plans,
 html.allbiz-workspace-mode[data-workspace="affiliate"] #affiliate,
 html.allbiz-workspace-mode[data-workspace="ads"] #ads{display:block!important;visibility:visible!important;opacity:1!important;position:relative!important;pointer-events:auto!important}
+</style><script id="allbiz-shop-builder-primary">
+(function(){
+ if(new URLSearchParams(location.search).get('workspace')!=='shop')return;
+ function start(){
+  var shop=document.getElementById('shop');
+  var legacy=document.getElementById('allbizShopPractice');
+  if(!shop||!legacy)return;
+  legacy.open=true;
+  var advanced=document.getElementById('shopBuilderDetails');
+  if(advanced)advanced.open=true;
+  var intro=document.createElement('div');
+  intro.id='allbizShopBuilderWelcome';
+  intro.className='card';
+  intro.innerHTML='<h2>🛍️ Bouw je eigen webshop</h2><p>Ontwerp je eigen online winkel: kies een stijl, maak een startpagina, pas kleuren en banners aan en beheer pagina’s, menu’s en collecties.</p><p class="notice">Dit is de bestaande webshopontwerper van Albiz One. Je ontwerp wordt lokaal bewaard; een volledige Shopify-achtige live publicatie en betaalintegratie zijn nog niet klaar.</p><button type="button" id="allbizShopStartDesign">🎨 Begin met ontwerpen</button>';
+  shop.insertBefore(intro,shop.firstChild);
+  document.getElementById('allbizShopStartDesign').addEventListener('click',function(){
+    legacy.open=true;if(advanced)advanced.open=true;
+    var studio=legacy.querySelector('.shop-studio')||legacy;
+    studio.scrollIntoView({behavior:'smooth',block:'start'});
+  });
+  var studio=legacy.querySelector('.shop-studio');
+  if(studio)studio.style.setProperty('display','block','important');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+<style id="allbiz-shop-builder-primary-css">
+html.allbiz-workspace-mode[data-workspace="shop"] #shop>.card:not(#allbizShopBuilderWelcome){display:none!important}
+html.allbiz-workspace-mode[data-workspace="shop"] #allbizShopPractice{display:block!important;margin:12px 0!important}
+html.allbiz-workspace-mode[data-workspace="shop"] #allbizShopPractice>summary{display:none!important}
+html.allbiz-workspace-mode[data-workspace="shop"] #allbizShopPractice>.card{display:block!important}
+html.allbiz-workspace-mode[data-workspace="shop"] #allbizShopBuilderWelcome{display:block!important}
 </style></head>
 <body class="splash-open">
 <div id="splashScreen" role="dialog" aria-modal="true" aria-labelledby="splashHeading">
