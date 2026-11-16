@@ -767,7 +767,7 @@ document.getElementById('allbizSiteShowDigital').addEventListener('click',async 
 </script>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel">
-<div id="allbizCartEntry"><button type="button" id="allbizOpenCartTop" aria-label="Open winkelmandje">🛒 Winkelmandje <span id="allbizCartFloatingCount">0</span></button></div><style id="allbiz-shop-only-floating-cart-style">body #allbizCartEntry{position:fixed!important;right:14px;bottom:88px;z-index:9999!important;pointer-events:none}body #allbizOpenCartTop{pointer-events:auto;display:block!important;width:auto!important;min-height:52px;padding:12px 19px;background:#5b35ae!important;color:white!important;border:2px solid white!important;border-radius:999px!important;box-shadow:0 5px 18px #22124466;font-weight:800;font-size:16px}body #allbizCartEntry[hidden]{display:none!important}@media(max-width:600px){body #allbizCartEntry{right:12px;bottom:83px}}</style>
+
 
 <div class="card"><h2>🛍️ Product toevoegen</h2><p>Maak een product aan en kies een foto uit je galerij.</p><button type="button" class="secondary" id="allbizOpenProductEditor" style="display:block;width:100%;min-height:54px">+ Product toevoegen en foto kiezen</button></div>
 <div class="card"><h3>📦 Mijn webshopproducten</h3><p><strong>Heb je al een productbestand in Supabase geplaatst?</strong> Upload het niet opnieuw. Het bestand <em>Stop_met_geld_verspillen_Albiz_One.pdf</em> is al in de privéopslag geplaatst; dat betekent nog niet dat het aan een verkoopbaar product gekoppeld is.</p><p class="notice">De beveiligde koppeling tussen een bestaand PDF-bestand, de productcatalogus en de betaalbevestiging is nog niet actief. Daarom kun je dit product hier nog niet veilig aan klanten verkopen of automatisch laten downloaden.</p><details><summary>Nieuw product als concept voorbereiden (nog geen online verkoop)</summary><p>Het onderstaande productformulier slaat een concept lokaal op. Gebruik het niet om een bestaand digitaal bestand opnieuw te uploaden.</p><button type="button" class="secondary" data-goto="products">📦 Open concept-producten</button></details></div>
@@ -4709,5 +4709,14 @@ window.allbizOpenAssistant=showAssistant;
 
 
 <!-- allbiz-cart-top-handler --><script>(function(){document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#allbizOpenCartTop');if(!b)return;var c=document.getElementById('cartCount');var card=c&&c.closest('.card');if(card){card.scrollIntoView({behavior:'smooth',block:'start'});}else{alert('Winkelmandje is nog niet geladen.');}});})();</script>
-<!-- allbiz-cart-body-portal --><script>(function(){function init(){var b=document.getElementById('allbizCartEntry'),shop=document.getElementById('shop');if(!b||!shop)return;document.body.appendChild(b);function update(){var visible=shop.classList.contains('active');b.hidden=!visible;b.style.setProperty('display',visible?'block':'none','important');}new MutationObserver(update).observe(shop,{attributes:true,attributeFilter:['class','hidden','style']});document.addEventListener('click',function(){setTimeout(update,50)},true);window.addEventListener('hashchange',update);update();}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();</script>
+
+
+<!-- allbiz-cart-fixed-v2: CSS-only tab visibility, no JS visibility race -->
+<style>
+#allbizCartFixedV2{display:none!important;position:fixed!important;right:14px!important;bottom:90px!important;z-index:2147483000!important;max-width:calc(100vw - 28px)!important}
+body:has(#shop.active) #allbizCartFixedV2{display:block!important}
+#allbizCartFixedV2 button{display:block!important;min-height:54px!important;width:auto!important;padding:12px 18px!important;background:#6035b1!important;color:#fff!important;border:2px solid white!important;border-radius:999px!important;box-shadow:0 6px 22px #21113b88!important;font-weight:800!important;font-size:16px!important;cursor:pointer!important}
+@media(max-width:600px){#allbizCartFixedV2{bottom:82px!important;right:12px!important}}
+</style>
+<div id="allbizCartFixedV2"><button type="button" id="allbizOpenCartTop" aria-label="Bekijk winkelmandje">🛒 Winkelmandje <span id="allbizCartFloatingCount">0</span></button></div>
 </body></html>
