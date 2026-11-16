@@ -2217,7 +2217,7 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script><!-- allbiz-cart-body-portal --><script>(function(){function init(){var b=document.getElementById('allbizCartEntry'),shop=document.getElementById('shop');if(!b||!shop)return;document.body.appendChild(b);function update(){var visible=shop.classList.contains('active')&&!shop.hidden&&getComputedStyle(shop).display!=='none';b.hidden=!visible;}new MutationObserver(update).observe(shop,{attributes:true,attributeFilter:['class','hidden','style']});document.addEventListener('click',function(){setTimeout(update,50)},true);window.addEventListener('hashchange',update);update();}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();</script></body></html>'
+<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script></body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
@@ -4709,4 +4709,5 @@ window.allbizOpenAssistant=showAssistant;
 
 
 <!-- allbiz-cart-top-handler --><script>(function(){document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#allbizOpenCartTop');if(!b)return;var c=document.getElementById('cartCount');var card=c&&c.closest('.card');if(card){card.scrollIntoView({behavior:'smooth',block:'start'});}else{alert('Winkelmandje is nog niet geladen.');}});})();</script>
+<!-- allbiz-cart-body-portal --><script>(function(){function init(){var b=document.getElementById('allbizCartEntry'),shop=document.getElementById('shop');if(!b||!shop)return;document.body.appendChild(b);function update(){var visible=shop.classList.contains('active')&&!shop.hidden&&getComputedStyle(shop).display!=='none';b.hidden=!visible;}new MutationObserver(update).observe(shop,{attributes:true,attributeFilter:['class','hidden','style']});document.addEventListener('click',function(){setTimeout(update,50)},true);window.addEventListener('hashchange',update);update();}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();})();</script>
 </body></html>
