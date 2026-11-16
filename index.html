@@ -2214,20 +2214,7 @@ document.addEventListener('DOMContentLoaded',function(){
  if(picker&&input){picker.addEventListener('click',()=>input.click());input.addEventListener('change',()=>{if(status)status.textContent=input.files?.[0]?'Gekozen foto: '+input.files[0].name:'Nog geen foto gekozen.'})}
 });
 </script>
-<!-- allbiz-cart-shortcut-v1 -->
-<style>
-#allbizCartShortcut{position:fixed;right:16px;bottom:86px;z-index:9998;background:#5b35ae;color:#fff;border:2px solid #fff;border-radius:999px;padding:13px 17px;box-shadow:0 5px 20px #24134a55;font-weight:800;font-size:15px;min-height:48px;max-width:calc(100vw - 32px);cursor:pointer}
-#allbizCartShortcut[hidden]{display:none!important}
-#cartList,#cartTotal{scroll-margin-top:90px}
-@media(max-width:600px){#allbizCartShortcut{bottom:78px;right:12px;font-size:14px}}
-</style>
-<button id="allbizCartShortcut" type="button" hidden aria-label="Open winkelmandje">🛒 Winkelmandje <span id="allbizCartShortcutCount">0</span></button>
-<script id="allbiz-cart-shortcut-script">(function(){
-var btn=document.getElementById('allbizCartShortcut');if(!btn)return;
-function sync(){var shop=document.getElementById('shop');var count=document.getElementById('cartCount');btn.hidden=!(shop&&shop.classList.contains('active'));var n=count?count.textContent.trim():'0';document.getElementById('allbizCartShortcutCount').textContent=n;}
-btn.addEventListener('click',function(){var cart=document.getElementById('cartList');if(!cart)return;var heading=document.getElementById('cartCount');var section=heading&&heading.closest('.card');(section||cart).scrollIntoView({behavior:'smooth',block:'start'});});
-var observer=new MutationObserver(sync);var shop=document.getElementById('shop');if(shop)observer.observe(shop,{attributes:true,attributeFilter:['class','hidden']});var count=document.getElementById('cartCount');if(count)observer.observe(count,{childList:true,characterData:true,subtree:true});sync();
-})();</script>
+
 </body></html>'
  ].join('');
  saveSiteSettings();
@@ -4717,4 +4704,18 @@ window.allbizOpenAssistant=showAssistant;
 
 <style id="allbiz-assistant-button-fix">#allbizFloatingHelp{display:flex!important;visibility:visible!important;pointer-events:auto!important;touch-action:manipulation!important;min-height:48px!important}#help.panel.active{display:block!important;visibility:visible!important;opacity:1!important}#help.panel.active[hidden]{display:block!important}</style>
 <script id="allbiz-assistant-button-fix-script">(function(){function showHelp(){var help=document.getElementById('help');if(!help)return;document.querySelectorAll('main>.panel').forEach(function(p){p.classList.toggle('active',p===help);p.hidden=p!==help;});help.hidden=false;help.removeAttribute('inert');help.classList.add('active');document.body.classList.add('allbiz-help-active');document.querySelectorAll('nav.nav [data-tab]').forEach(function(b){b.classList.toggle('active',b.dataset.tab==='help')});try{history.replaceState(null,'','#help')}catch(e){}setTimeout(function(){help.scrollIntoView({block:'start',behavior:'instant'});var q=document.getElementById('allbizHelpQuestion');if(q)q.focus({preventScroll:true})},40)}document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#allbizFloatingHelp,button[data-goto="help"],nav.nav button[data-tab="help"]');if(!b)return;e.preventDefault();e.stopPropagation();e.stopImmediatePropagation();showHelp()},true);})();</script>
+<!-- allbiz-cart-shortcut-v1 -->
+<style>
+#allbizCartShortcut{position:fixed;right:16px;bottom:86px;z-index:9998;background:#5b35ae;color:#fff;border:2px solid #fff;border-radius:999px;padding:13px 17px;box-shadow:0 5px 20px #24134a55;font-weight:800;font-size:15px;min-height:48px;max-width:calc(100vw - 32px);cursor:pointer}
+#allbizCartShortcut[hidden]{display:none!important}
+#cartList,#cartTotal{scroll-margin-top:90px}
+@media(max-width:600px){#allbizCartShortcut{bottom:78px;right:12px;font-size:14px}}
+</style>
+<button id="allbizCartShortcut" type="button" hidden aria-label="Open winkelmandje">🛒 Winkelmandje <span id="allbizCartShortcutCount">0</span></button>
+<script id="allbiz-cart-shortcut-script">(function(){
+var btn=document.getElementById('allbizCartShortcut');if(!btn)return;
+function sync(){var shop=document.getElementById('shop');var count=document.getElementById('cartCount');btn.hidden=!(shop&&shop.classList.contains('active'));var n=count?count.textContent.trim():'0';document.getElementById('allbizCartShortcutCount').textContent=n;}
+btn.addEventListener('click',function(){var cart=document.getElementById('cartList');if(!cart)return;var heading=document.getElementById('cartCount');var section=heading&&heading.closest('.card');(section||cart).scrollIntoView({behavior:'smooth',block:'start'});});
+var observer=new MutationObserver(sync);var shop=document.getElementById('shop');if(shop)observer.observe(shop,{attributes:true,attributeFilter:['class','hidden']});var count=document.getElementById('cartCount');if(count)observer.observe(count,{childList:true,characterData:true,subtree:true});sync();
+})();</script>
 </body></html>
