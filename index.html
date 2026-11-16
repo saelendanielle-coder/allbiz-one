@@ -767,6 +767,8 @@ document.getElementById('allbizSiteShowDigital').addEventListener('click',async 
 </script>
 <h3 style="margin-top:18px">Voorbeeld van jouw website</h3><div id="sitePreview" class="preview" aria-live="polite"></div></div></section>
 <section id="shop" class="panel">
+<div id="allbizShopCartInline" style="position:sticky;top:8px;z-index:30;display:flex;justify-content:flex-end;margin:8px 0 14px"><button type="button" id="allbizOpenCartTop" style="background:#6035b1;color:white;border:2px solid white;border-radius:999px;padding:12px 18px;font-size:16px;font-weight:800;box-shadow:0 5px 15px #21113b66">🛒 Winkelmandje <span id="allbizCartFloatingCount">0</span></button></div>
+
 
 
 <div class="card"><h2>🛍️ Product toevoegen</h2><p>Maak een product aan en kies een foto uit je galerij.</p><button type="button" class="secondary" id="allbizOpenProductEditor" style="display:block;width:100%;min-height:54px">+ Product toevoegen en foto kiezen</button></div>
@@ -4711,12 +4713,5 @@ window.allbizOpenAssistant=showAssistant;
 <!-- allbiz-cart-top-handler --><script>(function(){document.addEventListener('click',function(e){var b=e.target.closest&&e.target.closest('#allbizOpenCartTop');if(!b)return;var c=document.getElementById('cartCount');var card=c&&c.closest('.card');if(card){card.scrollIntoView({behavior:'smooth',block:'start'});}else{alert('Winkelmandje is nog niet geladen.');}});})();</script>
 
 
-<!-- allbiz-cart-fixed-v2: CSS-only tab visibility, no JS visibility race -->
-<style>
-#allbizCartFixedV2{display:none!important;position:fixed!important;right:14px!important;bottom:90px!important;z-index:2147483000!important;max-width:calc(100vw - 28px)!important}
-body:has(#shop.active) #allbizCartFixedV2{display:block!important}
-#allbizCartFixedV2 button{display:block!important;min-height:54px!important;width:auto!important;padding:12px 18px!important;background:#6035b1!important;color:#fff!important;border:2px solid white!important;border-radius:999px!important;box-shadow:0 6px 22px #21113b88!important;font-weight:800!important;font-size:16px!important;cursor:pointer!important}
-@media(max-width:600px){#allbizCartFixedV2{bottom:82px!important;right:12px!important}}
-</style>
-<div id="allbizCartFixedV2"><button type="button" id="allbizOpenCartTop" aria-label="Bekijk winkelmandje">🛒 Winkelmandje <span id="allbizCartFloatingCount">0</span></button></div>
+
 </body></html>
