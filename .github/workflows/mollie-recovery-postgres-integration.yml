@@ -7,6 +7,7 @@ on:
       - 'review-only/mollie-before-provider-phase-*.sql'
       - 'review-only/mollie-atomic-reservation-integration.sql'
       - 'review-only/mollie-attach-payment-atomic-*.sql'
+      - 'review-only/mollie-worker-db-integration.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -61,3 +62,5 @@ jobs:
         run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-attach-payment-atomic-draft.sql | psql -v ON_ERROR_STOP=1
       - name: Test payment attachment and rollback safety
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-attach-payment-atomic-integration.sql
+      - name: Test recovery worker lease and retry in disposable PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-worker-db-integration.sql
