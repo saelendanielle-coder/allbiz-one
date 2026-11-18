@@ -12,6 +12,7 @@
 - [x] Review-only herstelworker implementatieplan gedocumenteerd.
 - [x] Recovery worker + tijdelijke PostgreSQL claim/finish geïntegreerd en succesvol getest (commit 5eaa414798d002b49089a7346a0fab3f9f3873b0, run 44375622763). De eerdere fixture-triggerfout is verholpen.
 - [x] Verlopen lease, herstel na worker-crash, oude-tokenbeveiliging getest in tijdelijke PostgreSQL (commit e53d58364cc8258ff03efa55bb1e251583613197, run 44375905478; 17/17 workflows geslaagd).
+- [x] Gelijktijdige worker/webhook-achtige betaal-ID-koppeling getest in tijdelijke PostgreSQL (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121; 17/17 workflows geslaagd). Dit simuleert de attachment-race, niet de volledige live webhook.
 - [x] Gelijktijdige worker/webhook-achtige betalingskoppeling getest in tijdelijke PostgreSQL (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121; 17/17 workflows geslaagd). Dit is nog geen volledige webhook/provider-integratietest.
 - [x] Gelijktijdige webhook-achtige/worker payment attachment getest met twee echte PostgreSQL-sessies; één winnaar, consistente order/recovery (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121). Dit is nog geen echte webhookintegratie.
 
