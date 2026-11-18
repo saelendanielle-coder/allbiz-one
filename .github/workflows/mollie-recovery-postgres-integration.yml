@@ -47,9 +47,9 @@ jobs:
           done
       - name: Load before-provider phase transition draft
         run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-before-provider-phase-rpc-draft.sql | psql -v ON_ERROR_STOP=1
-      - name: Test before-provider phase transition
-        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-before-provider-phase-integration.sql
       - name: Run real SQL assertions against disposable PostgreSQL
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-recovery-postgres-integration.sql
       - name: Test concurrent worker lock and duplicate claims
         run: bash review-only/mollie-recovery-concurrency-test.sh
+      - name: Test before-provider phase transition
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-before-provider-phase-integration.sql
