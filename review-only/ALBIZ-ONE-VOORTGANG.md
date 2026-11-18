@@ -10,13 +10,13 @@
 - [x] Review-only mocked checkout (6 scenario's), webhook/recovery combinaties (11 checks) en recovery worker prototype (15 scenario's).
 - [x] GitHub Actions: 17 testreeksen geslaagd op commit 982be03ba97654609180f90036333bb11aa2cd27; PostgreSQL job 135050903947 geslaagd.
 - [x] Review-only herstelworker implementatieplan gedocumenteerd.
+- [x] Recovery worker + tijdelijke PostgreSQL claim/finish geïntegreerd en succesvol getest (commit 5eaa414798d002b49089a7346a0fab3f9f3873b0, run 44375622763). De eerdere fixture-triggerfout is verholpen.
 
 ## OPEN — in volgorde
-1. [ ] Recovery worker + echte tijdelijke PostgreSQL claim/finish koppelen in integratietest; geen productiegegevens.
-2. [ ] Testen van provider mock + DB + webhook race en verlopen lease.
-3. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
-4. [ ] Pas na expliciete toestemming: productie-migraties en deploy; geen echte betalingen of automatische handel zonder aparte toestemming.
-5. [ ] DSers/TikTok antwoorden verwerken zodra ontvangen; productimport en productradar vervolgens afwerken.
+1. [ ] Testen van provider mock + tijdelijke DB + webhook race en verlopen lease.
+2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
+3. [ ] Pas na expliciete toestemming: productie-migraties en deploy; geen echte betalingen of automatische handel zonder aparte toestemming.
+4. [ ] DSers/TikTok antwoorden verwerken zodra ontvangen; productimport en productradar vervolgens afwerken.
 
 ## Belangrijke grenzen
 - De actieve webshop, Supabase productie en Mollie live blijven onaangeroerd bij review-only werk.
