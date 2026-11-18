@@ -25,6 +25,8 @@
 
 - [x] Voorgestelde fail-closed annulerings-RPC in tijdelijke PostgreSQL geladen en functioneel getest: schema, SQL-load en voorraad/duplicaat/ambigue betaling assertions geslaagd (run 44380254714, commit bfa399693937aa14bdac5812c0f6b3a9b4a3f62e). Niet gedeployd.
 
+- [x] Gelijktijdige dubbele annulering met de voorgestelde SQL-functie getest in twee afzonderlijke PostgreSQL-sessies: één winnaar, tweede geweigerd, voorraad exact eenmaal hersteld (GitHub Actions 44380580525 geslaagd, commit d0ac631b8a87db2bf587d8e2b805e908d0384b48). Alleen review-branch.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
