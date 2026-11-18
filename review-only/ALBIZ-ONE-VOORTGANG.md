@@ -11,9 +11,10 @@
 - [x] GitHub Actions: 17 testreeksen geslaagd op commit 982be03ba97654609180f90036333bb11aa2cd27; PostgreSQL job 135050903947 geslaagd.
 - [x] Review-only herstelworker implementatieplan gedocumenteerd.
 - [x] Recovery worker + tijdelijke PostgreSQL claim/finish geïntegreerd en succesvol getest (commit 5eaa414798d002b49089a7346a0fab3f9f3873b0, run 44375622763). De eerdere fixture-triggerfout is verholpen.
+- [x] Verlopen lease, herstel na worker-crash, oude-tokenbeveiliging getest in tijdelijke PostgreSQL (commit e53d58364cc8258ff03efa55bb1e251583613197, run 44375905478; 17/17 workflows geslaagd).
 
 ## OPEN — in volgorde
-1. [ ] Testen van provider mock + tijdelijke DB + webhook race en verlopen lease.
+1. [ ] Provider mock + tijdelijke DB + webhook-race testen (verlopen lease is al afgerond).
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
 3. [ ] Pas na expliciete toestemming: productie-migraties en deploy; geen echte betalingen of automatische handel zonder aparte toestemming.
 4. [ ] DSers/TikTok antwoorden verwerken zodra ontvangen; productimport en productradar vervolgens afwerken.
