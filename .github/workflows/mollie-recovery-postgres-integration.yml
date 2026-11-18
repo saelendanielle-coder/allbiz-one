@@ -3,6 +3,7 @@ on:
   pull_request:
     paths:
       - 'review-only/mollie-recovery-*.sql'
+      - 'review-only/mollie-recovery-concurrency-test.sh'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -45,3 +46,5 @@ jobs:
           done
       - name: Run real SQL assertions against disposable PostgreSQL
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-recovery-postgres-integration.sql
+      - name: Test concurrent worker lock and duplicate claims
+        run: bash review-only/mollie-recovery-concurrency-test.sh
