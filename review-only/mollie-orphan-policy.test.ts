@@ -1,5 +1,5 @@
 import {decideOrphanRecovery as decide} from "./mollie-orphan-policy.ts";
-const base={orderStatus:"pending",attachedPaymentId:null as string|null,molliePaymentId:"tr_example",
+const base={orderStatus:"pending",attachedPaymentId:null as string|null,molliePaymentId:"tr_example" as string|null,
  merchantVerified:true,orderMetadataMatches:true,amountMatches:true,currencyMatches:true};
 const cases:[string,Partial<typeof base>,string][]=[
  ["verified candidate",{},"link_verified_payment_then_reconcile"],
