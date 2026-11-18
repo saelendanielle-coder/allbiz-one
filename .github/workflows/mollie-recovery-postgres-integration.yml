@@ -14,6 +14,7 @@ on:
       - 'review-only/mollie-exact-live-cancel-rpc-regression.sql'
       - 'review-only/mollie-safe-cancel-rpc-*.sql'
       - 'review-only/mollie-safe-cancel-race-test.sh'
+      - 'review-only/mollie-confirm-cancel-race-simulator.sh'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -93,3 +94,5 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-safe-cancel-rpc-integration.sql
       - name: Test two simultaneous cancellations against proposed SQL
         run: bash review-only/mollie-safe-cancel-race-test.sh
+      - name: Simulate paid-versus-cancelled order lock races in both directions
+        run: bash review-only/mollie-confirm-cancel-race-simulator.sh
