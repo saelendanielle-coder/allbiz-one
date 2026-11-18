@@ -12,9 +12,10 @@
 - [x] Review-only herstelworker implementatieplan gedocumenteerd.
 - [x] Recovery worker + tijdelijke PostgreSQL claim/finish geïntegreerd en succesvol getest (commit 5eaa414798d002b49089a7346a0fab3f9f3873b0, run 44375622763). De eerdere fixture-triggerfout is verholpen.
 - [x] Verlopen lease, herstel na worker-crash, oude-tokenbeveiliging getest in tijdelijke PostgreSQL (commit e53d58364cc8258ff03efa55bb1e251583613197, run 44375905478; 17/17 workflows geslaagd).
+- [x] Gelijktijdige webhook-achtige/worker payment attachment getest met twee echte PostgreSQL-sessies; één winnaar, consistente order/recovery (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121). Dit is nog geen echte webhookintegratie.
 
 ## OPEN — in volgorde
-1. [ ] Provider mock + tijdelijke DB + webhook-race testen (verlopen lease is al afgerond).
+1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
 3. [ ] Pas na expliciete toestemming: productie-migraties en deploy; geen echte betalingen of automatische handel zonder aparte toestemming.
 4. [ ] DSers/TikTok antwoorden verwerken zodra ontvangen; productimport en productradar vervolgens afwerken.
