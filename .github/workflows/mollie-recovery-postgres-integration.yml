@@ -1,0 +1,47 @@
+name: Mollie isolated PostgreSQL recovery integration
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-recovery-*.sql'
+      - '.github/workflows/mollie-recovery-postgres-integration.yml'
+  workflow_dispatch:
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: mollie_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d mollie_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: test-only-password
+      PGDATABASE: mollie_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated test roles and order stub
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE anon NOLOGIN;
+          CREATE ROLE authenticated NOLOGIN;
+          CREATE ROLE service_role NOLOGIN BYPASSRLS;
+          CREATE TABLE public.allbiz_store_orders (id uuid PRIMARY KEY, seller_id uuid NOT NULL, status text NOT NULL);
+          SQL
+      - name: Load draft definitions into disposable database only
+        run: |
+          for file in review-only/mollie-recovery-schema-draft.sql review-only/mollie-recovery-claim-rpc-draft.sql review-only/mollie-recovery-finish-rpc-draft.sql; do
+            sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' "$file" | psql -v ON_ERROR_STOP=1
+          done
+      - name: Run real SQL assertions against disposable PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-recovery-postgres-integration.sql
