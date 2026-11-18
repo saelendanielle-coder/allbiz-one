@@ -4,6 +4,8 @@ on:
     paths:
       - 'review-only/mollie-payment-policy.ts'
       - 'review-only/mollie-payment-policy.test.ts'
+      - 'review-only/mollie-orphan-policy.ts'
+      - 'review-only/mollie-orphan-policy.test.ts'
       - '.github/workflows/mollie-safety-tests.yml'
   workflow_dispatch:
 permissions:
@@ -19,5 +21,6 @@ jobs:
           deno-version: v2.x
       - name: Typecheck and execute all payment-policy scenarios
         run: |
-          deno check review-only/mollie-payment-policy.ts review-only/mollie-payment-policy.test.ts
+          deno check review-only/mollie-payment-policy.ts review-only/mollie-payment-policy.test.ts review-only/mollie-orphan-policy.ts review-only/mollie-orphan-policy.test.ts
           deno run --no-remote --no-prompt review-only/mollie-payment-policy.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-orphan-policy.test.ts
