@@ -10,6 +10,7 @@ on:
       - 'review-only/mollie-worker-db-integration.sql'
       - 'review-only/mollie-attachment-race-test.sh'
       - 'review-only/mollie-webhook-terminal-db-mock.sql'
+      - 'review-only/mollie-cancellation-guard-db-mock.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -70,3 +71,5 @@ jobs:
         run: bash review-only/mollie-attachment-race-test.sh
       - name: Test isolated mock webhook replay and terminal invariants
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-webhook-terminal-db-mock.sql
+      - name: Test cancellation stock-release guard in disposable database
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-cancellation-guard-db-mock.sql
