@@ -44,3 +44,36 @@ BEGIN
  THEN RAISE EXCEPTION 'Retry incorrectly marked recovery terminal';END IF;
  RAISE NOTICE 'PASS worker DB claim, fencing, retry, lease release, order preservation';
 END $$;
+
+-- Expired worker lease: a new worker may reclaim; the old token must be fenced.
+UPDATE public.allbiz_mollie_store_recovery SET next_check_at=now()-interval '1 minute'
+WHERE order_id='00000000-0000-0000-0000-000000000091';
+DO $$
+DECLARE old_token uuid;new_token uuid;ok boolean;n int;
+BEGIN
+ SELECT count(*) INTO n FROM public.allbiz_claim_mollie_recovery_jobs(1,60);
+ IF n<>1 THEN RAISE EXCEPTION 'Expected first claim before simulated crash';END IF;
+ SELECT lease_token INTO old_token FROM public.allbiz_mollie_store_recovery
+ WHERE order_id='00000000-0000-0000-0000-000000000091';
+ UPDATE public.allbiz_mollie_store_recovery
+ SET lease_until=now()-interval '1 second'
+ WHERE order_id='00000000-0000-0000-0000-000000000091';
+ SELECT public.allbiz_finish_mollie_recovery_claim(
+ '00000000-0000-0000-0000-000000000091',old_token,'terminal') INTO ok;
+ IF ok THEN RAISE EXCEPTION 'Expired worker lease accepted';END IF;
+ SELECT count(*) INTO n FROM public.allbiz_claim_mollie_recovery_jobs(1,60);
+ IF n<>1 THEN RAISE EXCEPTION 'Expired task not reclaimed';END IF;
+ SELECT lease_token INTO new_token FROM public.allbiz_mollie_store_recovery
+ WHERE order_id='00000000-0000-0000-0000-000000000091';
+ IF new_token IS NULL OR new_token=old_token THEN RAISE EXCEPTION 'Reclaim did not rotate token';END IF;
+ SELECT public.allbiz_finish_mollie_recovery_claim(
+ '00000000-0000-0000-0000-000000000091',old_token,'manual_review') INTO ok;
+ IF ok THEN RAISE EXCEPTION 'Old worker completed after reclaim';END IF;
+ SELECT public.allbiz_finish_mollie_recovery_claim(
+ '00000000-0000-0000-0000-000000000091',new_token,'retry','worker_crash') INTO ok;
+ IF NOT ok THEN RAISE EXCEPTION 'New worker could not safely finish';END IF;
+ IF (SELECT status FROM public.allbiz_store_orders
+ WHERE id='00000000-0000-0000-0000-000000000091')<>'pending'
+ THEN RAISE EXCEPTION 'Crash/reclaim mutated order status';END IF;
+ RAISE NOTICE 'PASS expired lease, safe reclaim, old token fencing, no order mutation';
+END $$;
