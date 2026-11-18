@@ -29,6 +29,8 @@
 
 - [x] Bevestiging-versus-annulering in twee richtingen getest met echte voorgestelde cancel-SQL en gesimuleerde bevestiging: beide races geslaagd in PostgreSQL CI run 44380966417 (commit b8001698f681b2ec78f19f71fe827bd4b9ba4ebd). Dit test nog NIET de echte confirm-RPC.
 
+- [x] Exacte gedeployde bevestigings-RPC (geen simulator) samen met voorgestelde annulerings-RPC getest in tijdelijke PostgreSQL: verkeerde betaal-ID/bedrag, digitale fulfillment, dubbel bevestigen, betaald→annulering geweigerd en geannuleerd→betaling geweigerd. Alle 16 workflows geslaagd (commit 8cbd46ad67ebf15d8f3ca0992ed54cf2843c79c2, run 44381908480). Nog geen gelijktijdige race met de echte bevestigings-RPC en geen productie-deploy.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
