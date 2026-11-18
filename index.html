@@ -1254,7 +1254,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <select id="authMode"><option value="login">Inloggen</option><option value="signup">Nieuw account maken</option></select>
 <div id="authNameBox" hidden><label for="authName">Je naam</label><input id="authName" autocomplete="name" maxlength="100" placeholder="Je naam"></div>
 <label for="authEmail">E-mailadres</label><input id="authEmail" type="email" autocomplete="email" required placeholder="naam@voorbeeld.com">
-<label for="authPassword">Wachtwoord (minimaal 8 tekens)</label><input id="authPassword" type="password" autocomplete="current-password" required minlength="8">
+<label for="authPassword">Wachtwoord (minimaal 8 tekens)</label><input id="authPassword" type="password" autocomplete="current-password" required minlength="8"><button type="button" id="authTogglePassword" class="secondary" aria-controls="authPassword" aria-pressed="false" style="margin:6px 0 10px;width:auto">Toon wachtwoord</button>
 <button type="submit" id="authSubmit" disabled>Inloggen</button>
 <button type="button" id="authReset" class="secondary" disabled>Wachtwoord vergeten?</button>
 </form>
@@ -2681,7 +2681,7 @@ openRequestedSection();
 const SUPABASE_URL = 'https://woaifabvfqnnunxmhpkc.supabase.co';
 const SUPABASE_PUBLIC_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYWlmYWJ2ZnFubnVueG1ocGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4Njk3MzMsImV4cCI6MjEwODQ0NTczM30.uDYHF8yKt48Fc6nVrgPpgy_TiizUFM6tAsVRc2dCT10';
 const $ = id => document.getElementById(id);
-const status = msg => { $('authStatus').textContent = msg; };
+const status = msg => { $('authStatus').textContent = msg; $('authStatus').style.color = /klopt niet|niet gelukt|niet geaccepteerd|te veel pogingen|bevestig eerst|gebruik je e-mailadres|ongeldig|fout/i.test(msg) ? '#b42318' : ''; };
 const guest = $('authGuest');
 const signedIn = $('authSignedIn');
 const unavailable = $('authUnavailable');
@@ -2692,6 +2692,7 @@ const updateMode = () => {
  $('authPassword').autocomplete = signup ? 'new-password' : 'current-password';
  status('');
 };
+$('authTogglePassword').addEventListener('click', () => { const field = $('authPassword'); const show = field.type === 'password'; field.type = show ? 'text' : 'password'; $('authTogglePassword').textContent = show ? 'Verberg wachtwoord' : 'Toon wachtwoord'; $('authTogglePassword').setAttribute('aria-pressed', String(show)); });
 $('authMode').addEventListener('change', updateMode);
 updateMode();
 status('Beveiligde registratie wordt geladen... Je kunt je gegevens alvast invullen.');
@@ -3676,7 +3677,7 @@ try {
     } catch(error) {
       const msg = String(error?.message || 'Onbekende fout');
       const translations = [
-       [/Invalid login credentials/i,'E-mailadres of wachtwoord klopt niet.'],
+       [/Invalid login credentials|invalid_credentials/i,'E-mailadres of wachtwoord klopt niet. Controleer je gegevens en probeer opnieuw.'],
        [/Email not confirmed/i,'Bevestig eerst je e-mailadres via de e-mail.'],
        [/User already registered/i,'Dit e-mailadres heeft al een account.'],
        [/rate limit|too many/i,'Te veel pogingen. Probeer later opnieuw.'],
