@@ -1,0 +1,16 @@
+name: Mollie provider failure policy tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-provider-failure-policy*.ts'
+      - '.github/workflows/mollie-provider-failure-policy.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno run --allow-none review-only/mollie-provider-failure-policy.test.ts
