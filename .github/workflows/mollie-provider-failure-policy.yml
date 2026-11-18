@@ -6,6 +6,7 @@ on:
       - 'review-only/mollie-checkout-mocked-flow*.ts'
       - 'review-only/mollie-webhook-recovery-mocked.test.ts'
       - 'review-only/mollie-recovery-worker-prototype*.ts'
+      - 'review-only/mollie-webhook-verified-boundary*.ts'
       - 'review-only/mollie-checkout-provider-cross-policy.test.ts'
       - 'review-only/mollie-checkout-catch-guard.ts'
       - '.github/workflows/mollie-provider-failure-policy.yml'
@@ -23,3 +24,4 @@ jobs:
       - run: deno run review-only/mollie-checkout-mocked-flow.test.ts
       - run: deno run review-only/mollie-webhook-recovery-mocked.test.ts
       - run: deno run review-only/mollie-recovery-worker-prototype.test.ts
+      - run: deno run review-only/mollie-webhook-verified-boundary.test.ts
