@@ -21,6 +21,8 @@
 
 - [x] Fail-closed annulering/voorraadherstel getest met tijdelijke PostgreSQL fixture (commit 5ed25eeb084b3af47819fe6a9af33f3348476e09, run 44378539187 geslaagd). Dit is een mock, niet de echte live RPC.
 
+- [x] Exacte gedeployde annulerings-RPC in tijdelijke PostgreSQL gereproduceerd: null payment ID kan voorraad herstellen (CI 44379253830 geslaagd). Review-only concept voor fail-closed vervangende RPC toegevoegd (commit 5e02b36c25b78e745e29a7fb05e73421e6d73642); concept nog niet geïntegreerd of gedeployd.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
