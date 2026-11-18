@@ -5,6 +5,7 @@ on:
       - 'review-only/mollie-recovery-*.sql'
       - 'review-only/mollie-recovery-concurrency-test.sh'
       - 'review-only/mollie-before-provider-phase-*.sql'
+      - 'review-only/mollie-atomic-reservation-integration.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -53,3 +54,5 @@ jobs:
         run: bash review-only/mollie-recovery-concurrency-test.sh
       - name: Test before-provider phase transition
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-before-provider-phase-integration.sql
+      - name: Test atomic order and inventory rollback
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-atomic-reservation-integration.sql
