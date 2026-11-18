@@ -4,11 +4,11 @@
 export type OrphanAction="hold_and_investigate"|"link_verified_payment_then_reconcile";
 export function decideOrphanRecovery(input:{
  orderStatus:string;attachedPaymentId:string|null;
- molliePaymentId:string|null;merchantVerified:boolean;
+ molliePaymentId:string|null;merchantVerified:boolean;matchingPaymentCount:number;
  orderMetadataMatches:boolean;amountMatches:boolean;currencyMatches:boolean;
 }):OrphanAction{
  if(input.orderStatus!=="pending"||input.attachedPaymentId)return "hold_and_investigate";
- if(!input.molliePaymentId||!input.merchantVerified||!input.orderMetadataMatches||
+ if(!input.molliePaymentId||!input.merchantVerified||input.matchingPaymentCount!==1||!input.orderMetadataMatches||
     !input.amountMatches||!input.currencyMatches)return "hold_and_investigate";
  return "link_verified_payment_then_reconcile";
 }
