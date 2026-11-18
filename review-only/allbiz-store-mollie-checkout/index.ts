@@ -95,7 +95,10 @@ Deno.serve(async(req:Request)=>{
   if(ae||!attached)throw Error("Mollie payment exists but database attachment failed");
   return respond({checkout_url:checkout,order_id:order,provider:"mollie"});
  }catch(e){
-  // Fail closed: a Mollie payment may exist even if its ID was not attached to the order.\n  // Never release reserved stock here. Reconcile payment status before cancellation.\n  // TODO: durable payment-attempt journal and verified cancellation/reconciliation workflow.\n  if(order)console.error("Mollie checkout needs reconciliation; reserved order:",order);
+  // Fail closed: a Mollie payment may exist even if its ID was not attached to the order.
+  // Never release reserved stock here. Reconcile payment status before cancellation.
+  // TODO: durable payment-attempt journal and verified cancellation/reconciliation workflow.
+  if(order)console.error("Mollie checkout needs reconciliation; reserved order:",order);
   console.error("Mollie store checkout error",e instanceof Error?e.name:"error");
   return respond({error:"Mollie-betaling kon niet veilig worden gestart. Er is niets bevestigd."},503);
  }
