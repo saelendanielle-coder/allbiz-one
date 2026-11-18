@@ -27,6 +27,8 @@
 
 - [x] Gelijktijdige dubbele annulering met de voorgestelde SQL-functie getest in twee afzonderlijke PostgreSQL-sessies: één winnaar, tweede geweigerd, voorraad exact eenmaal hersteld (GitHub Actions 44380580525 geslaagd, commit d0ac631b8a87db2bf587d8e2b805e908d0384b48). Alleen review-branch.
 
+- [x] Bevestiging-versus-annulering in twee richtingen getest met echte voorgestelde cancel-SQL en gesimuleerde bevestiging: beide races geslaagd in PostgreSQL CI run 44380966417 (commit b8001698f681b2ec78f19f71fe827bd4b9ba4ebd). Dit test nog NIET de echte confirm-RPC.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
