@@ -8,6 +8,7 @@ on:
       - 'review-only/mollie-atomic-reservation-integration.sql'
       - 'review-only/mollie-attach-payment-atomic-*.sql'
       - 'review-only/mollie-worker-db-integration.sql'
+      - 'review-only/mollie-attachment-race-test.sh'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -64,3 +65,5 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-attach-payment-atomic-integration.sql
       - name: Test recovery worker lease and retry in disposable PostgreSQL
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-worker-db-integration.sql
+      - name: Test concurrent webhook-like and worker payment attachment
+        run: bash review-only/mollie-attachment-race-test.sh
