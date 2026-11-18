@@ -80,11 +80,11 @@ jobs:
       - name: Prepare disposable schema for proposed cancellation SQL
         run: |
           psql -v ON_ERROR_STOP=1 <<'SQL'
-          ALTER TABLE public.allbiz_store_orders ADD COLUMN payment_provider text DEFAULT 'mollie';
-          ALTER TABLE public.allbiz_store_orders ADD COLUMN mollie_payment_id text;
-          ALTER TABLE public.allbiz_store_orders ADD COLUMN fulfillment_status text;
-          CREATE TABLE public.allbiz_catalog_products(id uuid PRIMARY KEY,stock integer,updated_at timestamptz DEFAULT now());
-          CREATE TABLE public.allbiz_store_order_lines(order_id uuid,product_id uuid,quantity integer NOT NULL);
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS payment_provider text DEFAULT 'mollie';
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS mollie_payment_id text;
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS fulfillment_status text;
+          CREATE TABLE IF NOT EXISTS public.allbiz_catalog_products(id uuid PRIMARY KEY,stock integer,updated_at timestamptz DEFAULT now());
+          CREATE TABLE IF NOT EXISTS public.allbiz_store_order_lines(order_id uuid,product_id uuid,quantity integer NOT NULL);
           SQL
       - name: Load proposed cancellation function in disposable DB only
         run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-safe-cancel-rpc-draft.sql | psql -v ON_ERROR_STOP=1
