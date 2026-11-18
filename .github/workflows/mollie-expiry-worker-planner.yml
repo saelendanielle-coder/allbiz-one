@@ -1,0 +1,25 @@
+name: Mollie expiry worker planner tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-expiry-worker-planner.ts'
+      - 'review-only/mollie-expiry-worker-planner.test.ts'
+      - 'review-only/mollie-expiry-decision.ts'
+      - 'review-only/mollie-orphan-recovery-decision.ts'
+      - 'review-only/mollie-provider-candidate-guard.ts'
+      - '.github/workflows/mollie-expiry-worker-planner.yml'
+  workflow_dispatch:
+jobs:
+  expiry-worker-planner:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test offline expiry worker
+        run: |
+          deno check review-only/mollie-expiry-worker-planner.ts review-only/mollie-expiry-worker-planner.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-expiry-worker-planner.test.ts
