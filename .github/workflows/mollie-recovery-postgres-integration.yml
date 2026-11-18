@@ -17,6 +17,7 @@ on:
       - 'review-only/mollie-confirm-cancel-race-simulator.sh'
       - 'review-only/mollie-exact-live-confirm-rpc.sql'
       - 'review-only/mollie-exact-confirm-cancel-integration.sql'
+      - 'review-only/mollie-exact-confirm-cancel-race-test.sh'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -102,3 +103,5 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-live-confirm-rpc.sql
       - name: Test actual confirmation RPC against draft cancellation and digital orders
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-confirm-cancel-integration.sql
+      - name: Race actual deployed confirmation RPC against proposed cancellation RPC
+        run: bash review-only/mollie-exact-confirm-cancel-race-test.sh
