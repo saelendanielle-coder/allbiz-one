@@ -11,6 +11,7 @@ on:
       - 'review-only/mollie-attachment-race-test.sh'
       - 'review-only/mollie-webhook-terminal-db-mock.sql'
       - 'review-only/mollie-cancellation-guard-db-mock.sql'
+      - 'review-only/mollie-exact-live-cancel-rpc-regression.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -73,3 +74,5 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-webhook-terminal-db-mock.sql
       - name: Test cancellation stock-release guard in disposable database
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-cancellation-guard-db-mock.sql
+      - name: Reproduce exact deployed cancellation RPC behavior in isolated database
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-live-cancel-rpc-regression.sql
