@@ -17,6 +17,8 @@
 - [x] Gelijktijdige worker/webhook-achtige betalingskoppeling getest in tijdelijke PostgreSQL (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121; 17/17 workflows geslaagd). Dit is nog geen volledige webhook/provider-integratietest.
 - [x] Gelijktijdige webhook-achtige/worker payment attachment getest met twee echte PostgreSQL-sessies; één winnaar, consistente order/recovery (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121). Dit is nog geen echte webhookintegratie.
 
+- [x] Geïsoleerde webhook-verificatiegrens met 15 offline tests voor seller/order/organization/amount/mode en ontbrekende attachment (commit 6335bba33346cdca59c03d7405162bcf7a42a30a; provider-failure CI 44377414518 geslaagd). Niet gedeployd.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
