@@ -5,6 +5,9 @@ INSERT INTO public.allbiz_store_orders(id,seller_id,status) VALUES
 INSERT INTO public.allbiz_mollie_store_recovery(order_id,seller_id,phase,next_check_at)
 VALUES ('00000000-0000-0000-0000-000000000091',
  '10000000-0000-0000-0000-000000000091','provider_request_started',now()-interval '1 minute');
+-- Remove the deliberate failure trigger left by the earlier atomic rollback fixture.
+-- This is safe only in the disposable CI database.
+DROP TRIGGER IF EXISTS mollie_atomic_reject ON public.allbiz_mollie_store_recovery;
 -- Keep this test independent of the other fixture rows.
 UPDATE public.allbiz_mollie_store_recovery
 SET next_check_at=now()+interval '1 day'
