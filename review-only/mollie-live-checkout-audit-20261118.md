@@ -36,3 +36,16 @@ HTTP layer, but fetches payment status from Mollie using merchant credentials.
 6. Deploy only after independent review, a rollback plan, and explicit approval.
 
 No Supabase function or database was changed by this audit.
+
+## Read-only SQL RPC inspection (2026-11-18)
+The live `public.allbiz_cancel_mollie_store_checkout` function:
+- Locks the order row (`FOR UPDATE`) and only proceeds for a pending Mollie order.
+- Rejects a mismatched non-null stored payment ID, **but allows** `p_payment:null` when the stored payment ID is null.
+- Marks the order failed/cancelled and **increments product stock for each order line**.
+Therefore, the generic checkout catch after a Mollie payment creation/attach failure can indeed release stock for an externally created payment whose ID is not attached.
+
+The live `allbiz_reserve_mollie_store_checkout` function decrements stock within its transaction when reserving, before external payment creation. The `allbiz_attach_mollie_store_payment` RPC only attaches an ID if pending and null. `allbiz_confirm_mollie_store_payment` locks the order and checks provider/order/amount/currency fields before confirming. None of these alone makes the generic catch safe.
+
+Further SQL review needed: unique indexes on payment ID and payment event, database grants and RLS, behavior when a payment arrives after the order expires, and safe reconciliation permissions.
+
+**Do not deploy a catch-only fix without a durable recovery path and verified inventory lifecycle.**
