@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="nl"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex,nofollow"><title>Albiz One · Mollie herstelcontrole</title><style>body{font:16px system-ui,sans-serif;max-width:640px;margin:35px auto;padding:0 18px;color:#172234;line-height:1.55}button{padding:12px 18px;background:#173b78;color:white;border:0;border-radius:9px;font-size:16px;cursor:pointer}button:disabled{opacity:.5}pre{white-space:pre-wrap;overflow-wrap:anywhere;background:#f2f5f8;padding:14px;border-radius:8px}a{color:#173b78}</style></head><body><p><a href="./">← Albiz One</a></p><h1>Mollie herstelcontrole</h1><p>Alleen voor de eigenaar. Deze controle leest de betaalstatus bij Mollie en verandert geen bestellingen of betalingen.</p><p id="login">Account controleren…</p><button id="check" disabled>Controleer oude bestelling via Mollie-API</button><pre id="result" aria-live="polite">Nog niet uitgevoerd.</pre><script type="module">
+const output=document.getElementById('result'),login=document.getElementById('login'),button=document.getElementById('check');
+const url='https://woaifabvfqnnunxmhpkc.supabase.co',publicKey='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6IndvYWlmYWJ2ZnFubnVueG1ocGtjIiwicm9sZSI6ImFub24iLCJpYXQiOjE3OTI4Njk3MzMsImV4cCI6MjEwODQ0NTczM30.uDYHF8yKt48Fc6nVrgPpgy_TiizUFM6tAsVRc2dCT10';
+try{
+const {createClient}=await import('https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/+esm');
+const client=createClient(url,publicKey,{auth:{persistSession:true,autoRefreshToken:true,storageKey:'sb-woaifabvfqnnunxmhpkc-auth-token'}});
+const {data:{session},error}=await client.auth.getSession();
+if(error||!session){login.textContent='Log eerst in via de hoofdpagina van Albiz One en open deze pagina opnieuw.';output.textContent='Niet aangemeld.';}
+else{login.textContent='Aangemeld als '+(session.user.email||'eigenaar')+'.';button.disabled=false;}
+button.addEventListener('click',async()=>{button.disabled=true;output.textContent='Mollie-API wordt gecontroleerd…';try{
+const {data:{session:current}}=await client.auth.getSession();if(!current?.access_token)throw Error('Sessie verlopen. Log opnieuw in.');
+const response=await fetch(url+'/functions/v1/allbiz-mollie-store-reconcile-check',{method:'POST',headers:{'Content-Type':'application/json','apikey':publicKey,'Authorization':'Bearer '+current.access_token},body:JSON.stringify({order_id:'1be3ba5b-5acf-4f90-9b92-86e85ed1a122'})});
+const data=await response.json();output.textContent=JSON.stringify({http_status:response.status,...data},null,2);
+}catch(e){output.textContent='Controle mislukt: '+String(e.message||e)}finally{button.disabled=false;}});
+}catch(e){login.textContent='Accountverbinding kon niet laden.';output.textContent=String(e.message||e);}
+</script></body></html>
