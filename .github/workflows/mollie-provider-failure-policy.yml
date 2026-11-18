@@ -15,5 +15,5 @@ jobs:
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.x
-      - run: deno run --allow-none review-only/mollie-provider-failure-policy.test.ts
-      - run: deno run --allow-none review-only/mollie-checkout-provider-cross-policy.test.ts
+      - run: deno run review-only/mollie-provider-failure-policy.test.ts
+      - run: deno run review-only/mollie-checkout-provider-cross-policy.test.ts
