@@ -22,4 +22,11 @@ The deployed checkout reserves stock, calls Mollie `/v2/payments`, attaches the 
 - Obtain explicit approval for production Supabase migration, checkout Edge Function deployment, webhook deployment and expiry scheduler.
 
 ## Implementation note
-The current review-only SQL drafts contain claim/finish functions and a recovery table. They **do not yet implement** the required atomic reservation+recovery insert or provider-request phase transition. Do not treat their successful CI as end-to-end payment safety.
+The review-only drafts now include a proposed in-function atomic recovery insert (`mollie-reservation-atomic-recovery-patch.sql`) and a before-provider transition RPC (`mollie-before-provider-phase-rpc-draft.sql`). Isolated PostgreSQL tests verify the transition and the rollback principle with simplified fixtures; the real deployed reservation RPC has **not** been modified or fully integration-tested. Do not treat passing CI as end-to-end payment safety.
+
+## Exact next integration gaps
+- Extend the deployed reservation RPC only after validating the draft against its full table schema and constraints.
+- Extend the payment attachment RPC to update recovery phase in the same transaction.
+- Build a mocked Mollie checkout harness exercising timeout and attachment failures.
+- Ensure the 31-minute expiry logic cannot release inventory for `provider_request_started` orders.
+- Verify buyer and webhook responses for orders whose provider ID is still missing.
