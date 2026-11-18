@@ -1,7 +1,8 @@
 import {decideMollieOrderAction as decide} from "./mollie-payment-policy.ts";
-const base={orderStatus:"pending",paymentIdMatches:true,metadataMatches:true,
+import type {MollieDecision} from "./mollie-payment-policy.ts";
+const base:{orderStatus:string;paymentIdMatches:boolean;metadataMatches:boolean;amountMatches:boolean;currencyMatches:boolean;mollieStatus:string|null}={orderStatus:"pending",paymentIdMatches:true,metadataMatches:true,
  amountMatches:true,currencyMatches:true,mollieStatus:"open"};
-function check(name:string,input:Partial<typeof base>,expected:string){
+function check(name:string,input:Partial<typeof base>,expected:MollieDecision){
  const actual=decide({...base,...input});
  if(actual!==expected)throw new Error(name+": expected "+expected+" got "+actual);
  console.log("PASS "+name);
