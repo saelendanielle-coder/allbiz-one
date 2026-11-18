@@ -12,6 +12,7 @@ on:
       - 'review-only/mollie-webhook-terminal-db-mock.sql'
       - 'review-only/mollie-cancellation-guard-db-mock.sql'
       - 'review-only/mollie-exact-live-cancel-rpc-regression.sql'
+      - 'review-only/mollie-safe-cancel-rpc-*.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -76,3 +77,16 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-cancellation-guard-db-mock.sql
       - name: Reproduce exact deployed cancellation RPC behavior in isolated database
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-live-cancel-rpc-regression.sql
+      - name: Prepare disposable schema for proposed cancellation SQL
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN payment_provider text DEFAULT 'mollie';
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN mollie_payment_id text;
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN fulfillment_status text;
+          CREATE TABLE public.allbiz_catalog_products(id uuid PRIMARY KEY,stock integer,updated_at timestamptz DEFAULT now());
+          CREATE TABLE public.allbiz_store_order_lines(order_id uuid,product_id uuid,quantity integer NOT NULL);
+          SQL
+      - name: Load proposed cancellation function in disposable DB only
+        run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-safe-cancel-rpc-draft.sql | psql -v ON_ERROR_STOP=1
+      - name: Assert proposed cancellation SQL safety and inventory invariants
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-safe-cancel-rpc-integration.sql
