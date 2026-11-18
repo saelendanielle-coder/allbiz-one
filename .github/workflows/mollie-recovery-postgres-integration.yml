@@ -6,6 +6,7 @@ on:
       - 'review-only/mollie-recovery-concurrency-test.sh'
       - 'review-only/mollie-before-provider-phase-*.sql'
       - 'review-only/mollie-atomic-reservation-integration.sql'
+      - 'review-only/mollie-attach-payment-atomic-*.sql'
       - '.github/workflows/mollie-recovery-postgres-integration.yml'
   workflow_dispatch:
 jobs:
@@ -56,3 +57,7 @@ jobs:
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-before-provider-phase-integration.sql
       - name: Test atomic order and inventory rollback
         run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-atomic-reservation-integration.sql
+      - name: Load atomic payment attachment draft into disposable PostgreSQL
+        run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-attach-payment-atomic-draft.sql | psql -v ON_ERROR_STOP=1
+      - name: Test payment attachment and rollback safety
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-attach-payment-atomic-integration.sql
