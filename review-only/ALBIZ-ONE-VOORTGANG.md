@@ -19,6 +19,8 @@
 
 - [x] Geïsoleerde webhook-verificatiegrens met 15 offline tests voor seller/order/organization/amount/mode en ontbrekende attachment (commit 6335bba33346cdca59c03d7405162bcf7a42a30a; provider-failure CI 44377414518 geslaagd). Niet gedeployd.
 
+- [x] Fail-closed annulering/voorraadherstel getest met tijdelijke PostgreSQL fixture (commit 5ed25eeb084b3af47819fe6a9af33f3348476e09, run 44378539187 geslaagd). Dit is een mock, niet de echte live RPC.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
