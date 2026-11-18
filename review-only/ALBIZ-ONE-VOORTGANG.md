@@ -1,0 +1,45 @@
+# Albiz One — voortgangsregister (18 november 2026)
+
+**Doel:** voorkom dubbel werk. Controleer dit bestand en de bestaande bestanden vóór nieuwe werkzaamheden. Werk na iedere afgeronde stap de status bij.
+
+## AFGEROND — niet opnieuw maken
+- [x] Productfoto-opslag eerder gecontroleerd in de webshop; DSers en TikTok-toestemming zijn extern in behandeling (status opnieuw controleren wanneer antwoord binnenkomt).
+- [x] Mollie provider failure, checkout catch, buyer status, webhook replay, recovery ownership, expiry en candidate guards als review-only modules en tests.
+- [x] Review-only recovery SQL schema, claim/finish RPC, before-provider phase RPC en voorstel voor atomair voorraad-/orderherstel.
+- [x] Review-only atomaire payment attachment SQL en echte tests in tijdelijke PostgreSQL.
+- [x] Review-only mocked checkout (6 scenario's), webhook/recovery combinaties (11 checks) en recovery worker prototype (15 scenario's).
+- [x] GitHub Actions: 17 testreeksen geslaagd op commit 982be03ba97654609180f90036333bb11aa2cd27; PostgreSQL job 135050903947 geslaagd.
+- [x] Review-only herstelworker implementatieplan gedocumenteerd.
+- [x] Recovery worker + tijdelijke PostgreSQL claim/finish geïntegreerd en succesvol getest (commit 5eaa414798d002b49089a7346a0fab3f9f3873b0, run 44375622763). De eerdere fixture-triggerfout is verholpen.
+- [x] Verlopen lease, herstel na worker-crash, oude-tokenbeveiliging getest in tijdelijke PostgreSQL (commit e53d58364cc8258ff03efa55bb1e251583613197, run 44375905478; 17/17 workflows geslaagd).
+- [x] Gelijktijdige worker/webhook-achtige betaal-ID-koppeling getest in tijdelijke PostgreSQL (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121; 17/17 workflows geslaagd). Dit simuleert de attachment-race, niet de volledige live webhook.
+- [x] Nagebootste webhook herhaling en tegenstrijdige terminale betaalstatussen getest in tijdelijke PostgreSQL (commit 558e6294d0bb2345158cb0525c16470c6992c6d2, run 44376769494). Dit is een testmodel, niet de gedeployde webhook.
+- [x] Gelijktijdige worker/webhook-achtige betalingskoppeling getest in tijdelijke PostgreSQL (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121; 17/17 workflows geslaagd). Dit is nog geen volledige webhook/provider-integratietest.
+- [x] Gelijktijdige webhook-achtige/worker payment attachment getest met twee echte PostgreSQL-sessies; één winnaar, consistente order/recovery (commit d1531508f3084a8589e24590dcb7eef518dfb07a, run 44376265121). Dit is nog geen echte webhookintegratie.
+
+- [x] Geïsoleerde webhook-verificatiegrens met 15 offline tests voor seller/order/organization/amount/mode en ontbrekende attachment (commit 6335bba33346cdca59c03d7405162bcf7a42a30a; provider-failure CI 44377414518 geslaagd). Niet gedeployd.
+
+- [x] Fail-closed annulering/voorraadherstel getest met tijdelijke PostgreSQL fixture (commit 5ed25eeb084b3af47819fe6a9af33f3348476e09, run 44378539187 geslaagd). Dit is een mock, niet de echte live RPC.
+
+- [x] Exacte gedeployde annulerings-RPC in tijdelijke PostgreSQL gereproduceerd: null payment ID kan voorraad herstellen (CI 44379253830 geslaagd). Review-only concept voor fail-closed vervangende RPC toegevoegd (commit 5e02b36c25b78e745e29a7fb05e73421e6d73642); concept nog niet geïntegreerd of gedeployd.
+
+- [x] Voorgestelde fail-closed annulerings-RPC in tijdelijke PostgreSQL geladen en functioneel getest: schema, SQL-load en voorraad/duplicaat/ambigue betaling assertions geslaagd (run 44380254714, commit bfa399693937aa14bdac5812c0f6b3a9b4a3f62e). Niet gedeployd.
+
+- [x] Gelijktijdige dubbele annulering met de voorgestelde SQL-functie getest in twee afzonderlijke PostgreSQL-sessies: één winnaar, tweede geweigerd, voorraad exact eenmaal hersteld (GitHub Actions 44380580525 geslaagd, commit d0ac631b8a87db2bf587d8e2b805e908d0384b48). Alleen review-branch.
+
+- [x] Bevestiging-versus-annulering in twee richtingen getest met echte voorgestelde cancel-SQL en gesimuleerde bevestiging: beide races geslaagd in PostgreSQL CI run 44380966417 (commit b8001698f681b2ec78f19f71fe827bd4b9ba4ebd). Dit test nog NIET de echte confirm-RPC.
+
+- [x] Exacte gedeployde bevestigings-RPC (geen simulator) samen met voorgestelde annulerings-RPC getest in tijdelijke PostgreSQL: verkeerde betaal-ID/bedrag, digitale fulfillment, dubbel bevestigen, betaald→annulering geweigerd en geannuleerd→betaling geweigerd. Alle 16 workflows geslaagd (commit 8cbd46ad67ebf15d8f3ca0992ed54cf2843c79c2, run 44381908480). Nog geen gelijktijdige race met de echte bevestigings-RPC en geen productie-deploy.
+
+- [ ] Gelijktijdige race met de exacte gedeployde bevestigings-RPC toegevoegd aan CI (commit 1a1ac91f2710260b879838005a7ed7926fae70b8), maar GitHub leverde bij controle geen PR-workflowrun voor die commit. NIET als geslaagd markeren. Testscript: review-only/mollie-exact-confirm-cancel-race-test.sh. Eerst uitvoering/resultaat verifiëren.
+
+## OPEN — in volgorde
+1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
+2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
+3. [ ] Pas na expliciete toestemming: productie-migraties en deploy; geen echte betalingen of automatische handel zonder aparte toestemming.
+4. [ ] DSers/TikTok antwoorden verwerken zodra ontvangen; productimport en productradar vervolgens afwerken.
+
+## Belangrijke grenzen
+- De actieve webshop, Supabase productie en Mollie live blijven onaangeroerd bij review-only werk.
+- Geslaagde geïsoleerde tests betekenen NIET dat de live checkout veilig is.
+- Niets dubbel maken: eerst bestaande GitHub-bestanden, PR #4 en dit register controleren.

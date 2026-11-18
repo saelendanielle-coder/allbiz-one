@@ -1,0 +1,22 @@
+name: Mollie buyer status tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-buyer-status-policy.ts'
+      - 'review-only/mollie-buyer-status-policy.test.ts'
+      - '.github/workflows/mollie-buyer-status-policy.yml'
+  workflow_dispatch:
+jobs:
+  buyer-status:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test buyer status
+        run: |
+          deno check review-only/mollie-buyer-status-policy.ts review-only/mollie-buyer-status-policy.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-buyer-status-policy.test.ts

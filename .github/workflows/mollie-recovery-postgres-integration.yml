@@ -1,0 +1,107 @@
+name: Mollie isolated PostgreSQL recovery integration
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-recovery-*.sql'
+      - 'review-only/mollie-recovery-concurrency-test.sh'
+      - 'review-only/mollie-before-provider-phase-*.sql'
+      - 'review-only/mollie-atomic-reservation-integration.sql'
+      - 'review-only/mollie-attach-payment-atomic-*.sql'
+      - 'review-only/mollie-worker-db-integration.sql'
+      - 'review-only/mollie-attachment-race-test.sh'
+      - 'review-only/mollie-webhook-terminal-db-mock.sql'
+      - 'review-only/mollie-cancellation-guard-db-mock.sql'
+      - 'review-only/mollie-exact-live-cancel-rpc-regression.sql'
+      - 'review-only/mollie-safe-cancel-rpc-*.sql'
+      - 'review-only/mollie-safe-cancel-race-test.sh'
+      - 'review-only/mollie-confirm-cancel-race-simulator.sh'
+      - 'review-only/mollie-exact-live-confirm-rpc.sql'
+      - 'review-only/mollie-exact-confirm-cancel-integration.sql'
+      - 'review-only/mollie-exact-confirm-cancel-race-test.sh'
+      - '.github/workflows/mollie-recovery-postgres-integration.yml'
+  workflow_dispatch:
+jobs:
+  isolated-postgres:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: test-only-password
+          POSTGRES_DB: mollie_test
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d mollie_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PGHOST: localhost
+      PGPORT: 5432
+      PGUSER: postgres
+      PGPASSWORD: test-only-password
+      PGDATABASE: mollie_test
+    steps:
+      - uses: actions/checkout@v4
+      - name: Prepare isolated test roles and order stub
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          CREATE ROLE anon NOLOGIN;
+          CREATE ROLE authenticated NOLOGIN;
+          CREATE ROLE service_role NOLOGIN BYPASSRLS;
+          CREATE TABLE public.allbiz_store_orders (id uuid PRIMARY KEY, seller_id uuid NOT NULL, status text NOT NULL);
+          SQL
+      - name: Load draft definitions into disposable database only
+        run: |
+          for file in review-only/mollie-recovery-schema-draft.sql review-only/mollie-recovery-claim-rpc-draft.sql review-only/mollie-recovery-finish-rpc-draft.sql; do
+            sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' "$file" | psql -v ON_ERROR_STOP=1
+          done
+      - name: Load before-provider phase transition draft
+        run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-before-provider-phase-rpc-draft.sql | psql -v ON_ERROR_STOP=1
+      - name: Run real SQL assertions against disposable PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-recovery-postgres-integration.sql
+      - name: Test concurrent worker lock and duplicate claims
+        run: bash review-only/mollie-recovery-concurrency-test.sh
+      - name: Test before-provider phase transition
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-before-provider-phase-integration.sql
+      - name: Test atomic order and inventory rollback
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-atomic-reservation-integration.sql
+      - name: Load atomic payment attachment draft into disposable PostgreSQL
+        run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-attach-payment-atomic-draft.sql | psql -v ON_ERROR_STOP=1
+      - name: Test payment attachment and rollback safety
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-attach-payment-atomic-integration.sql
+      - name: Test recovery worker lease and retry in disposable PostgreSQL
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-worker-db-integration.sql
+      - name: Test concurrent webhook-like and worker payment attachment
+        run: bash review-only/mollie-attachment-race-test.sh
+      - name: Test isolated mock webhook replay and terminal invariants
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-webhook-terminal-db-mock.sql
+      - name: Test cancellation stock-release guard in disposable database
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-cancellation-guard-db-mock.sql
+      - name: Reproduce exact deployed cancellation RPC behavior in isolated database
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-live-cancel-rpc-regression.sql
+      - name: Prepare disposable schema for proposed cancellation SQL
+        run: |
+          psql -v ON_ERROR_STOP=1 <<'SQL'
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS payment_provider text DEFAULT 'mollie';
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS mollie_payment_id text;
+          ALTER TABLE public.allbiz_store_orders ADD COLUMN IF NOT EXISTS fulfillment_status text;
+          CREATE TABLE IF NOT EXISTS public.allbiz_catalog_products(id uuid PRIMARY KEY,stock integer,updated_at timestamptz DEFAULT now());
+          CREATE TABLE IF NOT EXISTS public.allbiz_store_order_lines(order_id uuid,product_id uuid,quantity integer NOT NULL);
+          SQL
+      - name: Load proposed cancellation function in disposable DB only
+        run: sed -E '/^BEGIN;$/d; /^ROLLBACK;/d' review-only/mollie-safe-cancel-rpc-draft.sql | psql -v ON_ERROR_STOP=1
+      - name: Assert proposed cancellation SQL safety and inventory invariants
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-safe-cancel-rpc-integration.sql
+      - name: Test two simultaneous cancellations against proposed SQL
+        run: bash review-only/mollie-safe-cancel-race-test.sh
+      - name: Simulate paid-versus-cancelled order lock races in both directions
+        run: bash review-only/mollie-confirm-cancel-race-simulator.sh
+      - name: Load exact deployed confirmation SQL into disposable database
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-live-confirm-rpc.sql
+      - name: Test actual confirmation RPC against draft cancellation and digital orders
+        run: psql -v ON_ERROR_STOP=1 -f review-only/mollie-exact-confirm-cancel-integration.sql
+      - name: Race actual deployed confirmation RPC against proposed cancellation RPC
+        run: bash review-only/mollie-exact-confirm-cancel-race-test.sh

@@ -1,0 +1,29 @@
+name: Mollie provider failure policy tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-provider-failure-policy*.ts'
+      - 'review-only/mollie-checkout-mocked-flow*.ts'
+      - 'review-only/mollie-webhook-recovery-mocked.test.ts'
+      - 'review-only/mollie-recovery-worker-prototype*.ts'
+      - 'review-only/mollie-webhook-verified-boundary*.ts'
+      - 'review-only/mollie-missing-attachment-decision*.ts'
+      - 'review-only/mollie-checkout-provider-cross-policy.test.ts'
+      - 'review-only/mollie-checkout-catch-guard.ts'
+      - '.github/workflows/mollie-provider-failure-policy.yml'
+  workflow_dispatch:
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - run: deno run review-only/mollie-provider-failure-policy.test.ts
+      - run: deno run review-only/mollie-checkout-provider-cross-policy.test.ts
+      - run: deno run review-only/mollie-checkout-mocked-flow.test.ts
+      - run: deno run review-only/mollie-webhook-recovery-mocked.test.ts
+      - run: deno run review-only/mollie-recovery-worker-prototype.test.ts
+      - run: deno run review-only/mollie-webhook-verified-boundary.test.ts
+      - run: deno run review-only/mollie-missing-attachment-decision.test.ts

@@ -1,0 +1,22 @@
+name: Mollie buyer page simulator tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-buyer-page-simulator.ts'
+      - 'review-only/mollie-buyer-page-simulator.test.ts'
+      - '.github/workflows/mollie-buyer-page-simulator.yml'
+  workflow_dispatch:
+jobs:
+  buyer-page-simulator:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test simulated buyer page
+        run: |
+          deno check review-only/mollie-buyer-page-simulator.ts review-only/mollie-buyer-page-simulator.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-buyer-page-simulator.test.ts
