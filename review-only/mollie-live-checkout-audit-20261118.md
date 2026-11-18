@@ -49,3 +49,10 @@ The live `allbiz_reserve_mollie_store_checkout` function decrements stock within
 Further SQL review needed: unique indexes on payment ID and payment event, database grants and RLS, behavior when a payment arrives after the order expires, and safe reconciliation permissions.
 
 **Do not deploy a catch-only fix without a durable recovery path and verified inventory lifecycle.**
+
+## Read-only uniqueness and RPC privileges audit
+- Unique partial index `allbiz_store_orders_mollie_payment_unique` on non-null `mollie_payment_id` prevents attaching the same ID to multiple orders.
+- Unique index `allbiz_mollie_store_payment_events_unique` on `mollie_payment_id` prevents duplicate payment event rows. This does **not**, by itself, prove all webhook side effects are idempotent.
+- All four webshop Mollie RPCs inspected are SECURITY INVOKER (`prosecdef=false`), with explicit EXECUTE grants to `postgres` and `service_role`; not to anon/authenticated in the inspected ACL.
+- Remaining priority: prevent generic checkout catch from calling stock-release RPC after provider request may have begun, and add durable recovery path.
+- No schema, RPC, or live function changes made.
