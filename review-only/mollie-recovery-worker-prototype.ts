@@ -18,7 +18,6 @@ export type RecoveryStep=
  |{action:"skip";reason:string}
  |{action:"retry";reason:string}
  |{action:"manual_review";reason:string}
- |{action:"cancel_pre_provider";reason:string}
  |{action:"attach_then_verify";paymentId:string}
  |{action:"verify_attached";paymentId:string}
  |{action:"confirm_verified_paid";paymentId:string}
@@ -30,7 +29,7 @@ export function planRecoveryStep(s:RecoverySnapshot):RecoveryStep{
   return {action:"manual_review",reason:"Recovery task not eligible for automatic processing"};
  if(s.phase==="reserved"){
   if(s.attachedPaymentId)return {action:"manual_review",reason:"Attached payment conflicts with pre-provider phase"};
-  return {action:"cancel_pre_provider",reason:"Durable reserved phase; caller must additionally prove no concurrent provider start"};
+  return {action:"manual_review",reason:"Reserved phase alone cannot prove there was no concurrent provider start"};
  }
  if(s.attachedPaymentId){
   if(s.phase!=="payment_attached")return {action:"manual_review",reason:"Attached ID conflicts with recovery phase"};
