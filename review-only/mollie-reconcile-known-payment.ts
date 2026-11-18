@@ -3,7 +3,7 @@
 // Never expose service-role keys or merchant tokens to the browser.
 import {createClient} from "npm:@supabase/supabase-js@2.49.8";
 
-type Payment = {id:string;status:string;amount?:{currency:string;value:string};metadata?:{allbiz_order_id?:string}};
+type Payment = {id:string;status:string;amount?:{currency:string;value:string};metadata?:{allbiz_order_id?:string;allbiz_seller_id?:string};profileId?:string;organizationId?:string};
 type Order = {id:string;seller_id:string;status:string;payment_provider:string;mollie_payment_id:string|null;mollie_organization_id:string|null;amount_total_cents:number;currency:string};
 const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
 const paymentId=/^tr_[A-Za-z0-9]{1,100}$/;
@@ -33,8 +33,10 @@ export async function reconcileKnownPayment(args:{
   const p=await response.json() as Payment;
   const amount=p.amount?.value;
   const cents=typeof amount==="string"&&/^\d+\.\d{2}$/.test(amount)?Math.round(Number(amount)*100):NaN;
-  if(p.id!==paymentId||p.metadata?.allbiz_order_id!==order.id||p.amount?.currency!=="EUR"||
-    cents!==order.amount_total_cents||order.currency!=="eur")return "manual_review";
+  if(p.id!==paymentId||p.metadata?.allbiz_order_id!==order.id||
+    p.metadata?.allbiz_seller_id!==order.seller_id||p.organizationId!==order.mollie_organization_id||
+    p.amount?.currency!=="EUR"||
+    cents!==order.amount_total_cents||order.currency.toUpperCase()!=="EUR")return "manual_review";
   if(p.status==="paid"){
     const {data:ok,error:err}=await db.rpc("allbiz_confirm_mollie_store_payment",{
       p_order:order.id,p_payment:paymentId,p_organization:order.mollie_organization_id,
