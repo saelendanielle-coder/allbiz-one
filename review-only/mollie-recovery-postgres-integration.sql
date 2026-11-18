@@ -1,12 +1,6 @@
 -- Run ONLY against an ephemeral PostgreSQL database in CI.
 \set ON_ERROR_STOP on
-CREATE ROLE anon NOLOGIN;
-CREATE ROLE authenticated NOLOGIN;
-CREATE ROLE service_role NOLOGIN BYPASSRLS;
-CREATE TABLE public.allbiz_store_orders (
- id uuid PRIMARY KEY, seller_id uuid NOT NULL, status text NOT NULL
-);
--- Draft SQL files are loaded by CI with outer BEGIN/ROLLBACK stripped.
+-- CI prepares stub roles and order table before loading the drafts.
 INSERT INTO public.allbiz_store_orders VALUES
  ('00000000-0000-0000-0000-000000000001','10000000-0000-0000-0000-000000000001','pending'),
  ('00000000-0000-0000-0000-000000000002','10000000-0000-0000-0000-000000000001','paid'),
