@@ -23,6 +23,8 @@
 
 - [x] Exacte gedeployde annulerings-RPC in tijdelijke PostgreSQL gereproduceerd: null payment ID kan voorraad herstellen (CI 44379253830 geslaagd). Review-only concept voor fail-closed vervangende RPC toegevoegd (commit 5e02b36c25b78e745e29a7fb05e73421e6d73642); concept nog niet geïntegreerd of gedeployd.
 
+- [x] Voorgestelde fail-closed annulerings-RPC in tijdelijke PostgreSQL geladen en functioneel getest: schema, SQL-load en voorraad/duplicaat/ambigue betaling assertions geslaagd (run 44380254714, commit bfa399693937aa14bdac5812c0f6b3a9b4a3f62e). Niet gedeployd.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
