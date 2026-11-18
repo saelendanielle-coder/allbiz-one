@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Isolated PostgreSQL: actual deployed confirmation RPC vs proposed cancellation RPC.
 # Both functions already loaded by CI. No Mollie calls or production writes.
+# The winner holds the order row lock for two seconds so the competing RPC waits.
 set -euo pipefail
 SELLER='10000000-0000-0000-0000-000000000301'
 PRODUCT='00000000-0000-0000-0000-000000000301'
