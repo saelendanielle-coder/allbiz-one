@@ -1,10 +1,12 @@
 import {decideOrphanRecovery as decide} from "./mollie-orphan-policy.ts";
 const base={orderStatus:"pending",attachedPaymentId:null as string|null,molliePaymentId:"tr_example" as string|null,
- merchantVerified:true,orderMetadataMatches:true,amountMatches:true,currencyMatches:true};
+ merchantVerified:true,matchingPaymentCount:1,orderMetadataMatches:true,amountMatches:true,currencyMatches:true};
 const cases:[string,Partial<typeof base>,string][]=[
  ["verified candidate",{},"link_verified_payment_then_reconcile"],
  ["no payment ID",{molliePaymentId:null},"hold_and_investigate"],
  ["wrong merchant",{merchantVerified:false},"hold_and_investigate"],
+ ["zero matching payments",{matchingPaymentCount:0},"hold_and_investigate"],
+ ["multiple matching payments",{matchingPaymentCount:2},"hold_and_investigate"],
  ["wrong metadata",{orderMetadataMatches:false},"hold_and_investigate"],
  ["wrong amount",{amountMatches:false},"hold_and_investigate"],
  ["wrong currency",{currencyMatches:false},"hold_and_investigate"],
@@ -17,4 +19,4 @@ for(const [name,change,expected] of cases){
  if(got!==expected)throw Error(name+": "+got+" != "+expected);
  console.log("PASS "+name);
 }
-console.log("All 9 orphan policy tests passed.");
+console.log("All 11 orphan policy tests passed.");
