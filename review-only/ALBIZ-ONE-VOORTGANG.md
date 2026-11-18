@@ -31,6 +31,8 @@
 
 - [x] Exacte gedeployde bevestigings-RPC (geen simulator) samen met voorgestelde annulerings-RPC getest in tijdelijke PostgreSQL: verkeerde betaal-ID/bedrag, digitale fulfillment, dubbel bevestigen, betaald→annulering geweigerd en geannuleerd→betaling geweigerd. Alle 16 workflows geslaagd (commit 8cbd46ad67ebf15d8f3ca0992ed54cf2843c79c2, run 44381908480). Nog geen gelijktijdige race met de echte bevestigings-RPC en geen productie-deploy.
 
+- [ ] Gelijktijdige race met de exacte gedeployde bevestigings-RPC toegevoegd aan CI (commit 1a1ac91f2710260b879838005a7ed7926fae70b8), maar GitHub leverde bij controle geen PR-workflowrun voor die commit. NIET als geslaagd markeren. Testscript: review-only/mollie-exact-confirm-cancel-race-test.sh. Eerst uitvoering/resultaat verifiëren.
+
 ## OPEN — in volgorde
 1. [ ] Provider mock met tijdelijke DB combineren en echte webhook-/worker-statusovergangen testen; de attachment-race is al afgerond.
 2. [ ] Productie-SQL en Edge Functions als volledige, controleerbare wijzigingsset voorbereiden en rollbackplan uitwerken.
