@@ -1,0 +1,22 @@
+name: Mollie recovery lease planner tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-recovery-lease-planner.ts'
+      - 'review-only/mollie-recovery-lease-planner.test.ts'
+      - '.github/workflows/mollie-recovery-lease-planner.yml'
+  workflow_dispatch:
+jobs:
+  recovery-lease:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test recovery leases
+        run: |
+          deno check review-only/mollie-recovery-lease-planner.ts review-only/mollie-recovery-lease-planner.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-recovery-lease-planner.test.ts
