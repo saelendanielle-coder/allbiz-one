@@ -2364,12 +2364,17 @@ document.addEventListener('DOMContentLoaded',function(){
   event.preventDefault();
   event.stopImmediatePropagation();
   try{
-   if(typeof switchTab==='function'){switchTab('dashboard');}
+   var overview=document.querySelector('nav.nav [data-tab="dashboard"]');
+   if(overview){overview.click();}
+   else if(typeof switchTab==='function'){switchTab('dashboard');}
    else{
     document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
     document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
    }
-   if(!document.getElementById('dashboard').classList.contains('active'))throw Error('Dashboard niet actief');
+   if(!document.getElementById('dashboard').classList.contains('active')){
+    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
+    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
+   }
    history.replaceState(null,'','#dashboard');
    window.scrollTo(0,0);
   }catch(e){window.location.href=back.href;}
