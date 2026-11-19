@@ -1460,8 +1460,17 @@ function switchTab(tab,options={}){
  }else notice.hidden=true;
  document.querySelectorAll('.panel').forEach(p=>{
   p.classList.toggle('active',p.id===tab);
-  if(p.id===tab && !allbizUiTierAllowed(tab)){p.setAttribute('inert','');p.classList.add('allbiz-locked-preview');}
-  else {p.removeAttribute('inert');p.classList.remove('allbiz-locked-preview');}
+  if(p.id===tab && !allbizUiTierAllowed(tab)){
+   p.classList.add('allbiz-locked-preview');
+   if(tab==='affiliate'){
+    // Keep the back button usable while all affiliate content remains locked.
+    p.removeAttribute('inert');
+    Array.from(p.children).forEach(child=>{if(child.contains(document.getElementById('affiliateBackHome')))child.removeAttribute('inert');else child.setAttribute('inert','');});
+   }else p.setAttribute('inert','');
+  }else {
+   p.removeAttribute('inert');p.classList.remove('allbiz-locked-preview');
+   if(p.id==='affiliate')Array.from(p.children).forEach(child=>child.removeAttribute('inert'));
+  }
  });
  document.body.classList.toggle('allbiz-help-active',tab==='help');
  document.querySelectorAll('[data-tab]').forEach(b=>b.classList.toggle('active',b.dataset.tab===tab));
