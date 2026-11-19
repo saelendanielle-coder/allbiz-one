@@ -998,6 +998,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </section>
 
 <section id="affiliate" class="panel">
+<div class="row" style="margin:0 0 16px"><button type="button" class="secondary" id="affiliateBackHome">← Voorpagina</button></div>
 <div class="card">
 <h2>🔗 Affiliate</h2>
 <p>Promoot producten van bijvoorbeeld Amazon, bol.com, AliExpress of andere bedrijven op je website of in een YouTube-video. Als iemand via jouw <strong>persoonlijke affiliate-link</strong> iets koopt, kun je commissie krijgen volgens de voorwaarden van dat programma.</p>
@@ -1393,6 +1394,7 @@ window.allbizResumeLastSection=()=>{
  if(!allbizUiTierAllowed(tab))return; // Owner allowed only after server verification.
  switchTab(tab,{automatic:true});
 };
+document.addEventListener('click',function(e){if(e.target.closest('#affiliateBackHome')){e.preventDefault();switchTab('dashboard');window.scrollTo({top:0,behavior:'smooth'});}});
 function switchTab(tab,options={}){
  if(tab==='orders')tab='shop'; // Only the retired orders demo redirects to the webshop.
  if(tab==='products')options={...options,forceProductTop:true};
