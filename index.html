@@ -2146,7 +2146,7 @@ el('affiliateForm').addEventListener('submit',e=>{
   if(!link||!name||price!==null&&(!Number.isFinite(price)||price<0)||rate!==null&&(!Number.isFinite(rate)||rate<0||rate>100)){el('affiliateStatus').textContent='Controleer naam, affiliate-link, prijs en commissie.';return}
   const imageText=el('affiliateImage').value.trim(),image=imageText?safeImage(imageText):'';
   if(imageText&&!image){el('affiliateStatus').textContent='Gebruik een geldige http(s)-foto-URL.';return}
-  const a={id:newId(),name:name.slice(0,150),network:el('affiliateNetwork').value.trim().slice(0,100),link,description:el('affiliateDescription').value.trim().slice(0,1000),image,price,rate};
+  const a={id:(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():newId()),name:name.slice(0,150),network:el('affiliateNetwork').value.trim().slice(0,100),link,description:el('affiliateDescription').value.trim().slice(0,1000),image,price,rate};
   affiliateItems.push(a);if(!saveAffiliates()){affiliateItems.pop();el('affiliateStatus').textContent='Opslaan mislukt; maak opslagruimte vrij.';return}
   el('affiliateForm').reset();renderAffiliate();renderAll();el('affiliateSelect').value=a.id;affiliateEstimate();el('affiliateStatus').textContent='✅ Affiliateproduct toegevoegd. Het staat ook in je websitevoorbeeld.';
 });
