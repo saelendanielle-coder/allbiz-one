@@ -2178,6 +2178,23 @@ el('affiliateForm').addEventListener('submit',e=>{
  const saveBtn=element('button','secondary','☁️ Bewaar in mijn account');
  const loadBtn=element('button','secondary','☁️ Haal mijn producten op');
  saveBtn.type=loadBtn.type='button';
+ const testBtn=element('button','secondary','🔍 Test accountverbinding');
+ testBtn.type='button';controls.append(testBtn);
+ testBtn.addEventListener('click',async()=>{
+  testBtn.disabled=true;status.textContent='Account en beveiligde opslag controleren…';
+  try{
+   const client=window.allbizClient;
+   if(!client?.auth)throw Error('De accountverbinding is nog niet geladen.');
+   const {data:authData,error:authError}=await client.auth.getUser();
+   if(authError||!authData?.user)throw Error('Log eerst in bij Mijn account.');
+   const {data,error}=await client.from('allbiz_affiliate_products')
+     .select('id,owner_id').eq('owner_id',authData.user.id).limit(200);
+   if(error)throw Error('De online opslag is niet bereikbaar voor jouw account.');
+   if((data||[]).some(x=>x.owner_id!==authData.user.id))throw Error('Beveiligingscontrole mislukt. Gebruik Affiliate voorlopig niet.');
+   status.textContent='✅ Accountverbinding werkt. '+(data||[]).length+' online affiliateproduct(en) zichtbaar voor dit account. Opslaan en verwijderen zijn hiermee nog niet getest.';
+  }catch(e){status.textContent='⚠️ '+(e?.message||'Verbindingstest mislukt.')}
+  finally{testBtn.disabled=false}
+ });
  const info=element('p','small muted','Je producten blijven lokaal beschikbaar. Met deze knoppen kun je ze ook veilig bewaren en ophalen in je ingelogde account. Een bestaand lokaal product wordt nooit automatisch verwijderd.');
  info.style.marginTop='8px';
  form.append(controls,info);controls.append(saveBtn,loadBtn);
