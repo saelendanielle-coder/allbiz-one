@@ -2172,6 +2172,7 @@ el('affiliateForm').addEventListener('submit',e=>{
  function checkLocalOwner(userId){
   const marked=localStorage.getItem(ownerMarkerKey);
   if(marked&&marked!==userId)throw Error('Deze browser bevat affiliateproducten van een ander account. Gebruik een aparte browser of toestel om vermenging te voorkomen.');
+  if(!marked&&affiliateItems.length)throw Error('Er staan al lokale affiliateproducten zonder accountkoppeling. Bewaar deze eerst in een afzonderlijke browser of maak een lokale back-up voordat je accounts synchroniseert.');
  }
  const busy=state=>{saveBtn.disabled=loadBtn.disabled=state};
  saveBtn.addEventListener('click',async()=>{
