@@ -998,7 +998,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </section>
 
 <section id="affiliate" class="panel">
-<div class="row" style="margin:0 0 16px"><button type="button" class="secondary" id="affiliateBackHome">← Voorpagina</button></div>
+<div class="row" style="margin:0 0 16px"><a class="secondary" id="affiliateBackHome" href="./index.html#dashboard" style="display:inline-flex;align-items:center;justify-content:center;text-decoration:none;padding:12px 20px;border-radius:12px">← Voorpagina</a></div>
 <div class="card">
 <h2>🔗 Affiliate</h2>
 <p>Promoot producten van bijvoorbeeld Amazon, bol.com, AliExpress of andere bedrijven op je website of in een YouTube-video. Als iemand via jouw <strong>persoonlijke affiliate-link</strong> iets koopt, kun je commissie krijgen volgens de voorwaarden van dat programma.</p>
@@ -2355,7 +2355,28 @@ document.addEventListener('DOMContentLoaded',function(){
 });
 </script>
 
-<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script></body></html>'
+<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script><script>
+/* Affiliate terugknop: onafhankelijke navigatie, ook wanneer de hoofdmodule faalt. */
+(function(){
+ document.addEventListener('click',function(event){
+  var back=event.target.closest&&event.target.closest('#affiliateBackHome');
+  if(!back)return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  try{
+   if(typeof switchTab==='function'){switchTab('dashboard');}
+   else{
+    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
+    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
+   }
+   if(!document.getElementById('dashboard').classList.contains('active'))throw Error('Dashboard niet actief');
+   history.replaceState(null,'','#dashboard');
+   window.scrollTo(0,0);
+  }catch(e){window.location.href=back.href;}
+ },true);
+})();
+</script>
+</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
