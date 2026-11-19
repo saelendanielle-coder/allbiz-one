@@ -1015,6 +1015,8 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <label for="affiliateDescription">Korte beschrijving</label><textarea id="affiliateDescription" maxlength="1000" placeholder="Waarom raad je dit product aan?"></textarea>
 <label for="affiliateImage">Link naar productfoto, optioneel</label><input id="affiliateImage" type="url" placeholder="https://.../foto.jpg"><span class="fieldhelp">Gebruik alleen afbeeldingen waarvoor je toestemming of een licentie hebt.</span>
 <div class="row"><button type="submit">+ Affiliateproduct toevoegen</button><span id="affiliateStatus" class="toast" role="status"></span></div>
+<div class="row" id="affiliateAccountControls" style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px"><button type="button" class="secondary" id="affiliateTestAccount">🔍 Test accountverbinding</button><button type="button" class="secondary" id="affiliateSaveAccount">☁️ Bewaar in mijn account</button><button type="button" class="secondary" id="affiliateLoadAccount">☁️ Haal mijn producten op</button></div>
+<p class="small muted">Accountfuncties werken na het inloggen. Lokale producten worden niet automatisch verwijderd.</p>
 </form>
 </div>
 <div class="card">
@@ -2174,12 +2176,11 @@ el('affiliateForm').addEventListener('submit',e=>{
 /* Affiliate: expliciete accountsynchronisatie, zonder bestaande lokale producten te wissen. */
 {
  const form=el('affiliateForm'),status=el('affiliateStatus');
- const controls=element('div','row');controls.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
- const saveBtn=element('button','secondary','☁️ Bewaar in mijn account');
- const loadBtn=element('button','secondary','☁️ Haal mijn producten op');
+ const controls=el('affiliateAccountControls');
+ const saveBtn=el('affiliateSaveAccount');
+ const loadBtn=el('affiliateLoadAccount');
  saveBtn.type=loadBtn.type='button';
- const testBtn=element('button','secondary','🔍 Test accountverbinding');
- testBtn.type='button';controls.append(testBtn);
+ const testBtn=el('affiliateTestAccount');
  testBtn.addEventListener('click',async()=>{
   testBtn.disabled=true;status.textContent='Account en beveiligde opslag controleren…';
   try{
@@ -2197,7 +2198,7 @@ el('affiliateForm').addEventListener('submit',e=>{
  });
  const info=element('p','small muted','Je producten blijven lokaal beschikbaar. Met deze knoppen kun je ze ook veilig bewaren en ophalen in je ingelogde account. Een bestaand lokaal product wordt nooit automatisch verwijderd.');
  info.style.marginTop='8px';
- form.append(controls,info);controls.append(saveBtn,loadBtn);
+ form.append(info);
  async function account(){
   const client=window.allbizClient;
   if(!client?.auth)throw Error('Accountverbinding nog niet beschikbaar. Probeer opnieuw.');
