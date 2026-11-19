@@ -1043,6 +1043,24 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 (function(){
  const button=document.getElementById('allbizReferralCreate'),status=document.getElementById('allbizReferralStatus'),result=document.getElementById('allbizReferralResult'),field=document.getElementById('allbizReferralUrl'),copy=document.getElementById('allbizReferralCopy');
  if(!button||!status||!result||!field||!copy)return;
+ // Toon de inloginstructie alleen wanneer er daadwerkelijk geen sessie is.
+ (function syncReferralLoginStatus(){
+  let attempts=0;
+  const waiting='Log in bij Mijn account om je link op te halen.';
+  function update(user){
+   if(result.hidden===false)return;
+   if(status.textContent===waiting||status.textContent==='Je bent ingelogd. Je kunt je persoonlijke link ophalen.'){
+    status.textContent=user?'Je bent ingelogd. Je kunt je persoonlijke link ophalen.':waiting;
+   }
+  }
+  const timer=setInterval(function(){
+   const auth=window.allbizClient?.auth;
+   if(!auth){if(++attempts>=40)clearInterval(timer);return;}
+   clearInterval(timer);
+   auth.getUser().then(({data,error})=>update(error?null:data?.user)).catch(()=>{});
+   auth.onAuthStateChange((_event,session)=>update(session?.user));
+  },250);
+ })();
  button.addEventListener('click',async function(){
   button.disabled=true;status.textContent='Je account controleren…';
   try{
