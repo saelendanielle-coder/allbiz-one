@@ -2168,14 +2168,22 @@ el('affiliateForm').addEventListener('submit',e=>{
   if(error||!data?.user)throw Error('Log eerst in bij Mijn account.');
   return {client,user:data.user};
  }
+ const ownerMarkerKey='allbiz-affiliate-local-owner-v1';
+ function checkLocalOwner(userId){
+  const marked=localStorage.getItem(ownerMarkerKey);
+  if(marked&&marked!==userId)throw Error('Deze browser bevat affiliateproducten van een ander account. Gebruik een aparte browser of toestel om vermenging te voorkomen.');
+ }
  const busy=state=>{saveBtn.disabled=loadBtn.disabled=state};
  saveBtn.addEventListener('click',async()=>{
   busy(true);status.textContent='Affiliateproducten veilig opslaan…';
   try{
    const {client,user}=await account();
+   checkLocalOwner(user.id);
    if(!affiliateItems.length){status.textContent='Je hebt nog geen affiliateproducten om op te slaan.';return}
+   const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
+   const legacyIds=new Map();
    const rows=affiliateItems.filter(x=>x.id&&x.name&&safeLink(x.link)).map(x=>({
-    id:x.id,owner_id:user.id,name:String(x.name).slice(0,150),
+    id:uuid.test(x.id)?x.id:(legacyIds.set(x.id,crypto.randomUUID()),legacyIds.get(x.id)),owner_id:user.id,name:String(x.name).slice(0,150),
     network:String(x.network||'').slice(0,100),link:safeLink(x.link),
     description:String(x.description||'').slice(0,1000),image:String(x.image||'').slice(0,4000),
     price:x.price===null||x.price===undefined?null:Number(x.price),
@@ -2184,6 +2192,8 @@ el('affiliateForm').addEventListener('submit',e=>{
    if(!rows.length)throw Error('Geen geldige producten gevonden.');
    const {error}=await client.from('allbiz_affiliate_products').upsert(rows,{onConflict:'id'});
    if(error)throw Error('Online bewaren is mislukt. Je lokale producten zijn behouden.');
+   if(legacyIds.size){affiliateItems.forEach(x=>{if(legacyIds.has(x.id))x.id=legacyIds.get(x.id)});saveAffiliates();renderAffiliate();renderAll()}
+   localStorage.setItem(ownerMarkerKey,user.id);
    status.textContent='✅ '+rows.length+' affiliateproduct(en) opgeslagen in jouw account.';
   }catch(e){status.textContent='⚠️ '+(e?.message||'Opslaan mislukt.')}
   finally{busy(false)}
@@ -2192,6 +2202,7 @@ el('affiliateForm').addEventListener('submit',e=>{
   busy(true);status.textContent='Jouw affiliateproducten ophalen…';
   try{
    const {client,user}=await account();
+   checkLocalOwner(user.id);
    const {data,error}=await client.from('allbiz_affiliate_products')
     .select('id,name,network,link,description,image,price,rate').eq('owner_id',user.id)
     .order('created_at',{ascending:true}).limit(200);
@@ -2203,6 +2214,7 @@ el('affiliateForm').addEventListener('submit',e=>{
    const previous=affiliateItems.slice();
    affiliateItems=[...affiliateItems,...incoming].slice(0,200);
    if(!saveAffiliates()){affiliateItems=previous;throw Error('Lokale opslag is vol. Online producten zijn niet verwijderd.')}
+   localStorage.setItem(ownerMarkerKey,user.id);
    renderAffiliate();renderAll();
    status.textContent='✅ '+(affiliateItems.length-previous.length)+' producten uit jouw account toegevoegd. Lokale producten zijn behouden.';
   }catch(e){status.textContent='⚠️ '+(e?.message||'Ophalen mislukt.')}
