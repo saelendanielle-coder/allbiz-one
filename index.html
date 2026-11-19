@@ -1019,6 +1019,30 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <div class="row" id="affiliateAccountControls" style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px"><button type="button" class="secondary" id="affiliateTestAccount">🔍 Test accountverbinding</button><button type="button" class="secondary" id="affiliateSaveAccount">☁️ Bewaar in mijn account</button><button type="button" class="secondary" id="affiliateLoadAccount">☁️ Haal mijn producten op</button></div>
 <p class="small muted">Accountfuncties werken na het inloggen. Lokale producten worden niet automatisch verwijderd.</p>
 </form>
+<script>
+/* Zelfstandige affiliate-accounttest: werkt ook als de hoofdmodule niet initialiseert. */
+(function(){
+ var btn=document.getElementById('affiliateTestAccount');
+ var status=document.getElementById('affiliateStatus');
+ if(!btn||!status)return;
+ btn.addEventListener('click',async function(event){
+  event.preventDefault();event.stopImmediatePropagation();
+  btn.disabled=true;status.textContent='⏳ Accountverbinding controleren…';
+  try{
+   var client=window.allbizClient;
+   if(!client||!client.auth)throw Error('De accountverbinding is nog niet beschikbaar. Vernieuw de pagina en probeer opnieuw.');
+   var result=await client.auth.getUser();
+   if(result.error||!result.data||!result.data.user)throw Error('Log eerst in bij Mijn account.');
+   var user=result.data.user;
+   var response=await client.from('allbiz_affiliate_products').select('id,owner_id').eq('owner_id',user.id).limit(200);
+   if(response.error)throw Error('De online affiliateopslag kon niet worden gelezen.');
+   if((response.data||[]).some(function(p){return p.owner_id!==user.id;}))throw Error('Beveiligingscontrole mislukt.');
+   status.textContent='✅ Verbinding werkt. '+(response.data||[]).length+' producten zichtbaar voor jouw account.';
+  }catch(error){status.textContent='⚠️ '+(error.message||'Accounttest mislukt.');}
+  finally{btn.disabled=false;}
+ },true);
+})();
+</script>
 </div>
 <div class="card">
 <h2>Mijn affiliateproducten <span class="pill" id="affiliateCount">0</span></h2>
