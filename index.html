@@ -1465,7 +1465,7 @@ function switchTab(tab,options={}){
    if(tab==='affiliate'){
     // Keep the back button usable while all affiliate content remains locked.
     p.removeAttribute('inert');
-    Array.from(p.children).forEach(child=>{if(child.contains(document.getElementById('affiliateBackHome')))child.removeAttribute('inert');else child.setAttribute('inert','');});
+    Array.from(p.children).forEach(child=>{if(child.contains(document.getElementById('affiliateReturnLink')))child.removeAttribute('inert');else child.setAttribute('inert','');});
    }else p.setAttribute('inert','');
   }else {
    p.removeAttribute('inert');p.classList.remove('allbiz-locked-preview');
