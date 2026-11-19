@@ -2150,6 +2150,65 @@ el('affiliateForm').addEventListener('submit',e=>{
   affiliateItems.push(a);if(!saveAffiliates()){affiliateItems.pop();el('affiliateStatus').textContent='Opslaan mislukt; maak opslagruimte vrij.';return}
   el('affiliateForm').reset();renderAffiliate();renderAll();el('affiliateSelect').value=a.id;affiliateEstimate();el('affiliateStatus').textContent='✅ Affiliateproduct toegevoegd. Het staat ook in je websitevoorbeeld.';
 });
+
+/* Affiliate: expliciete accountsynchronisatie, zonder bestaande lokale producten te wissen. */
+{
+ const form=el('affiliateForm'),status=el('affiliateStatus');
+ const controls=element('div','row');controls.style.cssText='display:flex;flex-wrap:wrap;gap:9px;margin-top:12px';
+ const saveBtn=element('button','secondary','☁️ Bewaar in mijn account');
+ const loadBtn=element('button','secondary','☁️ Haal mijn producten op');
+ saveBtn.type=loadBtn.type='button';
+ const info=element('p','small muted','Je producten blijven lokaal beschikbaar. Met deze knoppen kun je ze ook veilig bewaren en ophalen in je ingelogde account. Een bestaand lokaal product wordt nooit automatisch verwijderd.');
+ info.style.marginTop='8px';
+ form.append(controls,info);controls.append(saveBtn,loadBtn);
+ async function account(){
+  const client=window.allbizClient;
+  if(!client?.auth)throw Error('Accountverbinding nog niet beschikbaar. Probeer opnieuw.');
+  const {data,error}=await client.auth.getUser();
+  if(error||!data?.user)throw Error('Log eerst in bij Mijn account.');
+  return {client,user:data.user};
+ }
+ const busy=state=>{saveBtn.disabled=loadBtn.disabled=state};
+ saveBtn.addEventListener('click',async()=>{
+  busy(true);status.textContent='Affiliateproducten veilig opslaan…';
+  try{
+   const {client,user}=await account();
+   if(!affiliateItems.length){status.textContent='Je hebt nog geen affiliateproducten om op te slaan.';return}
+   const rows=affiliateItems.filter(x=>x.id&&x.name&&safeLink(x.link)).map(x=>({
+    id:x.id,owner_id:user.id,name:String(x.name).slice(0,150),
+    network:String(x.network||'').slice(0,100),link:safeLink(x.link),
+    description:String(x.description||'').slice(0,1000),image:String(x.image||'').slice(0,4000),
+    price:x.price===null||x.price===undefined?null:Number(x.price),
+    rate:x.rate===null||x.rate===undefined?null:Number(x.rate)
+   }));
+   if(!rows.length)throw Error('Geen geldige producten gevonden.');
+   const {error}=await client.from('allbiz_affiliate_products').upsert(rows,{onConflict:'id'});
+   if(error)throw Error('Online bewaren is mislukt. Je lokale producten zijn behouden.');
+   status.textContent='✅ '+rows.length+' affiliateproduct(en) opgeslagen in jouw account.';
+  }catch(e){status.textContent='⚠️ '+(e?.message||'Opslaan mislukt.')}
+  finally{busy(false)}
+ });
+ loadBtn.addEventListener('click',async()=>{
+  busy(true);status.textContent='Jouw affiliateproducten ophalen…';
+  try{
+   const {client,user}=await account();
+   const {data,error}=await client.from('allbiz_affiliate_products')
+    .select('id,name,network,link,description,image,price,rate').eq('owner_id',user.id)
+    .order('created_at',{ascending:true}).limit(200);
+   if(error)throw Error('Ophalen mislukt. Je lokale producten zijn behouden.');
+   const known=new Set(affiliateItems.map(x=>x.id));
+   const incoming=(data||[]).filter(x=>x?.id&&x.name&&safeLink(x.link)&&!known.has(x.id))
+    .map(x=>({...x,price:x.price===null?null:Number(x.price),rate:x.rate===null?null:Number(x.rate)}));
+   if(!incoming.length){status.textContent='✅ Geen nieuwe online producten. Je lokale producten zijn behouden.';return}
+   const previous=affiliateItems.slice();
+   affiliateItems=[...affiliateItems,...incoming].slice(0,200);
+   if(!saveAffiliates()){affiliateItems=previous;throw Error('Lokale opslag is vol. Online producten zijn niet verwijderd.')}
+   renderAffiliate();renderAll();
+   status.textContent='✅ '+(affiliateItems.length-previous.length)+' producten uit jouw account toegevoegd. Lokale producten zijn behouden.';
+  }catch(e){status.textContent='⚠️ '+(e?.message||'Ophalen mislukt.')}
+  finally{busy(false)}
+ });
+}
 el('affiliateSelect').addEventListener('change',()=>{
   affiliateEstimate();
   affiliatePostProductId='';
