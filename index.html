@@ -2114,7 +2114,27 @@ function affiliateCard(a,editable){
   const link=element('a','affiliate-link','Bekijk bij '+(a.network||'de winkel')+' ↗');link.href=a.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';d.append(link);
   if(editable){const act=element('div','actions');
     const copy=element('button','secondary','Link kopiëren');copy.type='button';copy.addEventListener('click',()=>copyAffiliateLink(a.link));act.append(copy);
-    const del=element('button','danger','Verwijderen');del.type='button';del.addEventListener('click',()=>{if(!confirm('Affiliateproduct verwijderen?'))return;const old=affiliateItems.slice();affiliateItems=affiliateItems.filter(x=>x.id!==a.id);if(!saveAffiliates()){affiliateItems=old;el('affiliateStatus').textContent='Opslaan mislukt.';return}renderAffiliate();renderAll()});act.append(del);d.append(act);
+    const del=element('button','danger','Verwijderen');del.type='button';del.addEventListener('click',async()=>{
+     if(!confirm('Affiliateproduct verwijderen?'))return;
+     del.disabled=true;
+     try{
+       const marker=localStorage.getItem('allbiz-affiliate-local-owner-v1');
+       if(marker){
+         const client=window.allbizClient;
+         if(!client?.auth)throw Error('Accountverbinding niet beschikbaar. Niets verwijderd.');
+         const {data,error:authError}=await client.auth.getUser();
+         if(authError||!data?.user||data.user.id!==marker)throw Error('Log in met het account waaraan deze producten gekoppeld zijn. Niets verwijderd.');
+         const {error}=await client.from('allbiz_affiliate_products').delete().eq('id',a.id).eq('owner_id',data.user.id);
+         if(error)throw Error('Online verwijderen mislukt. Niets lokaal verwijderd.');
+       }
+       const old=affiliateItems.slice();
+       affiliateItems=affiliateItems.filter(x=>x.id!==a.id);
+       if(!saveAffiliates()){affiliateItems=old;throw Error('Lokale opslag mislukt.')}
+       renderAffiliate();renderAll();
+       el('affiliateStatus').textContent='✅ Affiliateproduct verwijderd.';
+     }catch(e){el('affiliateStatus').textContent='⚠️ '+(e?.message||'Verwijderen mislukt.')}
+     finally{del.disabled=false}
+    });act.append(del);d.append(act);
   }return d;
 }
 function appendAffiliatePreview(parent,limit=false){
