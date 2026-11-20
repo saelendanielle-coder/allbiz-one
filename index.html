@@ -1027,6 +1027,14 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <p>Promoot producten van bijvoorbeeld Amazon, bol.com, AliExpress of andere bedrijven op je website of in een YouTube-video. Als iemand via jouw <strong>persoonlijke affiliate-link</strong> iets koopt, kun je commissie krijgen volgens de voorwaarden van dat programma.</p>
 <div class="notice"><strong>Belangrijk:</strong> je moet eerst worden toegelaten tot een passend affiliateprogramma en daar zelf jouw unieke affiliate-link ophalen. Een gewone productlink levert meestal geen commissie op. Niet elk bedrijf biedt een affiliateprogramma aan. Gebruik productfoto’s alleen als je daarvoor toestemming hebt.</div>
 <form id="affiliateForm">
+<script>
+/* Prevent browser navigation on affiliate form submit, even if the main app script fails to initialize. */
+(function(){
+  const form=document.getElementById('affiliateForm');
+  if(form)form.addEventListener('submit',function(event){event.preventDefault();},true);
+})();
+</script>
+
 <div class="fields">
 <div><label for="affiliateName">Naam van het product</label><input id="affiliateName" required maxlength="150" placeholder="Bijvoorbeeld draadloze koptelefoon"></div>
 <div><label for="affiliateNetwork">Winkel / affiliateprogramma</label><input id="affiliateNetwork" maxlength="100" placeholder="Bijvoorbeeld bol.com, Amazon, Awin..."></div>
