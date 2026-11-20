@@ -1051,6 +1051,47 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <p class="small muted">Accountfuncties werken na het inloggen. Lokale producten worden niet automatisch verwijderd.</p>
 </form>
 <script>
+/* Zelfstandige producttoevoeging: functioneert ook wanneer de hoofdmodule niet start. */
+(function(){
+ const form=document.getElementById('affiliateForm');
+ const button=document.getElementById('affiliateAddProduct');
+ const status=document.getElementById('affiliateStatus');
+ if(!form||!button||!status)return;
+ button.addEventListener('click',function(event){
+  event.preventDefault();event.stopImmediatePropagation();
+  if(!form.reportValidity()){status.textContent='Vul eerst de verplichte velden in.';return;}
+  const get=id=>document.getElementById(id)?.value.trim()||'';
+  const name=get('affiliateName'),link=get('affiliateLink'),image=get('affiliateImage');
+  try{
+   const parsed=new URL(link);
+   if(!['https:','http:'].includes(parsed.protocol))throw Error('Gebruik een geldige affiliate-link.');
+   if(image&&!['https:','http:'].includes(new URL(image).protocol))throw Error('Gebruik een geldige productfoto-link.');
+   const key='business-studio-affiliate-v1';
+   const items=JSON.parse(localStorage.getItem(key)||'[]');
+   if(!Array.isArray(items))throw Error('De lokale productenlijst is ongeldig.');
+   if(items.length>=200)throw Error('Maximum van 200 affiliateproducten bereikt.');
+   const price=get('affiliatePrice'),rate=get('affiliateRate');
+   if(rate&&(Number(rate)<0||Number(rate)>100))throw Error('Controleer de commissie.');
+   const product={id:crypto.randomUUID(),name:name.slice(0,150),network:get('affiliateNetwork').slice(0,100),link:parsed.href,description:get('affiliateDescription').slice(0,1000),image,price:price===''?null:Number(price),rate:rate===''?null:Number(rate)};
+   items.push(product);
+   localStorage.setItem(key,JSON.stringify(items));
+   const count=document.getElementById('affiliateCount');
+   if(count)count.textContent=String(items.length);
+   const list=document.getElementById('affiliateList');
+   if(list){
+    const card=document.createElement('article');card.className='affiliate-card';
+    const heading=document.createElement('h3');heading.textContent=product.name;card.append(heading);
+    const a=document.createElement('a');a.href=product.link;a.target='_blank';a.rel='sponsored nofollow noopener noreferrer';a.textContent='Bekijk bij '+(product.network||'de winkel');card.append(a);
+    list.querySelector('.empty')?.remove();list.append(card);
+   }
+   status.textContent='✅ Affiliateproduct toegevoegd. Bewaar het daarna in je account.';
+   form.reset();
+   list?.scrollIntoView({behavior:'smooth',block:'start'});
+  }catch(error){status.textContent='⚠️ '+(error.message||'Toevoegen mislukt.');}
+ },true);
+})();
+</script>
+<script>
 /* Zelfstandige affiliate-accounttest: werkt ook als de hoofdmodule niet initialiseert. */
 (function(){
  var btn=document.getElementById('affiliateTestAccount');
