@@ -2249,7 +2249,7 @@ el('affiliateForm').addEventListener('submit',e=>{
   if(imageText&&!image){el('affiliateStatus').textContent='Gebruik een geldige http(s)-foto-URL.';return}
   const a={id:(typeof crypto!=='undefined'&&crypto.randomUUID?crypto.randomUUID():newId()),name:name.slice(0,150),network:el('affiliateNetwork').value.trim().slice(0,100),link,description:el('affiliateDescription').value.trim().slice(0,1000),image,price,rate};
   affiliateItems.push(a);if(!saveAffiliates()){affiliateItems.pop();el('affiliateStatus').textContent='Opslaan mislukt; maak opslagruimte vrij.';return}
-  el('affiliateForm').reset();renderAffiliate();renderAll();el('affiliateSelect').value=a.id;affiliateEstimate();el('affiliateStatus').textContent='✅ Affiliateproduct toegevoegd. Het staat ook in je websitevoorbeeld.';
+  el('affiliateForm').reset();renderAffiliate();renderAll();el('affiliateSelect').value=a.id;affiliateEstimate();el('affiliateStatus').textContent='✅ Affiliateproduct toegevoegd. Het staat ook in je websitevoorbeeld. Bewaar het daarna in je account.'; el('affiliateList').scrollIntoView({behavior:'smooth',block:'start'});
 });
 
 /* Affiliate: expliciete accountsynchronisatie, zonder bestaande lokale producten te wissen. */
