@@ -1046,8 +1046,9 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </div>
 <label for="affiliateDescription">Korte beschrijving</label><textarea id="affiliateDescription" maxlength="1000" placeholder="Waarom raad je dit product aan?"></textarea>
 <label for="affiliateImage">Link naar productfoto, optioneel</label><input id="affiliateImage" type="url" placeholder="https://.../foto.jpg"><span class="fieldhelp">Gebruik alleen afbeeldingen waarvoor je toestemming of een licentie hebt.</span>
-<div class="row"><button type="button" id="affiliateAddProduct">+ Affiliateproduct toevoegen</button><span id="affiliateStatus" class="toast" role="status"></span></div>
+<div class="row"><button type="button" id="affiliateAddProduct">+ Affiliateproduct toevoegen</button></div>
 <div class="row" id="affiliateAccountControls" style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px"><button type="button" class="secondary" id="affiliateTestAccount">🔍 Test accountverbinding</button><button type="button" class="secondary" id="affiliateSaveAccount">☁️ Bewaar in mijn account</button><button type="button" class="secondary" id="affiliateLoadAccount">☁️ Haal mijn producten op</button></div>
+<div id="affiliateStatus" role="status" aria-live="polite" style="margin:12px 0;padding:12px 14px;border:1px solid #d9d0ef;border-radius:12px;background:#f4f0ff;color:#33245b;min-height:24px">Druk op een knop hierboven om de melding hier te zien.</div>
 <p class="small muted">Accountfuncties werken na het inloggen. Lokale producten worden niet automatisch verwijderd.</p>
 </form>
 <script>
