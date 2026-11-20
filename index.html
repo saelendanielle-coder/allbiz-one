@@ -1092,6 +1092,67 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 })();
 </script>
 <script>
+/* Standalone affiliate cloud recovery, without changing or deleting local products. */
+(function(){
+ const load=document.getElementById('affiliateLoadAccount');
+ const save=document.getElementById('affiliateSaveAccount');
+ const status=document.getElementById('affiliateStatus');
+ const key='business-studio-affiliate-v1', ownerKey='allbiz-affiliate-local-owner-v1';
+ if(!load||!save||!status)return;
+ const valid=x=>x&&x.name&&/^https?:\/\//i.test(x.link||'');
+ const read=()=>{try{const a=JSON.parse(localStorage.getItem(key)||'[]');return Array.isArray(a)?a.filter(valid):[]}catch(e){return []}};
+ async function account(){
+  const client=window.allbizClient;
+  if(!client?.auth)throw Error('Accountverbinding niet beschikbaar. Vernieuw de pagina.');
+  const {data,error}=await client.auth.getUser();
+  if(error||!data?.user)throw Error('Log eerst in bij Mijn account.');
+  const marker=localStorage.getItem(ownerKey);
+  if(marker&&marker!==data.user.id)throw Error('Deze browser bevat producten van een ander account. Er is niets gewijzigd.');
+  return {client,user:data.user};
+ }
+ const show=(message)=>{status.textContent=message;status.scrollIntoView({block:'nearest'})};
+ load.addEventListener('click',async function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  load.disabled=true;show('⏳ Producten uit je account ophalen…');
+  try{
+   const {client,user}=await account();
+   const {data,error}=await client.from('allbiz_affiliate_products').select('id,name,network,link,description,image,price,rate').eq('owner_id',user.id).order('created_at',{ascending:true}).limit(200);
+   if(error)throw Error('Ophalen mislukt. Er is niets verwijderd.');
+   const current=read(),seen=new Set(current.map(x=>x.id));
+   const added=(data||[]).filter(x=>valid(x)&&!seen.has(x.id));
+   const combined=[...current,...added].slice(0,200);
+   if(added.length){localStorage.setItem(key,JSON.stringify(combined));localStorage.setItem(ownerKey,user.id);}
+   const count=document.getElementById('affiliateCount');if(count)count.textContent=String(combined.length);
+   const list=document.getElementById('affiliateList');
+   if(list&&added.length){
+    list.querySelector('.empty')?.remove();
+    for(const p of added){const article=document.createElement('article');article.className='affiliate-card';const h=document.createElement('h3');h.textContent=p.name;const a=document.createElement('a');a.textContent='Bekijk bij '+(p.network||'de winkel');a.href=p.link;a.rel='sponsored nofollow noopener noreferrer';a.target='_blank';article.append(h,a);list.append(article);}
+   }
+   show('✅ '+(data||[]).length+' online producten gevonden; '+added.length+' toegevoegd. Lokale producten behouden.');
+  }catch(err){show('⚠️ '+(err.message||'Ophalen mislukt.'))}
+  finally{load.disabled=false}
+ },true);
+ save.addEventListener('click',async function(e){
+  e.preventDefault();e.stopImmediatePropagation();
+  save.disabled=true;show('⏳ Affiliateproducten bewaren…');
+  try{
+   const {client,user}=await account();
+   const products=read();
+   if(!products.length){show('Er zijn geen lokale producten om op te slaan. Probeer eerst Haal mijn producten op.');return}
+   if(!localStorage.getItem(ownerKey)&&!confirm('Zijn deze lokale affiliateproducten van jouw huidige account?')){show('Bewaren geannuleerd. Niets verwijderd.');return}
+   const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
+   const rows=products.map(p=>({id:uuid.test(p.id)?p.id:crypto.randomUUID(),owner_id:user.id,name:String(p.name).slice(0,150),network:String(p.network||'').slice(0,100),link:p.link,description:String(p.description||'').slice(0,1000),image:String(p.image||'').slice(0,4000),price:p.price==null?null:Number(p.price),rate:p.rate==null?null:Number(p.rate)}));
+   const {error}=await client.from('allbiz_affiliate_products').upsert(rows,{onConflict:'id'});
+   if(error)throw Error('Online bewaren mislukt. Lokale producten behouden.');
+   localStorage.setItem(key,JSON.stringify(products.map((p,i)=>({...p,id:rows[i].id}))));
+   localStorage.setItem(ownerKey,user.id);
+   show('✅ '+rows.length+' affiliateproduct(en) online bewaard.');
+  }catch(err){show('⚠️ '+(err.message||'Bewaren mislukt.'))}
+  finally{save.disabled=false}
+ },true);
+})();
+</script>
+<script>
 /* Zelfstandige affiliate-accounttest: werkt ook als de hoofdmodule niet initialiseert. */
 (function(){
  var btn=document.getElementById('affiliateTestAccount');
