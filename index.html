@@ -2253,6 +2253,13 @@ function affiliateCard(a,editable){
   const link=element('a','affiliate-link','Bekijk bij '+(a.network||'de winkel')+' ↗');link.href=a.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';d.append(link);
   if(editable){const act=element('div','actions');
     const copy=element('button','secondary','Link kopiëren');copy.type='button';copy.addEventListener('click',()=>copyAffiliateLink(a.link));act.append(copy);
+    const share=element('button','secondary','Delen');share.type='button';share.addEventListener('click',async()=>{
+      const data={title:a.name,text:'Bekijk dit product: '+a.name,url:a.link};
+      try{
+        if(navigator.share){await navigator.share(data);}
+        else{await copyAffiliateLink(a.link);el('affiliateStatus').textContent='Link gekopieerd. Plak hem in je bericht of sociale media.';}
+      }catch(error){if(error?.name!=='AbortError')el('affiliateStatus').textContent='Delen niet gelukt. Gebruik Link kopiëren.';}
+    });act.append(share);
     const del=element('button','danger','Verwijderen');del.type='button';del.addEventListener('click',async()=>{
      if(!confirm('Affiliateproduct verwijderen?'))return;
      del.disabled=true;
