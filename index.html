@@ -1046,7 +1046,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </div>
 <label for="affiliateDescription">Korte beschrijving</label><textarea id="affiliateDescription" maxlength="1000" placeholder="Waarom raad je dit product aan?"></textarea>
 <label for="affiliateImage">Link naar productfoto, optioneel</label><input id="affiliateImage" type="url" placeholder="https://.../foto.jpg"><span class="fieldhelp">Gebruik alleen afbeeldingen waarvoor je toestemming of een licentie hebt.</span>
-<div class="row"><button type="submit">+ Affiliateproduct toevoegen</button><span id="affiliateStatus" class="toast" role="status"></span></div>
+<div class="row"><button type="button" id="affiliateAddProduct">+ Affiliateproduct toevoegen</button><span id="affiliateStatus" class="toast" role="status"></span></div>
 <div class="row" id="affiliateAccountControls" style="display:flex;flex-wrap:wrap;gap:9px;margin-top:12px"><button type="button" class="secondary" id="affiliateTestAccount">🔍 Test accountverbinding</button><button type="button" class="secondary" id="affiliateSaveAccount">☁️ Bewaar in mijn account</button><button type="button" class="secondary" id="affiliateLoadAccount">☁️ Haal mijn producten op</button></div>
 <p class="small muted">Accountfuncties werken na het inloggen. Lokale producten worden niet automatisch verwijderd.</p>
 </form>
@@ -2235,6 +2235,12 @@ function renderAffiliate(){
 function selectedAffiliate(){return affiliateItems.find(x=>x.id===el('affiliateSelect').value)||null}
 function affiliateEstimate(){const a=selectedAffiliate(),sales=Number(el('affiliateSales').value);if(!a||a.price===null||a.rate===null){el('affiliateEstimate').textContent='Vul bij een affiliateproduct de prijs en commissie in voor een voorbeeld.';return}const est=a.price*a.rate/100*(Number.isFinite(sales)?Math.max(0,Math.floor(sales)):0);el('affiliateEstimate').textContent='Hypothetische commissie: '+money(est)}
 async function copyAffiliateLink(value){try{if(navigator.clipboard&&window.isSecureContext){await navigator.clipboard.writeText(value);el('affiliateStatus').textContent='✅ Link gekopieerd.'}else{const t=element('textarea');t.value=value;document.body.append(t);t.select();const ok=document.execCommand('copy');t.remove();if(!ok)throw Error('Niet gekopieerd');el('affiliateStatus').textContent='✅ Link gekopieerd.'}}catch(e){el('affiliateStatus').textContent='Automatisch kopiëren lukt niet; selecteer de link handmatig.'}}
+el('affiliateAddProduct').addEventListener('click',e=>{
+  e.preventDefault();
+  const form=el('affiliateForm');
+  if(!form.reportValidity())return;
+  form.dispatchEvent(new Event('submit',{bubbles:true,cancelable:true}));
+});
 el('affiliateForm').addEventListener('submit',e=>{
   e.preventDefault();const link=safeLink(el('affiliateLink').value),name=el('affiliateName').value.trim(),rawPrice=el('affiliatePrice').value,rawRate=el('affiliateRate').value;
   const price=rawPrice===''?null:Number(rawPrice),rate=rawRate===''?null:Number(rawRate);
