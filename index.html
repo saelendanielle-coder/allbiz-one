@@ -2337,6 +2337,8 @@ el('affiliateForm').addEventListener('submit',e=>{
   busy(true);status.textContent='Affiliateproducten veilig opslaan…';
   try{
    const {client,user}=await account();
+   // Sync products added by the standalone button before saving to the account.
+   try{const stored=JSON.parse(localStorage.getItem(affiliateKey)||'[]');if(Array.isArray(stored))affiliateItems=stored.filter(x=>x&&x.name&&safeLink(x.link)).slice(0,200)}catch(e){}
    checkLocalOwner(user.id);
    if(!affiliateItems.length){status.textContent='Je hebt nog geen affiliateproducten om op te slaan.';return}
    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
