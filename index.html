@@ -2781,6 +2781,55 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 @media(min-width:900px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
 </style>
 <script id="allbiz-home-five-only-script">(function(){function fix(){var q=document.getElementById('allbizHelpQuick');if(!q)return;var allowed=['site','shop','digital','affiliate','trading'];Array.from(q.children).forEach(function(node){var id=node.getAttribute('data-quick-section');if(!id){var txt=(node.textContent||'').trim().toLowerCase();if(txt.includes('website')&&!txt.includes('webshop'))id='site';else if(txt.includes('webshop')&&!txt.includes('webshopcheck'))id='shop';else if(txt.includes('digitale producten'))id='digital';else if(txt.includes('affiliate'))id='affiliate';else if(txt.includes('trading'))id='trading';}if(!allowed.includes(id)){node.style.setProperty('display','none','important');node.setAttribute('aria-hidden','true');}else{node.setAttribute('data-quick-section',id);node.style.removeProperty('display');}});allowed.forEach(function(id){var el=q.querySelector('[data-quick-section="'+id+'"]');if(el)q.appendChild(el)});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();})();</script>
+
+<!-- allbiz-strict-home-layout-20261121 -->
+<style id="allbiz-strict-home-layout-css">
+#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-height:104px!important;align-items:center!important;justify-content:center!important;text-align:center!important;background:#eee9fc!important;color:#342265!important;border:1px solid #c9bdfa!important;border-radius:16px!important;font-size:clamp(15px,3.7vw,20px)!important}
+#allbizHelpQuick>:not([data-home-five="yes"]){display:none!important}
+#allbizHomePlans{display:block!important;visibility:visible!important}
+@media(min-width:950px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+</style>
+<script id="allbiz-strict-home-layout-js">
+(function(){
+ var wanted=[
+  {id:'site',label:'🌐 Website',href:'./functie.html?onderdeel=site&versie=20261115b'},
+  {id:'shop',label:'🛍️ Webshop',href:'./webshop-bouwen.html'},
+  {id:'digital',label:'📦 Digitale producten',href:'./functie.html?onderdeel=digital&versie=20261115b'},
+  {id:'affiliate',label:'🔗 Affiliate',href:'./functie.html?onderdeel=affiliate&versie=20261115b'},
+  {id:'trading',label:'📈 Trading',href:'./functie.html?onderdeel=trading&versie=20261115b'}
+ ];
+ function start(){
+  var grid=document.getElementById('allbizHelpQuick');if(!grid)return;
+  var syncing=false;
+  function sync(){
+   if(syncing)return;syncing=true;
+   try{
+    wanted.forEach(function(item){
+     var a=Array.from(grid.children).find(function(n){return n.getAttribute('data-quick-section')===item.id&&n.matches('a')});
+     if(!a){
+      a=document.createElement('a');a.className='secondary allbiz-quick-link';a.href=item.href;a.setAttribute('data-quick-section',item.id);a.textContent=item.label;grid.appendChild(a);
+     }
+     if(a.getAttribute('data-home-five')!=='yes')a.setAttribute('data-home-five','yes');
+    });
+    Array.from(grid.children).forEach(function(n){
+     if(!wanted.some(function(w){return n.getAttribute('data-quick-section')===w.id&&n.matches('a')&&n===grid.querySelector('a[data-quick-section="'+w.id+'"]')})){
+      if(n.getAttribute('data-home-five')==='yes')n.removeAttribute('data-home-five');
+      n.style.setProperty('display','none','important');
+      n.setAttribute('aria-hidden','true');
+     }
+    });
+    wanted.forEach(function(w){var a=grid.querySelector('a[data-quick-section="'+w.id+'"]');if(a&&a!==grid.lastElementChild)grid.appendChild(a);});
+   }finally{syncing=false}
+  }
+  sync();
+  // Legacy scripts append shortcuts after initial load. Reapply only to the home grid.
+  var pending=false;
+  new MutationObserver(function(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;sync();});}).observe(grid,{childList:true,subtree:false});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
 </body></html>'
  ].join('');
  saveSiteSettings();
