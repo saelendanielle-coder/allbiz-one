@@ -1061,6 +1061,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
  if(!form||!button||!status)return;
  button.addEventListener('click',function(event){
   event.preventDefault();event.stopImmediatePropagation();
+  if(button.dataset.affiliateEditing==='yes')return;
   if(!form.reportValidity()){status.textContent='Vul eerst de verplichte velden in.';return;}
   const get=id=>document.getElementById(id)?.value.trim()||'';
   const name=get('affiliateName'),link=get('affiliateLink'),image=get('affiliateImage');
@@ -1090,7 +1091,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
      if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets aangepast.';return;}
      const fields={affiliateName:'name',affiliateNetwork:'network',affiliateLink:'link',affiliateDescription:'description',affiliateImage:'image',affiliatePrice:'price',affiliateRate:'rate'};
      Object.entries(fields).forEach(([id,field])=>{const input=document.getElementById(id);if(input)input.value=product[field]??'';});
-     const add=document.getElementById('affiliateAddProduct');if(add)add.textContent='💾 Aanpassing bewaren';
+     const add=document.getElementById('affiliateAddProduct');if(add){add.dataset.affiliateEditing='yes';add.textContent='💾 Aanpassing bewaren';}
      const editHandler=function(e){
       e.preventDefault();e.stopImmediatePropagation();
       if(!form.reportValidity())return;
@@ -1108,7 +1109,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
        heading.textContent=product.name;a.href=product.link;a.textContent='Bekijk bij '+(product.network||'de winkel');
        form.reset();status.textContent='✅ Affiliateproduct aangepast.';
       }catch(error){status.textContent='⚠️ '+(error.message||'Aanpassen mislukt.');return;}
-      add?.removeEventListener('click',editHandler,true);if(add)add.textContent='+ Affiliateproduct toevoegen';
+      add?.removeEventListener('click',editHandler,true);if(add){delete add.dataset.affiliateEditing;add.textContent='+ Affiliateproduct toevoegen';}
      };
      add?.addEventListener('click',editHandler,true);
      status.textContent='Wijzig de velden en klik op Aanpassing bewaren.';
@@ -2479,6 +2480,32 @@ function affiliateCard(a,editable){
   if(a.price!==null)d.append(element('div','price',money(a.price)));
   const link=element('a','affiliate-link','Bekijk bij '+(a.network||'de winkel')+' ↗');link.href=a.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';d.append(link);
   if(editable){const act=element('div','actions');
+    const edit=element('button','secondary','✏️ Product aanpassen');edit.type='button';edit.addEventListener('click',()=>{
+      const form=el('affiliateForm'),button=el('affiliateAddProduct');
+      const fields={affiliateName:a.name,affiliateNetwork:a.network,affiliateLink:a.link,affiliateDescription:a.description,affiliateImage:a.image,affiliatePrice:a.price??'',affiliateRate:a.rate??''};
+      Object.entries(fields).forEach(([id,value])=>{el(id).value=value??''});
+      button.textContent='💾 Aanpassing bewaren';button.dataset.affiliateEditing='yes';
+      const handler=function(event){
+        event.preventDefault();event.stopImmediatePropagation();
+        if(!form.reportValidity())return;
+        try{
+          const link=safeLink(el('affiliateLink').value),name=el('affiliateName').value.trim();
+          const priceText=el('affiliatePrice').value,rateText=el('affiliateRate').value;
+          const price=priceText===''?null:Number(priceText),rate=rateText===''?null:Number(rateText);
+          if(!link||!name||price!==null&&(!Number.isFinite(price)||price<0)||rate!==null&&(!Number.isFinite(rate)||rate<0||rate>100))throw Error('Controleer de ingevulde velden.');
+          const imageText=el('affiliateImage').value.trim(),image=imageText?safeImage(imageText):'';
+          if(imageText&&!image)throw Error('Ongeldige productfoto.');
+          const index=affiliateItems.findIndex(x=>x.id===a.id);if(index<0)throw Error('Product niet gevonden.');
+          const before={...affiliateItems[index]};
+          Object.assign(affiliateItems[index],{name:name.slice(0,150),network:el('affiliateNetwork').value.trim().slice(0,100),link,description:el('affiliateDescription').value.trim().slice(0,1000),image,price,rate});
+          if(!saveAffiliates()){affiliateItems[index]=before;throw Error('Opslaan mislukt.')}
+          form.reset();renderAffiliate();renderAll();el('affiliateStatus').textContent='✅ Affiliateproduct aangepast.';
+          button.removeEventListener('click',handler,true);delete button.dataset.affiliateEditing;button.textContent='+ Affiliateproduct toevoegen';
+        }catch(error){el('affiliateStatus').textContent='⚠️ '+error.message;}
+      };
+      button.addEventListener('click',handler,true);form.scrollIntoView({behavior:'smooth',block:'start'});
+      el('affiliateStatus').textContent='Wijzig de velden en klik op Aanpassing bewaren.';
+    });act.append(edit);
     const copy=element('button','secondary','Link kopiëren');copy.type='button';copy.addEventListener('click',()=>copyAffiliateLink(a.link));act.append(copy);
     const share=element('button','secondary','Delen');share.type='button';share.addEventListener('click',async()=>{
       const data={title:a.name,text:'Bekijk dit product: '+a.name,url:a.link};
