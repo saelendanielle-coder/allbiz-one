@@ -2858,6 +2858,40 @@ body>header .hero{margin-bottom:8px!important}
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(arrange,0)});else setTimeout(arrange,0);
 })();
 </script>
+
+<!-- allbiz-approved-reference-layout -->
+<style id="allbiz-approved-reference-css">
+/* Exact reference hierarchy: slim blue toolbar, five horizontal icons, three plans. */
+body>header{background:#29228f!important}
+body>header .inner{padding:8px 14px!important;max-width:1250px!important}
+body>header .sub,body>header .hero,body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
+body>header .top-settings{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0!important}
+body>header .top-settings>*{font-size:clamp(10px,1.8vw,13px)!important}
+#allbizHomeLanding{max-width:1250px!important;margin:0 auto!important;padding:14px 16px 28px!important}
+#allbizHomeLanding:before{content:'🤖  All Assistent';display:block;font-weight:800;font-size:18px;margin:0 0 12px;color:#23174f}
+#allbizHomeLanding #allbizHelpQuick{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:9px!important;margin:0!important}
+#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-width:0!important;min-height:92px!important;padding:12px 4px!important;border:1px solid #b8b4db!important;border-radius:12px!important;background:#e7e5fc!important;color:#16123d!important;font-size:clamp(10px,1.9vw,15px)!important;font-weight:800!important;line-height:1.3!important;text-decoration:none!important;overflow-wrap:anywhere}
+#allbizHomeLanding #allbizHomePlans{border-top:1px solid #d2cdec!important;padding-top:14px!important;margin-top:22px!important}
+#allbizHomeLanding #allbizHomePlans h2{font-size:clamp(19px,3vw,25px)!important;margin:0 0 12px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{min-width:0!important;min-height:210px!important;padding:14px 9px!important;border:1px solid #d4d0eb!important;border-radius:14px!important;background:#fff!important;color:#251a50!important;box-shadow:0 3px 9px #25165c18!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business{background:#2925a2!important;color:white!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan h3{font-size:clamp(14px,2.4vw,20px)!important;margin:0}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan strong{font-size:clamp(21px,3.8vw,32px)!important;margin:7px 0!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:clamp(11px,1.8vw,15px)!important;line-height:1.45!important;min-height:62px}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{min-height:38px!important;border-radius:30px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business button{background:#15b744!important;color:white!important}
+@media(max-width:650px){
+body>header .top-settings{gap:5px!important}
+#allbizHomeLanding{padding:12px 8px 24px!important}
+#allbizHomeLanding #allbizHelpQuick{gap:5px!important}
+#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:78px!important;padding:7px 2px!important;font-size:clamp(9px,2.4vw,12px)!important;border-radius:9px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{gap:5px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{padding:10px 5px!important;min-height:215px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:10px!important;min-height:83px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{font-size:10px!important;padding:7px 3px!important}
+}
+</style>
 </body></html>'
  ].join('');
  saveSiteSettings();
