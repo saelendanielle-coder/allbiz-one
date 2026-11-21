@@ -2771,6 +2771,16 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
 })();
 </script>
 
+
+<!-- allbiz-home-five-only-fix -->
+<style id="allbiz-home-five-only-css">
+/* Hide only extra homepage shortcut tiles, not the actual feature modules. */
+#allbizHelpQuick>*:not([data-quick-section="site"]):not([data-quick-section="shop"]):not([data-quick-section="digital"]):not([data-quick-section="affiliate"]):not([data-quick-section="trading"]){display:none!important}
+#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#allbizHelpQuick>[data-quick-section]{min-height:100px!important}
+@media(min-width:900px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+</style>
+<script id="allbiz-home-five-only-script">(function(){function fix(){var q=document.getElementById('allbizHelpQuick');if(!q)return;var allowed=['site','shop','digital','affiliate','trading'];Array.from(q.children).forEach(function(node){var id=node.getAttribute('data-quick-section');if(!id){var txt=(node.textContent||'').trim().toLowerCase();if(txt.includes('website')&&!txt.includes('webshop'))id='site';else if(txt.includes('webshop')&&!txt.includes('webshopcheck'))id='shop';else if(txt.includes('digitale producten'))id='digital';else if(txt.includes('affiliate'))id='affiliate';else if(txt.includes('trading'))id='trading';}if(!allowed.includes(id)){node.style.setProperty('display','none','important');node.setAttribute('aria-hidden','true');}else{node.setAttribute('data-quick-section',id);node.style.removeProperty('display');}});allowed.forEach(function(id){var el=q.querySelector('[data-quick-section="'+id+'"]');if(el)q.appendChild(el)});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();})();</script>
 </body></html>'
  ].join('');
  saveSiteSettings();
