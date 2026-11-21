@@ -2830,6 +2830,34 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
 })();
 </script>
+
+<!-- allbiz-home-visual-order-fix -->
+<style id="allbiz-home-visual-order-css">
+body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
+body>header .hero{margin-bottom:8px!important}
+#allbizHomeLanding{max-width:1100px;margin:12px auto 24px;padding:0 12px}
+#allbizHomeLanding #allbizHelpQuick{margin:0 0 18px!important}
+#allbizHomeLanding #allbizHomePlans{margin:16px 0 0!important}
+#allbizHomeLanding .allbiz-home-plan{min-height:180px}
+#allbizHomeLanding .allbiz-home-plan button{cursor:pointer}
+@media(max-width:750px){#allbizHomeLanding{padding:0 6px}#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:95px!important}}
+</style>
+<script id="allbiz-home-visual-order-js">
+(function(){
+ function arrange(){
+  var main=document.querySelector('body>main'),grid=document.getElementById('allbizHelpQuick'),plans=document.getElementById('allbizHomePlans');
+  if(!main||!grid||!plans)return;
+  var home=document.getElementById('allbizHomeLanding');
+  if(!home){home=document.createElement('section');home.id='allbizHomeLanding';home.setAttribute('aria-label','AllBiz One functies en abonnementen');main.insertBefore(home,main.firstChild);}
+  if(grid.parentNode!==home)home.appendChild(grid);
+  if(plans.parentNode!==home)home.appendChild(plans);
+  var quickHelp=document.getElementById('help');if(quickHelp)quickHelp.classList.remove('active');
+  var dashboard=document.getElementById('dashboard');
+  if(dashboard&&dashboard.classList.contains('active'))dashboard.classList.remove('active');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(arrange,0)});else setTimeout(arrange,0);
+})();
+</script>
 </body></html>'
  ].join('');
  saveSiteSettings();
