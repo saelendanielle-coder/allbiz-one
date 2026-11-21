@@ -1223,6 +1223,25 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     }catch(error){alert('Verwijderen mislukt: '+(error.message||'onbekende fout'))}
     finally{del.disabled=false}
    });
+   const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
+   edit.addEventListener('click',async()=>{
+    const show=document.getElementById('affiliateShowSaved');
+    if(!show){alert('Producten opnieuw laden is niet beschikbaar.');return}
+    show.click();
+    const status=document.getElementById('affiliateShowStatus');
+    const observer=new MutationObserver(()=>{
+     if(!show.disabled){
+      observer.disconnect();
+      const cards=[...document.querySelectorAll('#affiliateList .affiliate-card')];
+      const match=cards.find(c=>c.querySelector('h3')?.textContent===p.name&&c.querySelector('button')?.textContent.includes('Product aanpassen'));
+      const target=match?.querySelector('button');
+      if(target&&target!==edit)target.click();
+      else if(status)status.textContent+=' Klik opnieuw op Product aanpassen zodra je producten geladen zijn.';
+     }
+    });
+    observer.observe(show,{attributes:true,attributeFilter:['disabled']});
+   });
+   actions.prepend(edit);
    actions.append(del);card.append(actions);list.append(card);
   });
  }
