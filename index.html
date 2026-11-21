@@ -2730,6 +2730,47 @@ document.addEventListener('DOMContentLoaded',function(){
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
 })();
 </script>
+
+<!-- allbiz-home-layout-20261121 -->
+<style id="allbiz-home-layout-style">
+/* Only the home shortcut presentation changes; existing feature panels and logic remain untouched. */
+#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important}
+#allbizHelpQuick .allbiz-quick-link{min-height:104px!important;flex-direction:column;display:flex!important;align-items:center;justify-content:center;font-weight:800;font-size:16px!important;border:1px solid #c9bdfa;border-radius:16px}
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="video"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="radar"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="plans"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="ads"]{display:none!important}
+#allbizHelpQuick #allbizHelpWebsiteStatus{display:none!important}
+#allbizHomePlans{margin-top:24px}
+#allbizHomePlans h2{text-align:center;margin:0 0 15px}
+#allbizHomePlans .allbiz-home-plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#allbizHomePlans .allbiz-home-plan{border:1px solid #d6cdf4;border-radius:16px;padding:18px;text-align:center;background:#faf9ff}
+#allbizHomePlans .allbiz-home-plan.business{background:#3025a1;color:white}
+#allbizHomePlans .allbiz-home-plan strong{font-size:28px;display:block;margin:10px 0}
+#allbizHomePlans .allbiz-home-plan button{width:100%;margin-top:12px}
+@media(max-width:750px){#allbizHelpQuick{grid-template-columns:repeat(2,minmax(0,1fr))!important}#allbizHomePlans .allbiz-home-plans-grid{grid-template-columns:1fr}}
+</style>
+<script id="allbiz-home-layout-script">
+(function(){
+function init(){
+ var quick=document.getElementById('allbizHelpQuick');if(!quick||document.getElementById('allbizHomePlans'))return;
+ var digital=quick.querySelector('[data-quick-section="digital"]');
+ var affiliate=quick.querySelector('[data-quick-section="affiliate"]');
+ var trading=quick.querySelector('[data-quick-section="trading"]');
+ if(digital&&affiliate&&trading){quick.appendChild(affiliate);quick.appendChild(trading);}
+ var box=document.createElement('section');box.id='allbizHomePlans';box.setAttribute('aria-label','Abonnementen');
+ box.innerHTML='<h2>Kies jouw abonnement</h2><div class="allbiz-home-plans-grid">'+
+ '<div class="allbiz-home-plan"><h3>Starter</h3><strong>€10 / maand</strong><p>Website bouwen en opslaan.</p><button type="button" data-open-plans="starter">Starter kiezen</button></div>'+
+ '<div class="allbiz-home-plan"><h3>Pro</h3><strong>€20 / maand</strong><p>Website, webshop, digitale producten en affiliate.</p><button type="button" data-open-plans="pro">Pro kiezen</button></div>'+
+ '<div class="allbiz-home-plan business"><h3>Business</h3><strong>€30 / maand</strong><p>Alles van Pro, plus trading en extra AI-functies wanneer beschikbaar.</p><button type="button" data-open-plans="business">Business kiezen</button></div></div>';
+ quick.insertAdjacentElement('afterend',box);
+ // Reuse the existing subscription navigation/payment checks; never create a second checkout.
+ box.addEventListener('click',function(e){var b=e.target.closest('[data-open-plans]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();var nav=document.querySelector('nav.nav button[data-tab="plans"]');if(nav)nav.click();else if(typeof switchTab==='function')switchTab('plans',{automatic:false});var n={starter:0,pro:1,business:2}[b.dataset.openPlans];setTimeout(function(){var card=document.querySelectorAll('#plans .plan')[n];if(card)card.scrollIntoView({block:'center',behavior:'smooth'});},150);},true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
 </body></html>'
  ].join('');
  saveSiteSettings();
