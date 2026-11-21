@@ -111,49 +111,6 @@
   tasty.append(tastyActions,tastyStatus);
   trade.after(tasty);
 
-  // Affiliate: campagnevoorstellen met expliciete reclamemelding en linkcontrole.
-  const aff=el('section',undefined,'abo-tools');aff.id='aboAffiliateCampaign';
-  aff.append(el('h3','📣 Affiliatecampagne maken'),
-    el('p','Maak een bericht voor je eigen kanaal. Controleer of je persoonlijke partnerlink klopt. Er worden geen kliks of commissies verzonnen.','muted'));
-  const channelLabel=el('label','Promotiekanaal');channelLabel.htmlFor='aboAffChannel';
-  const channel=el('select');channel.id='aboAffChannel';
-  [['instagram','Instagram'],['tiktok','TikTok'],['youtube','YouTube'],['website','Website of blog']].forEach(([v,n])=>{const o=el('option',n);o.value=v;channel.append(o)});
-  const noteLabel=el('label','Je eigen eerlijke toelichting (optioneel)');noteLabel.htmlFor='aboAffNote';
-  const note=el('textarea');note.id='aboAffNote';note.rows=3;note.maxLength=220;note.placeholder='Schrijf alleen ervaringen die je echt hebt.';
-  const promoLabel=el('label','Kopieerbare promotietekst');promoLabel.htmlFor='aboAffDraft';
-  const draft=el('textarea');draft.id='aboAffDraft';draft.rows=8;
-  const affStatus=el('p','Kies eerst een affiliateproduct in de bestaande lijst.','muted');affStatus.setAttribute('role','status');
-  const chosen=()=>{try{return typeof selectedAffiliate==='function'?selectedAffiliate():null}catch{return null}};
-  const safeUrl=s=>{try{const u=new URL(s);return u.protocol==='https:'&&Boolean(u.hostname.includes('.'))}catch{return false}};
-  function makePromo(){
-    const product=chosen();
-    if(!product){affStatus.textContent='Selecteer eerst een eerder toegevoegd affiliateproduct.';return}
-    const link=String(product.link||'').trim();
-    if(!safeUrl(link)){affStatus.textContent='Deze link is geen geldige https-link. Controleer je partnerlink.';return}
-    const channelName=channel.options[channel.selectedIndex]?.textContent||'Sociale media';
-    const label='Advertentie / affiliate-link: bij een aankoop via deze link kan ik commissie ontvangen.';
-    const line=String(product.description||'Bekijk de productinformatie bij de verkoper.').slice(0,500);
-    const personal=note.value.trim().slice(0,220);
-    const lines=[
-      'CONCEPT VOOR '+channelName.toUpperCase(),
-      '💡 '+String(product.name||'Mijn product').slice(0,150),
-      line,personal,
-      'Bekijk het product: '+link,
-      label
-    ].filter(Boolean);
-    draft.value=lines.join('\n\n');
-    affStatus.textContent='✅ Voorstel gemaakt. Controleer voorwaarden van het partnerprogramma, reclamevermelding en rechten op beelden vóór je publiceert.';
-  }
-  const affBtns=el('div',undefined,'abo-actions');
-  affBtns.append(button('✨ Maak affiliatebericht',makePromo),
-    button('📋 Kopieer affiliatebericht',()=>copy(draft.value,draft,affStatus)),
-    button('🔗 Controleer linkvorm',()=>{
-      const p=chosen();
-      affStatus.textContent=p&&safeUrl(String(p.link||''))?
-        '✅ De link heeft een geldig https-formaat. Of deze partnerlink geldig is en commissie oplevert, kan de app niet bevestigen.':
-        '⚠️ Kies een product met een geldige https-partnerlink.';
-    }));
-  aff.append(channelLabel,channel,noteLabel,note,affBtns,promoLabel,draft,affStatus,
-    el('p','Zonder toelating tot een affiliateprogramma is er geen gegarandeerde commissie. Je blijft zelf verantwoordelijk voor de reclamevermelding en wettelijke verplichtingen.','small muted'));
-  affiliate.querySelectorAll('.card')[1]?.after(aff);
+  // Affiliatecampagne verwijderd op verzoek. De aparte affiliate-productfunctie blijft behouden.
+
 })();
