@@ -2655,244 +2655,8 @@ el('exportSite').addEventListener('click',()=>{
  serviceCards?'<section id="diensten"><h2>Onze diensten</h2><ul>'+serviceCards+'</ul></section>':'',
  '<section id="contact"><h2>Contact</h2>'+contact+'</section></main>',
  '<footer>© '+new Date().getFullYear()+' '+title+'</footer>',
- '<script>(function(){function display(id){var p=document.getElementById(id);if(!p||!p.classList.contains('panel'))return;document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x===p)});document.querySelectorAll('nav.nav [data-tab]').forEach(function(x){x.classList.toggle('active',x.dataset.tab===id)});}window.addEventListener('hashchange',function(){display(location.hash.slice(1))});document.addEventListener('click',function(e){var b=e.target.closest('a[data-open-plans]');if(!b)return;var plan=b.dataset.openPlans;display('plans');setTimeout(function(){var c=document.querySelectorAll('#plans .plan')[{starter:0,pro:1,business:2}[plan]];if(c){document.querySelectorAll('#plans .plan').forEach(function(x){x.style.outline=''});c.style.outline='3px solid #6245d1';c.scrollIntoView({block:'center'})}},50)},true)})();</script><style id="allbiz-floating-help-final-visibility">html body a#allbizFloatingHelp{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:fixed!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;z-index:2147483000!important}</style><script id="allbiz-product-mobile-picker-fix">
-document.addEventListener('DOMContentLoaded',function(){
- const go=document.getElementById('allbizOpenProductEditor');
- if(go)go.addEventListener('click',function(){
-   const target=document.getElementById('products');
-   if(!target)return;
-   if(typeof switchTab==='function')switchTab('products');
-   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p===target));
-   history.replaceState(null,'','#products');
-   target.scrollIntoView({block:'start'});
- });
- const picker=document.getElementById('allbizPickPhoto'),input=document.getElementById('photo'),status=document.getElementById('allbizPhotoChosen');
- if(picker&&input){picker.addEventListener('click',()=>input.click());input.addEventListener('change',()=>{if(status)status.textContent=input.files?.[0]?'Gekozen foto: '+input.files[0].name:'Nog geen foto gekozen.'})}
-});
-</script>
-
-<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script><script>
-/* Affiliate terugknop: onafhankelijke navigatie, ook wanneer de hoofdmodule faalt. */
-(function(){
- document.addEventListener('click',function(event){
-  var back=event.target.closest&&event.target.closest('#affiliateBackHome');
-  if(!back)return;
-  event.preventDefault();
-  event.stopImmediatePropagation();
-  try{
-   var overview=document.querySelector('nav.nav [data-tab="dashboard"]');
-   if(overview){overview.click();}
-   else if(typeof switchTab==='function'){switchTab('dashboard');}
-   else{
-    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
-    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
-   }
-   if(!document.getElementById('dashboard').classList.contains('active')){
-    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
-    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
-   }
-   history.replaceState(null,'','#dashboard');
-   window.scrollTo(0,0);
-  }catch(e){window.location.href=back.href;}
- },true);
-})();
-</script>
-
-<!-- Albiz One: zichtbare uitlogknop, zonder andere functies aan te passen -->
-<style id="allbiz-logout-visible-fix">
-#allbizHeaderLogout{position:static!important;inset:auto!important;z-index:auto!important;background:#d93649!important;color:white!important;border:0!important;border-radius:10px!important;padding:10px 14px!important;font-weight:700!important;cursor:pointer!important;box-shadow:none!important;margin-left:6px!important;vertical-align:middle!important}
-#allbizHeaderLogout.allbiz-logout-ready{display:inline-flex!important;visibility:visible!important;align-items:center!important}
-@media(max-width:650px){#allbizHeaderLogout{padding:10px 12px!important;font-size:14px!important}}
-</style>
-<script id="allbiz-logout-visible-fix-script">
-(function(){
- function sync(){
-  var b=document.getElementById('allbizHeaderLogout');
-  var signed=document.getElementById('authSignedIn');
-  if(!b||!signed)return;
-  var active=!signed.hidden;
-  b.hidden=!active;
-  b.classList.toggle('allbiz-logout-ready',active);
- }
- function init(){
-  var b=document.getElementById('allbizHeaderLogout');
-  var signed=document.getElementById('authSignedIn');
-  if(!b||!signed)return;
-  b.removeAttribute('onclick');
-  b.addEventListener('click',function(e){
-   e.preventDefault();
-   var original=document.getElementById('authLogout');
-   if(original)original.click();
-  });
-  new MutationObserver(sync).observe(signed,{attributes:true,attributeFilter:['hidden']});
-  sync();
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();
-</script>
-
-<!-- allbiz-home-layout-20261121 -->
-<style id="allbiz-home-layout-style">
-/* Only the home shortcut presentation changes; existing feature panels and logic remain untouched. */
-#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important}
-#allbizHelpQuick .allbiz-quick-link{min-height:104px!important;flex-direction:column;display:flex!important;align-items:center;justify-content:center;font-weight:800;font-size:16px!important;border:1px solid #c9bdfa;border-radius:16px}
-#allbizHelpQuick .allbiz-quick-link[data-quick-section="video"],
-#allbizHelpQuick .allbiz-quick-link[data-quick-section="radar"],
-#allbizHelpQuick .allbiz-quick-link[data-quick-section="plans"],
-#allbizHelpQuick .allbiz-quick-link[data-quick-section="ads"]{display:none!important}
-#allbizHelpQuick #allbizHelpWebsiteStatus{display:none!important}
-#allbizHomePlans{margin-top:24px}
-#allbizHomePlans h2{text-align:center;margin:0 0 15px}
-#allbizHomePlans .allbiz-home-plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
-#allbizHomePlans .allbiz-home-plan{border:1px solid #d6cdf4;border-radius:16px;padding:18px;text-align:center;background:#faf9ff}
-#allbizHomePlans .allbiz-home-plan.business{background:#3025a1;color:white}
-#allbizHomePlans .allbiz-home-plan strong{font-size:28px;display:block;margin:10px 0}
-#allbizHomePlans .allbiz-home-plan button{width:100%;margin-top:12px}
-@media(max-width:750px){#allbizHelpQuick{grid-template-columns:repeat(2,minmax(0,1fr))!important}#allbizHomePlans .allbiz-home-plans-grid{grid-template-columns:1fr}}
-</style>
-<script id="allbiz-home-layout-script">
-(function(){
-function init(){
- var quick=document.getElementById('allbizHelpQuick');if(!quick||document.getElementById('allbizHomePlans'))return;
- var digital=quick.querySelector('[data-quick-section="digital"]');
- var affiliate=quick.querySelector('[data-quick-section="affiliate"]');
- var trading=quick.querySelector('[data-quick-section="trading"]');
- if(digital&&affiliate&&trading){quick.appendChild(affiliate);quick.appendChild(trading);}
- var box=document.createElement('section');box.id='allbizHomePlans';box.setAttribute('aria-label','Abonnementen');
- box.innerHTML='<h2>Kies jouw abonnement</h2><div class="allbiz-home-plans-grid">'+
- '<div class="allbiz-home-plan"><h3>Starter</h3><strong>€10 / maand</strong><p>Website bouwen en opslaan.</p><button type="button" data-open-plans="starter">Starter kiezen</button></div>'+
- '<div class="allbiz-home-plan"><h3>Pro</h3><strong>€20 / maand</strong><p>Website, webshop, digitale producten en affiliate.</p><button type="button" data-open-plans="pro">Pro kiezen</button></div>'+
- '<div class="allbiz-home-plan business"><h3>Business</h3><strong>€30 / maand</strong><p>Alles van Pro, plus trading en extra AI-functies wanneer beschikbaar.</p><button type="button" data-open-plans="business">Business kiezen</button></div></div>';
- quick.insertAdjacentElement('afterend',box);
- // Reuse the existing subscription navigation/payment checks; never create a second checkout.
- box.addEventListener('click',function(e){var b=e.target.closest('[data-open-plans]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();var nav=document.querySelector('nav.nav button[data-tab="plans"]');if(nav)nav.click();else if(typeof switchTab==='function')switchTab('plans',{automatic:false});var n={starter:0,pro:1,business:2}[b.dataset.openPlans];setTimeout(function(){var card=document.querySelectorAll('#plans .plan')[n];if(card)card.scrollIntoView({block:'center',behavior:'smooth'});},150);},true);
-}
-if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
-})();
-</script>
-
-
-<!-- allbiz-home-five-only-fix -->
-<style id="allbiz-home-five-only-css">
-/* Hide only extra homepage shortcut tiles, not the actual feature modules. */
-#allbizHelpQuick>*:not([data-quick-section="site"]):not([data-quick-section="shop"]):not([data-quick-section="digital"]):not([data-quick-section="affiliate"]):not([data-quick-section="trading"]){display:none!important}
-#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
-#allbizHelpQuick>[data-quick-section]{min-height:100px!important}
-@media(min-width:900px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
-</style>
-<script id="allbiz-home-five-only-script">(function(){function fix(){var q=document.getElementById('allbizHelpQuick');if(!q)return;var allowed=['site','shop','digital','affiliate','trading'];Array.from(q.children).forEach(function(node){var id=node.getAttribute('data-quick-section');if(!id){var txt=(node.textContent||'').trim().toLowerCase();if(txt.includes('website')&&!txt.includes('webshop'))id='site';else if(txt.includes('webshop')&&!txt.includes('webshopcheck'))id='shop';else if(txt.includes('digitale producten'))id='digital';else if(txt.includes('affiliate'))id='affiliate';else if(txt.includes('trading'))id='trading';}if(!allowed.includes(id)){node.style.setProperty('display','none','important');node.setAttribute('aria-hidden','true');}else{node.setAttribute('data-quick-section',id);node.style.removeProperty('display');}});allowed.forEach(function(id){var el=q.querySelector('[data-quick-section="'+id+'"]');if(el)q.appendChild(el)});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();})();</script>
-
-<!-- allbiz-strict-home-layout-20261121 -->
-<style id="allbiz-strict-home-layout-css">
-#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
-#allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-height:104px!important;align-items:center!important;justify-content:center!important;text-align:center!important;background:#eee9fc!important;color:#342265!important;border:1px solid #c9bdfa!important;border-radius:16px!important;font-size:clamp(15px,3.7vw,20px)!important}
-#allbizHelpQuick>:not([data-home-five="yes"]){display:none!important}
-#allbizHomePlans{display:block!important;visibility:visible!important}
-@media(min-width:950px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
-</style>
-<script id="allbiz-strict-home-layout-js">
-(function(){
- var wanted=[
-  {id:'site',label:'🌐 Website',href:'./functie.html?onderdeel=site&versie=20261115b'},
-  {id:'shop',label:'🛍️ Webshop',href:'./webshop-bouwen.html'},
-  {id:'digital',label:'📦 Digitale producten',href:'./functie.html?onderdeel=digital&versie=20261115b'},
-  {id:'affiliate',label:'🔗 Affiliate',href:'./functie.html?onderdeel=affiliate&versie=20261115b'},
-  {id:'trading',label:'📈 Trading',href:'./functie.html?onderdeel=trading&versie=20261115b'}
- ];
- function start(){
-  var grid=document.getElementById('allbizHelpQuick');if(!grid)return;
-  var syncing=false;
-  function sync(){
-   if(syncing)return;syncing=true;
-   try{
-    wanted.forEach(function(item){
-     var a=Array.from(grid.children).find(function(n){return n.getAttribute('data-quick-section')===item.id&&n.matches('a')});
-     if(!a){
-      a=document.createElement('a');a.className='secondary allbiz-quick-link';a.href=item.href;a.setAttribute('data-quick-section',item.id);a.textContent=item.label;grid.appendChild(a);
-     }
-     if(a.getAttribute('data-home-five')!=='yes')a.setAttribute('data-home-five','yes');
-    });
-    Array.from(grid.children).forEach(function(n){
-     if(!wanted.some(function(w){return n.getAttribute('data-quick-section')===w.id&&n.matches('a')&&n===grid.querySelector('a[data-quick-section="'+w.id+'"]')})){
-      if(n.getAttribute('data-home-five')==='yes')n.removeAttribute('data-home-five');
-      n.style.setProperty('display','none','important');
-      n.setAttribute('aria-hidden','true');
-     }
-    });
-    wanted.forEach(function(w){var a=grid.querySelector('a[data-quick-section="'+w.id+'"]');if(a&&a!==grid.lastElementChild)grid.appendChild(a);});
-   }finally{syncing=false}
-  }
-  sync();
-  // Legacy scripts append shortcuts after initial load. Reapply only to the home grid.
-  var pending=false;
-  new MutationObserver(function(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;sync();});}).observe(grid,{childList:true,subtree:false});
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
-})();
-</script>
-
-<!-- allbiz-home-visual-order-fix -->
-<style id="allbiz-home-visual-order-css">
-body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
-body>header .hero{margin-bottom:8px!important}
-#allbizHomeLanding{max-width:1100px;margin:12px auto 24px;padding:0 12px}
-#allbizHomeLanding #allbizHelpQuick{margin:0 0 18px!important}
-#allbizHomeLanding #allbizHomePlans{margin:16px 0 0!important}
-#allbizHomeLanding .allbiz-home-plan{min-height:180px}
-#allbizHomeLanding .allbiz-home-plan button{cursor:pointer}
-@media(max-width:750px){#allbizHomeLanding{padding:0 6px}#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:95px!important}}
-</style>
-<script id="allbiz-home-visual-order-js">
-(function(){
- function arrange(){
-  var main=document.querySelector('body>main'),grid=document.getElementById('allbizHelpQuick'),plans=document.getElementById('allbizHomePlans');
-  if(!main||!grid||!plans)return;
-  var home=document.getElementById('allbizHomeLanding');
-  if(!home){home=document.createElement('section');home.id='allbizHomeLanding';home.setAttribute('aria-label','AllBiz One functies en abonnementen');main.insertBefore(home,main.firstChild);}
-  if(grid.parentNode!==home)home.appendChild(grid);
-  if(plans.parentNode!==home)home.appendChild(plans);
-  var quickHelp=document.getElementById('help');if(quickHelp)quickHelp.classList.remove('active');
-  var dashboard=document.getElementById('dashboard');
-  if(dashboard&&dashboard.classList.contains('active'))dashboard.classList.remove('active');
- }
- if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(arrange,0)});else setTimeout(arrange,0);
-})();
-</script>
-
-<!-- allbiz-approved-reference-layout -->
-<style id="allbiz-approved-reference-css">
-/* Exact reference hierarchy: slim blue toolbar, five horizontal icons, three plans. */
-body>header{background:#29228f!important}
-body>header .inner{padding:8px 14px!important;max-width:1250px!important}
-body>header .sub,body>header .hero,body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
-body>header .top-settings{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0!important}
-body>header .top-settings>*{font-size:clamp(10px,1.8vw,13px)!important}
-#allbizHomeLanding{max-width:1250px!important;margin:0 auto!important;padding:14px 16px 28px!important}
-#allbizHomeLanding:before{content:'🤖  All Assistent';display:block;font-weight:800;font-size:18px;margin:0 0 12px;color:#23174f}
-#allbizHomeLanding #allbizHelpQuick{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:9px!important;margin:0!important}
-#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-width:0!important;min-height:92px!important;padding:12px 4px!important;border:1px solid #b8b4db!important;border-radius:12px!important;background:#e7e5fc!important;color:#16123d!important;font-size:clamp(10px,1.9vw,15px)!important;font-weight:800!important;line-height:1.3!important;text-decoration:none!important;overflow-wrap:anywhere}
-#allbizHomeLanding #allbizHomePlans{border-top:1px solid #d2cdec!important;padding-top:14px!important;margin-top:22px!important}
-#allbizHomeLanding #allbizHomePlans h2{font-size:clamp(19px,3vw,25px)!important;margin:0 0 12px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{min-width:0!important;min-height:210px!important;padding:14px 9px!important;border:1px solid #d4d0eb!important;border-radius:14px!important;background:#fff!important;color:#251a50!important;box-shadow:0 3px 9px #25165c18!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business{background:#2925a2!important;color:white!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan h3{font-size:clamp(14px,2.4vw,20px)!important;margin:0}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan strong{font-size:clamp(21px,3.8vw,32px)!important;margin:7px 0!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:clamp(11px,1.8vw,15px)!important;line-height:1.45!important;min-height:62px}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{min-height:38px!important;border-radius:30px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business button{background:#15b744!important;color:white!important}
-@media(max-width:650px){
-body>header .top-settings{gap:5px!important}
-#allbizHomeLanding{padding:12px 8px 24px!important}
-#allbizHomeLanding #allbizHelpQuick{gap:5px!important}
-#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:78px!important;padding:7px 2px!important;font-size:clamp(9px,2.4vw,12px)!important;border-radius:9px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{gap:5px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{padding:10px 5px!important;min-height:215px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:10px!important;min-height:83px!important}
-#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{font-size:10px!important;padding:7px 3px!important}
-}
-</style>
-</body></html>'
+ "<script>(function(){function display(id){var p=document.getElementById(id);if(!p||!p.classList.contains('panel'))return;document.querySelectorAll('.panel').forEach(function(x){x.classList.toggle('active',x===p)});document.querySelectorAll('nav.nav [data-tab]').forEach(function(x){x.classList.toggle('active',x.dataset.tab===id)});}window.addEventListener('hashchange',function(){display(location.hash.slice(1))});document.addEventListener('click',function(e){var b=e.target.closest('a[data-open-plans]');if(!b)return;var plan=b.dataset.openPlans;display('plans');setTimeout(function(){var c=document.querySelectorAll('#plans .plan')[{starter:0,pro:1,business:2}[plan]];if(c){document.querySelectorAll('#plans .plan').forEach(function(x){x.style.outline=''});c.style.outline='3px solid #6245d1';c.scrollIntoView({block:'center'})}},50)},true)})();<\\/script>",
+ '</body></html>'
  ].join('');
  saveSiteSettings();
  downloadText('mijn-bedrijfswebsite.html',html,'text/html;charset=utf-8');
@@ -3251,6 +3015,245 @@ el('guideDownload').addEventListener('click',()=>{
 guideRender();
 
 </script>
+<style id="allbiz-floating-help-final-visibility">html body a#allbizFloatingHelp{display:flex!important;visibility:visible!important;opacity:1!important;pointer-events:auto!important;position:fixed!important;right:12px!important;bottom:calc(12px + env(safe-area-inset-bottom,0px))!important;z-index:2147483000!important}</style><script id="allbiz-product-mobile-picker-fix">
+document.addEventListener('DOMContentLoaded',function(){
+ const go=document.getElementById('allbizOpenProductEditor');
+ if(go)go.addEventListener('click',function(){
+   const target=document.getElementById('products');
+   if(!target)return;
+   if(typeof switchTab==='function')switchTab('products');
+   document.querySelectorAll('.panel').forEach(p=>p.classList.toggle('active',p===target));
+   history.replaceState(null,'','#products');
+   target.scrollIntoView({block:'start'});
+ });
+ const picker=document.getElementById('allbizPickPhoto'),input=document.getElementById('photo'),status=document.getElementById('allbizPhotoChosen');
+ if(picker&&input){picker.addEventListener('click',()=>input.click());input.addEventListener('change',()=>{if(status)status.textContent=input.files?.[0]?'Gekozen foto: '+input.files[0].name:'Nog geen foto gekozen.'})}
+});
+</script>
+
+<!-- allbiz-cart-count-sync --><script>(function(){var count=document.getElementById('cartCount'),floating=document.getElementById('allbizCartFloatingCount');if(!count||!floating)return;function sync(){floating.textContent=count.textContent.trim()||'0'}new MutationObserver(sync).observe(count,{childList:true,subtree:true,characterData:true});sync()})();</script><script>
+/* Affiliate terugknop: onafhankelijke navigatie, ook wanneer de hoofdmodule faalt. */
+(function(){
+ document.addEventListener('click',function(event){
+  var back=event.target.closest&&event.target.closest('#affiliateBackHome');
+  if(!back)return;
+  event.preventDefault();
+  event.stopImmediatePropagation();
+  try{
+   var overview=document.querySelector('nav.nav [data-tab="dashboard"]');
+   if(overview){overview.click();}
+   else if(typeof switchTab==='function'){switchTab('dashboard');}
+   else{
+    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
+    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
+   }
+   if(!document.getElementById('dashboard').classList.contains('active')){
+    document.querySelectorAll('.panel').forEach(function(panel){panel.classList.toggle('active',panel.id==='dashboard');});
+    document.querySelectorAll('nav.nav [data-tab]').forEach(function(btn){btn.classList.toggle('active',btn.dataset.tab==='dashboard');});
+   }
+   history.replaceState(null,'','#dashboard');
+   window.scrollTo(0,0);
+  }catch(e){window.location.href=back.href;}
+ },true);
+})();
+</script>
+
+<!-- Albiz One: zichtbare uitlogknop, zonder andere functies aan te passen -->
+<style id="allbiz-logout-visible-fix">
+#allbizHeaderLogout{position:static!important;inset:auto!important;z-index:auto!important;background:#d93649!important;color:white!important;border:0!important;border-radius:10px!important;padding:10px 14px!important;font-weight:700!important;cursor:pointer!important;box-shadow:none!important;margin-left:6px!important;vertical-align:middle!important}
+#allbizHeaderLogout.allbiz-logout-ready{display:inline-flex!important;visibility:visible!important;align-items:center!important}
+@media(max-width:650px){#allbizHeaderLogout{padding:10px 12px!important;font-size:14px!important}}
+</style>
+<script id="allbiz-logout-visible-fix-script">
+(function(){
+ function sync(){
+  var b=document.getElementById('allbizHeaderLogout');
+  var signed=document.getElementById('authSignedIn');
+  if(!b||!signed)return;
+  var active=!signed.hidden;
+  b.hidden=!active;
+  b.classList.toggle('allbiz-logout-ready',active);
+ }
+ function init(){
+  var b=document.getElementById('allbizHeaderLogout');
+  var signed=document.getElementById('authSignedIn');
+  if(!b||!signed)return;
+  b.removeAttribute('onclick');
+  b.addEventListener('click',function(e){
+   e.preventDefault();
+   var original=document.getElementById('authLogout');
+   if(original)original.click();
+  });
+  new MutationObserver(sync).observe(signed,{attributes:true,attributeFilter:['hidden']});
+  sync();
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+<!-- allbiz-home-layout-20261121 -->
+<style id="allbiz-home-layout-style">
+/* Only the home shortcut presentation changes; existing feature panels and logic remain untouched. */
+#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:12px!important}
+#allbizHelpQuick .allbiz-quick-link{min-height:104px!important;flex-direction:column;display:flex!important;align-items:center;justify-content:center;font-weight:800;font-size:16px!important;border:1px solid #c9bdfa;border-radius:16px}
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="video"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="radar"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="plans"],
+#allbizHelpQuick .allbiz-quick-link[data-quick-section="ads"]{display:none!important}
+#allbizHelpQuick #allbizHelpWebsiteStatus{display:none!important}
+#allbizHomePlans{margin-top:24px}
+#allbizHomePlans h2{text-align:center;margin:0 0 15px}
+#allbizHomePlans .allbiz-home-plans-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px}
+#allbizHomePlans .allbiz-home-plan{border:1px solid #d6cdf4;border-radius:16px;padding:18px;text-align:center;background:#faf9ff}
+#allbizHomePlans .allbiz-home-plan.business{background:#3025a1;color:white}
+#allbizHomePlans .allbiz-home-plan strong{font-size:28px;display:block;margin:10px 0}
+#allbizHomePlans .allbiz-home-plan button{width:100%;margin-top:12px}
+@media(max-width:750px){#allbizHelpQuick{grid-template-columns:repeat(2,minmax(0,1fr))!important}#allbizHomePlans .allbiz-home-plans-grid{grid-template-columns:1fr}}
+</style>
+<script id="allbiz-home-layout-script">
+(function(){
+function init(){
+ var quick=document.getElementById('allbizHelpQuick');if(!quick||document.getElementById('allbizHomePlans'))return;
+ var digital=quick.querySelector('[data-quick-section="digital"]');
+ var affiliate=quick.querySelector('[data-quick-section="affiliate"]');
+ var trading=quick.querySelector('[data-quick-section="trading"]');
+ if(digital&&affiliate&&trading){quick.appendChild(affiliate);quick.appendChild(trading);}
+ var box=document.createElement('section');box.id='allbizHomePlans';box.setAttribute('aria-label','Abonnementen');
+ box.innerHTML='<h2>Kies jouw abonnement</h2><div class="allbiz-home-plans-grid">'+
+ '<div class="allbiz-home-plan"><h3>Starter</h3><strong>€10 / maand</strong><p>Website bouwen en opslaan.</p><button type="button" data-open-plans="starter">Starter kiezen</button></div>'+
+ '<div class="allbiz-home-plan"><h3>Pro</h3><strong>€20 / maand</strong><p>Website, webshop, digitale producten en affiliate.</p><button type="button" data-open-plans="pro">Pro kiezen</button></div>'+
+ '<div class="allbiz-home-plan business"><h3>Business</h3><strong>€30 / maand</strong><p>Alles van Pro, plus trading en extra AI-functies wanneer beschikbaar.</p><button type="button" data-open-plans="business">Business kiezen</button></div></div>';
+ quick.insertAdjacentElement('afterend',box);
+ // Reuse the existing subscription navigation/payment checks; never create a second checkout.
+ box.addEventListener('click',function(e){var b=e.target.closest('[data-open-plans]');if(!b)return;e.preventDefault();e.stopImmediatePropagation();var nav=document.querySelector('nav.nav button[data-tab="plans"]');if(nav)nav.click();else if(typeof switchTab==='function')switchTab('plans',{automatic:false});var n={starter:0,pro:1,business:2}[b.dataset.openPlans];setTimeout(function(){var card=document.querySelectorAll('#plans .plan')[n];if(card)card.scrollIntoView({block:'center',behavior:'smooth'});},150);},true);
+}
+if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
+
+
+<!-- allbiz-home-five-only-fix -->
+<style id="allbiz-home-five-only-css">
+/* Hide only extra homepage shortcut tiles, not the actual feature modules. */
+#allbizHelpQuick>*:not([data-quick-section="site"]):not([data-quick-section="shop"]):not([data-quick-section="digital"]):not([data-quick-section="affiliate"]):not([data-quick-section="trading"]){display:none!important}
+#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important}
+#allbizHelpQuick>[data-quick-section]{min-height:100px!important}
+@media(min-width:900px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+</style>
+<script id="allbiz-home-five-only-script">(function(){function fix(){var q=document.getElementById('allbizHelpQuick');if(!q)return;var allowed=['site','shop','digital','affiliate','trading'];Array.from(q.children).forEach(function(node){var id=node.getAttribute('data-quick-section');if(!id){var txt=(node.textContent||'').trim().toLowerCase();if(txt.includes('website')&&!txt.includes('webshop'))id='site';else if(txt.includes('webshop')&&!txt.includes('webshopcheck'))id='shop';else if(txt.includes('digitale producten'))id='digital';else if(txt.includes('affiliate'))id='affiliate';else if(txt.includes('trading'))id='trading';}if(!allowed.includes(id)){node.style.setProperty('display','none','important');node.setAttribute('aria-hidden','true');}else{node.setAttribute('data-quick-section',id);node.style.removeProperty('display');}});allowed.forEach(function(id){var el=q.querySelector('[data-quick-section="'+id+'"]');if(el)q.appendChild(el)});}if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',fix);else fix();})();</script>
+
+<!-- allbiz-strict-home-layout-20261121 -->
+<style id="allbiz-strict-home-layout-css">
+#allbizHelpQuick{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:12px!important}
+#allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-height:104px!important;align-items:center!important;justify-content:center!important;text-align:center!important;background:#eee9fc!important;color:#342265!important;border:1px solid #c9bdfa!important;border-radius:16px!important;font-size:clamp(15px,3.7vw,20px)!important}
+#allbizHelpQuick>:not([data-home-five="yes"]){display:none!important}
+#allbizHomePlans{display:block!important;visibility:visible!important}
+@media(min-width:950px){#allbizHelpQuick{grid-template-columns:repeat(5,minmax(0,1fr))!important}}
+</style>
+<script id="allbiz-strict-home-layout-js">
+(function(){
+ var wanted=[
+  {id:'site',label:'🌐 Website',href:'./functie.html?onderdeel=site&versie=20261115b'},
+  {id:'shop',label:'🛍️ Webshop',href:'./webshop-bouwen.html'},
+  {id:'digital',label:'📦 Digitale producten',href:'./functie.html?onderdeel=digital&versie=20261115b'},
+  {id:'affiliate',label:'🔗 Affiliate',href:'./functie.html?onderdeel=affiliate&versie=20261115b'},
+  {id:'trading',label:'📈 Trading',href:'./functie.html?onderdeel=trading&versie=20261115b'}
+ ];
+ function start(){
+  var grid=document.getElementById('allbizHelpQuick');if(!grid)return;
+  var syncing=false;
+  function sync(){
+   if(syncing)return;syncing=true;
+   try{
+    wanted.forEach(function(item){
+     var a=Array.from(grid.children).find(function(n){return n.getAttribute('data-quick-section')===item.id&&n.matches('a')});
+     if(!a){
+      a=document.createElement('a');a.className='secondary allbiz-quick-link';a.href=item.href;a.setAttribute('data-quick-section',item.id);a.textContent=item.label;grid.appendChild(a);
+     }
+     if(a.getAttribute('data-home-five')!=='yes')a.setAttribute('data-home-five','yes');
+    });
+    Array.from(grid.children).forEach(function(n){
+     if(!wanted.some(function(w){return n.getAttribute('data-quick-section')===w.id&&n.matches('a')&&n===grid.querySelector('a[data-quick-section="'+w.id+'"]')})){
+      if(n.getAttribute('data-home-five')==='yes')n.removeAttribute('data-home-five');
+      n.style.setProperty('display','none','important');
+      n.setAttribute('aria-hidden','true');
+     }
+    });
+    wanted.forEach(function(w){var a=grid.querySelector('a[data-quick-section="'+w.id+'"]');if(a&&a!==grid.lastElementChild)grid.appendChild(a);});
+   }finally{syncing=false}
+  }
+  sync();
+  // Legacy scripts append shortcuts after initial load. Reapply only to the home grid.
+  var pending=false;
+  new MutationObserver(function(){if(pending)return;pending=true;requestAnimationFrame(function(){pending=false;sync();});}).observe(grid,{childList:true,subtree:false});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',start);else start();
+})();
+</script>
+
+<!-- allbiz-home-visual-order-fix -->
+<style id="allbiz-home-visual-order-css">
+body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
+body>header .hero{margin-bottom:8px!important}
+#allbizHomeLanding{max-width:1100px;margin:12px auto 24px;padding:0 12px}
+#allbizHomeLanding #allbizHelpQuick{margin:0 0 18px!important}
+#allbizHomeLanding #allbizHomePlans{margin:16px 0 0!important}
+#allbizHomeLanding .allbiz-home-plan{min-height:180px}
+#allbizHomeLanding .allbiz-home-plan button{cursor:pointer}
+@media(max-width:750px){#allbizHomeLanding{padding:0 6px}#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:95px!important}}
+</style>
+<script id="allbiz-home-visual-order-js">
+(function(){
+ function arrange(){
+  var main=document.querySelector('body>main'),grid=document.getElementById('allbizHelpQuick'),plans=document.getElementById('allbizHomePlans');
+  if(!main||!grid||!plans)return;
+  var home=document.getElementById('allbizHomeLanding');
+  if(!home){home=document.createElement('section');home.id='allbizHomeLanding';home.setAttribute('aria-label','AllBiz One functies en abonnementen');main.insertBefore(home,main.firstChild);}
+  if(grid.parentNode!==home)home.appendChild(grid);
+  if(plans.parentNode!==home)home.appendChild(plans);
+  var quickHelp=document.getElementById('help');if(quickHelp)quickHelp.classList.remove('active');
+  var dashboard=document.getElementById('dashboard');
+  if(dashboard&&dashboard.classList.contains('active'))dashboard.classList.remove('active');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',function(){setTimeout(arrange,0)});else setTimeout(arrange,0);
+})();
+</script>
+
+<!-- allbiz-approved-reference-layout -->
+<style id="allbiz-approved-reference-css">
+/* Exact reference hierarchy: slim blue toolbar, five horizontal icons, three plans. */
+body>header{background:#29228f!important}
+body>header .inner{padding:8px 14px!important;max-width:1250px!important}
+body>header .sub,body>header .hero,body>header .allbiz-plan-links,body>header .allbiz-device-notice{display:none!important}
+body>header .top-settings{display:flex!important;flex-wrap:wrap!important;align-items:center!important;justify-content:center!important;gap:7px!important;margin:0!important}
+body>header .top-settings>*{font-size:clamp(10px,1.8vw,13px)!important}
+#allbizHomeLanding{max-width:1250px!important;margin:0 auto!important;padding:14px 16px 28px!important}
+#allbizHomeLanding:before{content:'🤖  All Assistent';display:block;font-weight:800;font-size:18px;margin:0 0 12px;color:#23174f}
+#allbizHomeLanding #allbizHelpQuick{display:grid!important;grid-template-columns:repeat(5,minmax(0,1fr))!important;gap:9px!important;margin:0!important}
+#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{display:flex!important;min-width:0!important;min-height:92px!important;padding:12px 4px!important;border:1px solid #b8b4db!important;border-radius:12px!important;background:#e7e5fc!important;color:#16123d!important;font-size:clamp(10px,1.9vw,15px)!important;font-weight:800!important;line-height:1.3!important;text-decoration:none!important;overflow-wrap:anywhere}
+#allbizHomeLanding #allbizHomePlans{border-top:1px solid #d2cdec!important;padding-top:14px!important;margin-top:22px!important}
+#allbizHomeLanding #allbizHomePlans h2{font-size:clamp(19px,3vw,25px)!important;margin:0 0 12px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:10px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{min-width:0!important;min-height:210px!important;padding:14px 9px!important;border:1px solid #d4d0eb!important;border-radius:14px!important;background:#fff!important;color:#251a50!important;box-shadow:0 3px 9px #25165c18!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business{background:#2925a2!important;color:white!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan h3{font-size:clamp(14px,2.4vw,20px)!important;margin:0}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan strong{font-size:clamp(21px,3.8vw,32px)!important;margin:7px 0!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:clamp(11px,1.8vw,15px)!important;line-height:1.45!important;min-height:62px}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{min-height:38px!important;border-radius:30px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan.business button{background:#15b744!important;color:white!important}
+@media(max-width:650px){
+body>header .top-settings{gap:5px!important}
+#allbizHomeLanding{padding:12px 8px 24px!important}
+#allbizHomeLanding #allbizHelpQuick{gap:5px!important}
+#allbizHomeLanding #allbizHelpQuick>[data-home-five="yes"]{min-height:78px!important;padding:7px 2px!important;font-size:clamp(9px,2.4vw,12px)!important;border-radius:9px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plans-grid{gap:5px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan{padding:10px 5px!important;min-height:215px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan p{font-size:10px!important;min-height:83px!important}
+#allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{font-size:10px!important;padding:7px 3px!important}
+}
+</style>
+
+
 <script>
 (function(){'use strict';
 const I18N={"nl":{"label":"Nederlands","tag":"Alles voor jouw business in één app","welcome":"Welkom bij AllBiz One","choose":"Kies jouw taal","open":"Open mijn app","pilot":"💎 AllBiz One · abonnementen vanaf €10/maand","partial":"De menu’s, startpagina en abonnementen zijn vertaald. Sommige uitgebreide tools zijn voorlopig nog in het Nederlands.","global":"Wereldwijd beschikbaar maken","globaltext":"AllBiz One is wereldwijd bereikbaar via deze website. De app staat nog niet in de Google Play Store of Apple App Store. Accounts en Mollie-abonnementen zijn geïntegreerd; de volledige betaal- en activatiecyclus moet nog bevestigd worden. Andere functies worden stapsgewijs geactiveerd.","title":"Start jouw eigen bedrijf 🚀","intro":"Bouw je website, voeg producten toe en ontdek marketingtools. Je kunt direct beginnen; stappenplannen zijn vrijwillig.","noPay":"Manage your products and digital files under My webshop. Store payments require the approved Mollie connection.","products":"Producten","physical":"Fysieke producten","digital":"Digitale producten","steps":"✅ Bekijk stappenplan","importBtn":"🚚 Producten importeren","addBtn":"+ Product toevoegen","shopBtn":"Bekijk je webshop","affiliateBtn":"🔗 Affiliate toevoegen","adsBtn":"📣 Digitale marketing","how":"Zo werkt het","howtext":"Begin meteen met bouwen. Vink stappen pas af nadat je ze hebt uitgevoerd. Alles blijft toegankelijk.","plansTitle":"💎 Jouw abonnementen","plansIntro":"Voorbeeldprijzen voor latere betaalde abonnementen.","monthly":"per maand","starterDesc":"Website maken, bewerken en publiceren. Geen webshop, marketing of live trading.","proDesc":"Alles van Starter, plus webshopbeheer, digitale producten, productimport, YouTube-tools, affiliate en marketing. Voor online betalingen is een gekoppeld Mollie-verkopersaccount nodig.","businessDesc":"Alles van Pro, plus productradar, advertenties, een AI-assistent voor websitehulp, teksten, marketing en bedrijfsvragen, en live trading (nog niet actief). De AI geeft voorstellen en begeleiding; niet elke opdracht kan automatisch worden uitgevoerd. Trading met echt geld via Tastytrade is nog niet beschikbaar.","plansWarn":"Er worden nog geen abonnementen geïnd. Gebruikersaccounts en echte maandelijkse betalingen moeten nog worden gebouwd.","nav":["🏠 Overzicht","🛍️ Producten","🚚 Producten importeren","🎨 Website & domein","🏪 Mijn webshop","🎬 YouTube video’s","🔗 Affiliate","🔥 Productradar","✨ Website-assistent","📣 Digitale marketing","📢 Advertentiecampagnes (Business)","📈 Tradingdemo","✅ Stappenplannen","💎 Abonnementen","🤖 Bedrijfshulp","🔐 Mijn account"]},"en":{"label":"English","tag":"Everything for your business in one app","welcome":"Welcome to AllBiz One","choose":"Choose your language","open":"Open my app","pilot":"💎 AllBiz One · plans from €10/month","partial":"The menu, home page and plans are translated. Some advanced tools are still in Dutch.","global":"Make AllBiz One available worldwide","globaltext":"The AllBiz One demo website can be opened worldwide using a link, but it is not yet listed in the Google Play Store or Apple App Store. Real accounts, payments and some integrations are not yet active.","title":"Start your own business 🚀","intro":"Build a website, add products and explore marketing tools. Start immediately; checklists are optional.","noPay":"Demo: no real payments, orders, automated ads or trading transactions yet.","products":"Products","physical":"Physical products","digital":"Digital products","steps":"✅ View checklist","importBtn":"🚚 Import products","addBtn":"+ Add a product","shopBtn":"View your store","affiliateBtn":"🔗 Add affiliate product","adsBtn":"📣 Digital marketing","how":"How it works","howtext":"Start building straight away. Check off steps after completing them. All tools remain accessible.","plansTitle":"💎 Your subscriptions","plansIntro":"Sample prices for future paid subscriptions.","monthly":"per month","starterDesc":"Build, edit and publish a website. No webshop, marketing or live trading.","proDesc":"Everything in Starter plus webshop management, digital products, product import, YouTube, affiliate and marketing tools. Payments require a connected Mollie merchant account.","businessDesc":"Everything in Pro plus product radar, advertising tools, an AI assistant for website planning, writing, marketing and business questions, and trading practice. The assistant provides guidance and drafts; not every action can be completed automatically. Real-money Tastytrade trading is not yet available.","plansWarn":"Subscriptions are not collected yet. User accounts and real recurring payments still need to be built.","nav":["🏠 Overview","🛍️ Products","🚚 Import products","🎨 Website & domain","🏪 My store","🎬 YouTube videos","🔗 Affiliate","🔥 Product radar","✨ Website assistant","📣 Digital marketing","📢 Ad campaigns (Business)","📈 Tradingdemo","✅ Guides","💎 Subscriptions","🤖 Business help","🔐 My account"]},"fr":{"label":"Français","tag":"Toute votre activité dans une seule application","welcome":"Bienvenue sur AllBiz One","choose":"Choisissez votre langue","open":"Ouvrir mon application","pilot":"💎 AllBiz One · abonnements dès 15 €/mois","partial":"Les menus, l’accueil et les abonnements sont traduits. Certains outils avancés restent en néerlandais.","global":"Rendre AllBiz One disponible dans le monde","globaltext":"Ceci est une démo HTML locale, pas encore une application Play Store. Une publication et une sélection de pays sont nécessaires. Certaines fonctions sont réglementées.","title":"Créez votre entreprise 🚀","intro":"Créez un site, ajoutez des produits et découvrez le marketing. Commencez sans étapes obligatoires.","noPay":"Démo : pas encore de paiements, commandes, publicités automatiques ou transactions réelles.","products":"Produits","physical":"Produits physiques","digital":"Produits numériques","steps":"✅ Voir les étapes","importBtn":"🚚 Importer des produits","addBtn":"+ Ajouter un produit","shopBtn":"Voir la boutique","affiliateBtn":"🔗 Ajouter un affilié","adsBtn":"📣 Marketing numérique","how":"Comment ça marche","howtext":"Commencez tout de suite. Cochez les étapes une fois terminées. Rien n’est bloqué.","plansTitle":"💎 Vos abonnements","plansIntro":"Tarifs indicatifs pour de futurs abonnements payants.","monthly":"par mois","starterDesc":"Un site web et vos produits.","proDesc":"Boutique avec produits numériques et physiques.","businessDesc":"Outils supplémentaires pour entrepreneurs.","plansWarn":"Aucun abonnement n’est encore facturé. Il reste à créer les comptes et les paiements récurrents.","nav":["🏠 Accueil","🛍️ Produits","🚚 Importer","🎨 Site & domaine","🏪 Ma boutique","🎬 Vidéos YouTube","🔗 Affiliation","🔥 Radar produits","✨ Assistant de site","📣 Marketing numérique","📢 Campagnes publicitaires (Business)","📈 Trading réel","✅ Guides","💎 Abonnements","🤖 Aide entreprise","🔐 Mon compte"]},"de":{"label":"Deutsch","tag":"Alles für dein Business in einer App","welcome":"Willkommen bei AllBiz One","choose":"Wähle deine Sprache","open":"App öffnen","pilot":"💎 AllBiz One · Abos ab 15 €/Monat","partial":"Menü, Startseite und Abos sind übersetzt. Einige erweiterte Funktionen sind noch auf Niederländisch.","global":"AllBiz One weltweit anbieten","globaltext":"Dies ist eine lokale HTML-Demo, noch keine Play-Store-App. Für weltweite Downloads sind Veröffentlichung und Länderauswahl nötig. Manche Funktionen unterliegen zusätzlichen Regeln.","title":"Starte dein Unternehmen 🚀","intro":"Erstelle deine Website, füge Produkte hinzu und entdecke Marketingtools. Du kannst sofort starten.","noPay":"Demo: noch keine echten Zahlungen, Bestellungen, automatischen Anzeigen oder Trades.","products":"Produkte","physical":"Physische Produkte","digital":"Digitale Produkte","steps":"✅ Anleitung ansehen","importBtn":"🚚 Produkte importieren","addBtn":"+ Produkt hinzufügen","shopBtn":"Shop ansehen","affiliateBtn":"🔗 Affiliate hinzufügen","adsBtn":"📣 Digitales Marketing","how":"So funktioniert es","howtext":"Starte sofort. Hake Schritte ab, wenn sie erledigt sind. Nichts wird gesperrt.","plansTitle":"💎 Deine Abos","plansIntro":"Beispielpreise für zukünftige kostenpflichtige Abos.","monthly":"pro Monat","starterDesc":"Eine Website und eigene Produkte.","proDesc":"Shop mit digitalen und physischen Produkten.","businessDesc":"Zusätzliche Tools für Online-Unternehmen.","plansWarn":"Es werden noch keine Abos abgerechnet. Konten und echte monatliche Zahlungen fehlen noch.","nav":["🏠 Übersicht","🛍️ Produkte","🚚 Importieren","🎨 Website & Domain","🏪 Mein Shop","🎬 YouTube-Videos","🔗 Affiliate","🔥 Produktradar","✨ Website-Assistent","📣 Digitales Marketing","📢 Werbekampagnen (Business)","📈 Trading","✅ Anleitungen","💎 Abos","🤖 Hilfe","🔐 Mein Konto"]},"es":{"label":"Español","tag":"Todo para tu negocio en una sola app","welcome":"Bienvenido a AllBiz One","choose":"Elige tu idioma","open":"Abrir mi app","pilot":"💎 AllBiz One · planes desde 15 €/mes","partial":"El menú, inicio y planes están traducidos. Algunas herramientas avanzadas siguen en neerlandés.","global":"Llevar AllBiz One a todo el mundo","globaltext":"Esta es una demo HTML local, todavía no una app de Play Store. Para descargarla mundialmente hay que publicarla y elegir países. Algunas funciones tienen requisitos adicionales.","title":"Crea tu propio negocio 🚀","intro":"Crea una web, añade productos y descubre herramientas de marketing. Empieza sin pasos obligatorios.","noPay":"Demo: todavía no hay pagos, pedidos, anuncios automáticos ni operaciones reales.","products":"Productos","physical":"Productos físicos","digital":"Productos digitales","steps":"✅ Ver guía","importBtn":"🚚 Importar productos","addBtn":"+ Añadir producto","shopBtn":"Ver mi tienda","affiliateBtn":"🔗 Añadir afiliado","adsBtn":"📣 Marketing digital","how":"Cómo funciona","howtext":"Empieza ahora. Marca los pasos después de completarlos. Todo sigue disponible.","plansTitle":"💎 Tus suscripciones","plansIntro":"Precios de ejemplo para futuras suscripciones.","monthly":"al mes","starterDesc":"Una web y productos propios.","proDesc":"Tienda de productos digitales y físicos.","businessDesc":"Herramientas extra para emprendedores.","plansWarn":"Todavía no se cobran suscripciones. Faltan las cuentas y los pagos recurrentes.","nav":["🏠 Inicio","🛍️ Productos","🚚 Importar","🎨 Web y dominio","🏪 Mi tienda","🎬 YouTube","🔗 Afiliación","🔥 Radar de productos","✨ Asistente web","📣 Marketing digital","📢 Campañas publicitarias (Business)","📈 Trading","✅ Guías","💎 Suscripciones","🤖 Ayuda","🔐 Mi cuenta"]},"pt":{"label":"Português","tag":"Tudo para o seu negócio num só app","welcome":"Bem-vindo ao AllBiz One","choose":"Escolha seu idioma","open":"Abrir o app","pilot":"💎 AllBiz One · planos desde 15 €/mês","partial":"O menu, a página inicial e os planos estão traduzidos. Algumas ferramentas ainda estão em neerlandês.","global":"Disponibilizar o AllBiz One no mundo","globaltext":"Esta é uma demonstração HTML local, não publicada na Play Store. É preciso publicar e selecionar os países. Algumas funções têm regras adicionais.","title":"Comece seu negócio 🚀","intro":"Crie um site, adicione produtos e explore ferramentas de marketing. Comece imediatamente.","noPay":"Demo: ainda sem pagamentos, pedidos, anúncios automáticos ou negociações reais.","products":"Produtos","physical":"Produtos físicos","digital":"Produtos digitais","steps":"✅ Ver guia","importBtn":"🚚 Importar produtos","addBtn":"+ Adicionar produto","shopBtn":"Ver minha loja","affiliateBtn":"🔗 Adicionar afiliado","adsBtn":"📣 Marketing digital","how":"Como funciona","howtext":"Comece agora. Marque as etapas após concluí-las. Nada fica bloqueado.","plansTitle":"💎 Assinaturas","plansIntro":"Valores de exemplo para futuras assinaturas pagas.","monthly":"por mês","starterDesc":"Um site e seus produtos.","proDesc":"Loja com produtos digitais e físicos.","businessDesc":"Ferramentas extras para empreendedores.","plansWarn":"Ainda não há cobrança de assinaturas. Contas e pagamentos recorrentes devem ser desenvolvidos.","nav":["🏠 Início","🛍️ Produtos","🚚 Importar","🎨 Site e domínio","🏪 Minha loja","🎬 YouTube","🔗 Afiliados","🔥 Radar de produtos","✨ Assistente web","📣 Marketing digital","📢 Campanhas publicitárias (Business)","📈 Trading","✅ Guias","💎 Assinaturas","🤖 Ajuda","🔐 Minha conta"]},"it":{"label":"Italiano","tag":"Tutto per la tua attività in una sola app","welcome":"Benvenuto in AllBiz One","choose":"Scegli la tua lingua","open":"Apri la mia app","pilot":"💎 AllBiz One · abbonamenti da 15 €/mese","partial":"Menu, pagina iniziale e piani sono tradotti. Alcuni strumenti avanzati restano in olandese.","global":"Rendere AllBiz One disponibile ovunque","globaltext":"Questa è una demo HTML locale, non ancora un’app su Play Store. Servono pubblicazione e selezione dei paesi. Alcune funzioni sono soggette a regole aggiuntive.","title":"Avvia la tua attività 🚀","intro":"Crea un sito, aggiungi prodotti e scopri strumenti di marketing. Puoi iniziare subito.","noPay":"Demo: nessun pagamento, ordine, annuncio automatico o operazione reale.","products":"Prodotti","physical":"Prodotti fisici","digital":"Prodotti digitali","steps":"✅ Vedi guida","importBtn":"🚚 Importa prodotti","addBtn":"+ Aggiungi prodotto","shopBtn":"Vedi negozio","affiliateBtn":"🔗 Aggiungi affiliato","adsBtn":"📣 Marketing digitale","how":"Come funziona","howtext":"Inizia subito. Spunta i passaggi dopo averli completati. Nessun blocco.","plansTitle":"💎 Abbonamenti","plansIntro":"Prezzi di esempio per futuri abbonamenti.","monthly":"al mese","starterDesc":"Un sito web e prodotti propri.","proDesc":"Negozio con prodotti digitali e fisici.","businessDesc":"Strumenti extra per imprenditori.","plansWarn":"Gli abbonamenti non vengono ancora addebitati. Servono account e pagamenti ricorrenti.","nav":["🏠 Panoramica","🛍️ Prodotti","🚚 Importa","🎨 Sito e dominio","🏪 Negozio","🎬 YouTube","🔗 Affiliazione","🔥 Radar prodotti","✨ Assistente sito","📣 Marketing digitale","📢 Campagne pubblicitarie (Business)","📈 Trading","✅ Guide","💎 Abbonamenti","🤖 Aiuto","🔐 Il mio account"]},"ar":{"label":"العربية","tag":"كل ما يحتاجه مشروعك في تطبيق واحد","welcome":"مرحبًا بك في AllBiz One","choose":"اختر لغتك","open":"افتح التطبيق","pilot":"💎 AllBiz One · اشتراكات من 15 يورو/شهر","partial":"القوائم والصفحة الرئيسية والباقات مترجمة. بعض الأدوات المتقدمة ما زالت باللغة الهولندية.","global":"إتاحة AllBiz One حول العالم","globaltext":"هذه نسخة HTML تجريبية محلية، وليست تطبيقًا منشورًا على متجر Google Play. يجب نشر التطبيق واختيار الدول أولًا. بعض الوظائف تخضع لقواعد إضافية.","title":"ابدأ مشروعك الخاص 🚀","intro":"أنشئ موقعك وأضف المنتجات واستكشف أدوات التسويق. يمكنك البدء فورًا.","noPay":"نسخة تجريبية: لا توجد مدفوعات أو طلبات أو إعلانات آلية أو تداول حقيقي بعد.","products":"المنتجات","physical":"المنتجات المادية","digital":"المنتجات الرقمية","steps":"✅ عرض الخطوات","importBtn":"🚚 استيراد المنتجات","addBtn":"+ إضافة منتج","shopBtn":"عرض المتجر","affiliateBtn":"🔗 إضافة تسويق بالعمولة","adsBtn":"📣 التسويق الرقمي","how":"كيف يعمل","howtext":"ابدأ الآن، وحدد الخطوات بعد إكمالها. جميع الأدوات متاحة.","plansTitle":"💎 الاشتراكات","plansIntro":"أسعار توضيحية لاشتراكات مستقبلية.","monthly":"شهريًا","starterDesc":"موقع واحد ومنتجاتك الخاصة.","proDesc":"متجر للمنتجات الرقمية والمادية.","businessDesc":"أدوات إضافية لرواد الأعمال.","plansWarn":"لم يتم تفعيل تحصيل الاشتراكات بعد، ويجب إنشاء الحسابات والمدفوعات الدورية.","nav":["🏠 الرئيسية","🛍️ المنتجات","🚚 الاستيراد","🎨 الموقع والنطاق","🏪 متجري","🎬 يوتيوب","🔗 التسويق بالعمولة","🔥 رادار المنتجات","✨ مساعد الموقع","📣 التسويق الرقمي","📢 حملات إعلانية (Business)","📈 التداول","✅ خطوات","💎 الاشتراكات","🤖 المساعدة","🔐 حسابي"]},"hi":{"label":"हिन्दी","tag":"आपके व्यवसाय के लिए सब कुछ एक ऐप में","welcome":"AllBiz One में आपका स्वागत है","choose":"अपनी भाषा चुनें","open":"ऐप खोलें","pilot":"💎 AllBiz One · plans from €10/month","partial":"मेनू, होम पेज और योजनाओं का अनुवाद है। कुछ उन्नत टूल अभी डच में हैं।","global":"AllBiz One दुनिया भर में उपलब्ध करें","globaltext":"यह एक स्थानीय HTML डेमो है, अभी Play Store ऐप नहीं। विश्वव्यापी डाउनलोड के लिए प्रकाशन और देशों का चयन आवश्यक है। कुछ सुविधाओं पर अतिरिक्त नियम हैं।","title":"अपना व्यवसाय शुरू करें 🚀","intro":"वेबसाइट बनाएं, उत्पाद जोड़ें और मार्केटिंग टूल देखें। तुरंत शुरू करें।","noPay":"डेमो: अभी वास्तविक भुगतान, ऑर्डर, स्वचालित विज्ञापन या ट्रेडिंग नहीं।","products":"उत्पाद","physical":"भौतिक उत्पाद","digital":"डिजिटल उत्पाद","steps":"✅ गाइड देखें","importBtn":"🚚 उत्पाद आयात करें","addBtn":"+ उत्पाद जोड़ें","shopBtn":"अपनी दुकान देखें","affiliateBtn":"🔗 एफिलिएट जोड़ें","adsBtn":"📣 डिजिटल मार्केटिंग","how":"यह कैसे काम करता है","howtext":"अभी शुरू करें। काम पूरा करने पर चरण चिह्नित करें। सभी टूल खुले हैं।","plansTitle":"💎 सदस्यताएं","plansIntro":"भविष्य की सदस्यताओं के लिए नमूना कीमतें।","monthly":"प्रति माह","starterDesc":"एक वेबसाइट और अपने उत्पाद।","proDesc":"डिजिटल और भौतिक उत्पादों की दुकान।","businessDesc":"व्यवसायियों के लिए अतिरिक्त टूल।","plansWarn":"अभी कोई सदस्यता शुल्क नहीं लिया जाता। वास्तविक खाते और आवर्ती भुगतान बनाना बाकी है।","nav":["🏠 होम","🛍️ उत्पाद","🚚 आयात","🎨 वेबसाइट और डोमेन","🏪 मेरी दुकान","🎬 YouTube वीडियो","🔗 एफिलिएट","🔥 उत्पाद रडार","✨ वेबसाइट सहायक","📣 डिजिटल मार्केटिंग","📢 विज्ञापन अभियान (Business)","📈 ट्रेडिंग","✅ गाइड","💎 सदस्यता","🤖 सहायता","🔐 मेरा खाता"]},"zh":{"label":"中文","tag":"一个应用，管理你的所有业务","welcome":"欢迎使用 AllBiz One","choose":"选择你的语言","open":"打开应用","pilot":"💎 AllBiz One · 套餐每月€10起","partial":"菜单、首页和订阅方案已翻译。部分高级工具仍使用荷兰语。","global":"让 AllBiz One 面向全球","globaltext":"这是本地 HTML 演示，并非已上架 Play 商店的应用。全球下载需要先发布并选择国家，某些功能另有规定。","title":"开启自己的生意 🚀","intro":"创建网站、添加商品并探索营销工具。无需完成步骤即可开始。","noPay":"演示版：目前不支持真实付款、订单、自动广告或交易。","products":"商品","physical":"实体商品","digital":"数字商品","steps":"✅ 查看指南","importBtn":"🚚 导入商品","addBtn":"+ 添加商品","shopBtn":"查看店铺","affiliateBtn":"🔗 添加联盟商品","adsBtn":"📣 数字营销","how":"使用方法","howtext":"立即开始，完成后再勾选步骤。所有工具均可访问。","plansTitle":"💎 订阅方案","plansIntro":"以下为未来付费订阅的示例价格。","monthly":"每月","starterDesc":"一个网站和自己的商品。","proDesc":"销售数字和实体商品的网店。","businessDesc":"面向创业者的更多工具。","plansWarn":"目前尚未收取订阅费用，真实用户账户及周期扣款功能有待开发。","nav":["🏠 总览","🛍️ 商品","🚚 导入商品","🎨 网站与域名","🏪 我的店铺","🎬 YouTube 视频","🔗 联盟营销","🔥 热门商品雷达","✨ 网站助手","📣 数字营销","📢 广告活动 (Business)","📈 交易","✅ 指南","💎 订阅","🤖 业务帮助","🔐 我的账户"]}},navIds=["dashboard","products","import","site","shop","video","affiliate","radar","builder","marketing","ads","trading","guides","plans","help","account"];
