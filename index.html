@@ -1253,6 +1253,41 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     const card=document.createElement('article');card.className='affiliate-card';
     const title=document.createElement('h3');title.textContent=p.name;card.append(title);
     const link=document.createElement('a');link.href=p.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';link.textContent='Bekijk bij '+(p.network||'de winkel');card.append(link);
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';edit.style.marginTop='10px';
+    edit.addEventListener('click',()=>{
+     if(card.querySelector('.affiliate-edit-fields'))return;
+     const form=document.createElement('div');form.className='affiliate-edit-fields';form.style.marginTop='12px';
+     const fields=[['name','Productnaam','text'],['network','Winkel / affiliateprogramma','text'],['link','Persoonlijke affiliate-link','url'],['description','Beschrijving','text'],['image','Productfoto-link','url'],['price','Prijs (€)','number'],['rate','Commissie (%)','number']];
+     const inputs={};
+     for(const [key,label,type] of fields){
+      const l=document.createElement('label');l.textContent=label;l.style.display='block';l.style.marginTop='8px';
+      const input=document.createElement('input');input.type=type;input.value=p[key]??'';input.style.width='100%';input.style.boxSizing='border-box';if(type==='number'){input.step='0.01';input.min='0';}
+      if(key==='name'||key==='link')input.required=true;
+      l.append(input);form.append(l);inputs[key]=input;
+     }
+     const save=document.createElement('button');save.type='button';save.textContent='💾 Wijzigingen opslaan';save.style.marginTop='12px';
+     const cancel=document.createElement('button');cancel.type='button';cancel.className='secondary';cancel.textContent='Annuleren';cancel.style.margin='12px 0 0 8px';cancel.addEventListener('click',()=>form.remove());
+     save.addEventListener('click',async()=>{
+      try{
+       if(!inputs.name.value.trim())throw Error('Vul een productnaam in.');
+       const u=new URL(inputs.link.value.trim());if(!['https:','http:'].includes(u.protocol))throw Error('Ongeldige affiliate-link.');
+       const photo=inputs.image.value.trim();if(photo&&!['https:','http:'].includes(new URL(photo).protocol))throw Error('Ongeldige foto-link.');
+       const rate=inputs.rate.value.trim()===''?null:Number(inputs.rate.value);
+       if(rate!==null&&(rate<0||rate>100))throw Error('Commissie moet tussen 0 en 100 liggen.');
+       const price=inputs.price.value.trim()===''?null:Number(inputs.price.value);
+       const changes={name:inputs.name.value.trim().slice(0,150),network:inputs.network.value.trim().slice(0,100),link:u.href,description:inputs.description.value.trim().slice(0,1000),image:photo,price,rate};
+       save.disabled=true;
+       const {error}=await client.from('allbiz_affiliate_products').update(changes).eq('id',p.id).eq('owner_id',auth.user.id);
+       if(error)throw Error('Online opslaan mislukt: '+error.message);
+       const updated=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]').map(x=>x.id===p.id?{...x,...changes}:x);
+       localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(updated));
+       Object.assign(p,changes);title.textContent=p.name;link.href=p.link;link.textContent='Bekijk bij '+(p.network||'de winkel');form.remove();
+       showStatus.textContent='✅ Productwijzigingen online en lokaal opgeslagen.';
+      }catch(e){showStatus.textContent='⚠️ '+(e.message||'Aanpassen mislukt.')}
+      finally{save.disabled=false}
+     });
+     form.append(save,cancel);card.append(form);
+    });card.append(edit);
     const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';del.style.marginTop='10px';
     del.addEventListener('click',async()=>{
      if(!confirm('Dit affiliateproduct verwijderen?'))return;
@@ -4580,7 +4615,7 @@ try {
 <script src="allbiz-enhancements.js?v=20261029-dash1" defer></script>
 <script src="allbiz-ai-chat.js?v=20261026-fix2" defer></script>
 <script src="allbiz-content-tools.js?v=20261026-1" defer></script>
-<script src="allbiz-website-trading-affiliate.js?v=20261113-tastytrade4" defer></script>
+<script src="allbiz-website-trading-affiliate.js?v=5d9fe832" defer></script>
 
 <script src="allbiz-affiliate-drafts.js?v=20261028-3" defer></script>
 <script src="allbiz-guided-help.js?v=20261114-buttons-fixed-1" defer></script>
