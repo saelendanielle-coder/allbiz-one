@@ -1180,8 +1180,53 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 </div>
 <div class="card">
 <h2>Mijn affiliateproducten <span class="pill" id="affiliateCount">0</span></h2>
-<p class="muted">Deze producten verschijnen apart in je webshop en op je gedownloade voorbeeldwebsite. Bezoekers klikken door naar de andere winkel; zij rekenen niet bij jou af.</p>
+<p class="muted">Hier beheer je jouw affiliateproducten en persoonlijke partnerlinks. Je kunt ze delen op je eigen kanalen.</p>
 <div id="affiliateList" class="affiliate-grid"></div>
+<script>
+/* Toon bestaande affiliateproducten ook als de hoofdweergave niet opstart. */
+(function(){
+ function showSavedAffiliateProducts(){
+  const list=document.getElementById('affiliateList'),count=document.getElementById('affiliateCount');
+  if(!list||list.querySelector('.affiliate-card'))return;
+  let items=[];try{items=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]')}catch(e){}
+  if(!Array.isArray(items))return;
+  items=items.filter(p=>p&&p.name&&/^https?:\/\//i.test(p.link||''));
+  if(count)count.textContent=String(items.length);
+  if(!items.length)return;
+  list.replaceChildren();
+  items.forEach(p=>{
+   const card=document.createElement('article');card.className='affiliate-card';
+   const heading=document.createElement('h3');heading.textContent=p.name;card.append(heading);
+   if(p.network){const shop=document.createElement('p');shop.textContent=p.network;card.append(shop)}
+   const link=document.createElement('a');link.className='affiliate-link';link.textContent='Bekijk bij '+(p.network||'de winkel');link.href=p.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';card.append(link);
+   const actions=document.createElement('div');actions.className='actions';
+   const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
+   del.addEventListener('click',async()=>{
+    if(!confirm('Dit affiliateproduct verwijderen?'))return;
+    del.disabled=true;
+    try{
+     const marker=localStorage.getItem('allbiz-affiliate-local-owner-v1');
+     if(marker){
+      const client=window.allbizClient;
+      if(!client?.auth)throw Error('Accountverbinding niet beschikbaar.');
+      const {data,error}=await client.auth.getUser();
+      if(error||data?.user?.id!==marker)throw Error('Log eerst in met het juiste account.');
+      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',marker);
+      if(response.error)throw response.error;
+     }
+     const latest=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
+     localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(latest.filter(x=>x.id!==p.id)));
+     card.remove();if(count)count.textContent=String(list.querySelectorAll('.affiliate-card').length);
+     const status=document.getElementById('affiliateStatus');if(status)status.textContent='✅ Affiliateproduct verwijderd.';
+    }catch(error){alert('Verwijderen mislukt: '+(error.message||'onbekende fout'))}
+    finally{del.disabled=false}
+   });
+   actions.append(del);card.append(actions);list.append(card);
+  });
+ }
+ document.addEventListener('DOMContentLoaded',()=>setTimeout(showSavedAffiliateProducts,0));
+})();
+</script>
 </div>
 <div class="card">
 <h2>📣 Promotietekst voor website of YouTube</h2>
