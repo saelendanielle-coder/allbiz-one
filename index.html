@@ -1181,6 +1181,8 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 <div class="card">
 <h2>Mijn affiliateproducten <span class="pill" id="affiliateCount">0</span></h2>
 <p class="muted">Hier beheer je jouw affiliateproducten en persoonlijke partnerlinks. Je kunt ze delen op je eigen kanalen.</p>
+<button type="button" id="affiliateShowSaved" class="secondary" style="margin:12px 0;display:block">📦 Toon mijn opgeslagen affiliateproducten</button>
+<p id="affiliateShowStatus" role="status" aria-live="polite"></p>
 <div id="affiliateList" class="affiliate-grid"></div>
 <script>
 /* Toon bestaande affiliateproducten ook als de hoofdweergave niet opstart. */
@@ -1224,6 +1226,52 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
    actions.append(del);card.append(actions);list.append(card);
   });
  }
+ const showButton=document.getElementById('affiliateShowSaved');
+ const showStatus=document.getElementById('affiliateShowStatus');
+ showButton?.addEventListener('click',async()=>{
+  showButton.disabled=true;showStatus.textContent='⏳ Opgeslagen producten laden…';
+  try{
+   const client=window.allbizClient;
+   if(!client?.auth)throw Error('Accountverbinding niet beschikbaar.');
+   const {data:auth,error:authError}=await client.auth.getUser();
+   if(authError||!auth?.user)throw Error('Log eerst in bij Mijn account.');
+   const {data,error}=await client.from('allbiz_affiliate_products').select('id,name,network,link,description,image,price,rate').eq('owner_id',auth.user.id).limit(200);
+   if(error)throw Error('Online ophalen mislukt.');
+   const valid=(data||[]).filter(p=>p&&p.name&&/^https?:\/\//i.test(p.link||''));
+   const local=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
+   const merged=Array.isArray(local)?local.slice():[];
+   const known=new Set(merged.map(p=>p.id));
+   for(const p of valid)if(!known.has(p.id))merged.push(p);
+   localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(merged));
+   localStorage.setItem('allbiz-affiliate-local-owner-v1',auth.user.id);
+   const list=document.getElementById('affiliateList');
+   list.replaceChildren();
+   const count=document.getElementById('affiliateCount');
+   if(count)count.textContent=String(merged.length);
+   if(!merged.length){showStatus.textContent='Geen affiliateproducten gevonden in dit account.';return}
+   for(const p of merged.filter(p=>p&&p.name&&/^https?:\/\//i.test(p.link||''))){
+    const card=document.createElement('article');card.className='affiliate-card';
+    const title=document.createElement('h3');title.textContent=p.name;card.append(title);
+    const link=document.createElement('a');link.href=p.link;link.target='_blank';link.rel='sponsored nofollow noopener noreferrer';link.textContent='Bekijk bij '+(p.network||'de winkel');card.append(link);
+    const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';del.style.marginTop='10px';
+    del.addEventListener('click',async()=>{
+     if(!confirm('Dit affiliateproduct verwijderen?'))return;
+     del.disabled=true;
+     try{
+      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',auth.user.id);
+      if(response.error)throw response.error;
+      const updated=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]').filter(x=>x.id!==p.id);
+      localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(updated));
+      card.remove();if(count)count.textContent=String(updated.length);
+      showStatus.textContent='✅ Product verwijderd.';
+     }catch(e){showStatus.textContent='⚠️ Verwijderen mislukt: '+e.message}
+     finally{del.disabled=false}
+    });card.append(del);list.append(card);
+   }
+   showStatus.textContent='✅ '+valid.length+' online producten geladen en zichtbaar gemaakt.';
+  }catch(e){showStatus.textContent='⚠️ '+(e.message||'Laden mislukt.')}
+  finally{showButton.disabled=false}
+ });
  document.addEventListener('DOMContentLoaded',()=>setTimeout(showSavedAffiliateProducts,0));
 })();
 </script>
