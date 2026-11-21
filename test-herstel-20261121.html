@@ -1084,6 +1084,43 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     const card=document.createElement('article');card.className='affiliate-card';
     const heading=document.createElement('h3');heading.textContent=product.name;card.append(heading);
     const a=document.createElement('a');a.href=product.link;a.target='_blank';a.rel='sponsored nofollow noopener noreferrer';a.textContent='Bekijk bij '+(product.network||'de winkel');card.append(a);
+    const actions=document.createElement('div');actions.className='actions';
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
+    edit.addEventListener('click',function(){
+     if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets aangepast.';return;}
+     const fields={affiliateName:'name',affiliateNetwork:'network',affiliateLink:'link',affiliateDescription:'description',affiliateImage:'image',affiliatePrice:'price',affiliateRate:'rate'};
+     Object.entries(fields).forEach(([id,field])=>{const input=document.getElementById(id);if(input)input.value=product[field]??'';});
+     const add=document.getElementById('affiliateAddProduct');if(add)add.textContent='💾 Aanpassing bewaren';
+     const editHandler=function(e){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!form.reportValidity())return;
+      const get=id=>document.getElementById(id)?.value.trim()||'';
+      try{
+       const link=new URL(get('affiliateLink'));if(!['http:','https:'].includes(link.protocol))throw Error('Ongeldige link');
+       const img=get('affiliateImage');if(img&&!['http:','https:'].includes(new URL(img).protocol))throw Error('Ongeldige foto');
+       const price=get('affiliatePrice'),rate=get('affiliateRate');
+       if(rate&&(Number(rate)<0||Number(rate)>100))throw Error('Ongeldige commissie');
+       const latest=JSON.parse(localStorage.getItem(key)||'[]');
+       const index=latest.findIndex(x=>x.id===product.id);
+       if(index<0)throw Error('Product niet meer gevonden');
+       Object.assign(product,{name:get('affiliateName').slice(0,150),network:get('affiliateNetwork').slice(0,100),link:link.href,description:get('affiliateDescription').slice(0,1000),image:img,price:price===''?null:Number(price),rate:rate===''?null:Number(rate)});
+       latest[index]={...product};localStorage.setItem(key,JSON.stringify(latest));
+       heading.textContent=product.name;a.href=product.link;a.textContent='Bekijk bij '+(product.network||'de winkel');
+       form.reset();status.textContent='✅ Affiliateproduct aangepast.';
+      }catch(error){status.textContent='⚠️ '+(error.message||'Aanpassen mislukt.');return;}
+      add?.removeEventListener('click',editHandler,true);if(add)add.textContent='+ Affiliateproduct toevoegen';
+     };
+     add?.addEventListener('click',editHandler,true);
+     status.textContent='Wijzig de velden en klik op Aanpassing bewaren.';
+     form.scrollIntoView({behavior:'smooth',block:'start'});
+    });actions.append(edit);
+    const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
+    del.addEventListener('click',function(){
+     if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets verwijderd.';return;}
+     if(!confirm('Dit affiliateproduct verwijderen?'))return;
+     try{const latest=JSON.parse(localStorage.getItem(key)||'[]');const next=latest.filter(x=>x.id!==product.id);localStorage.setItem(key,JSON.stringify(next));card.remove();if(count)count.textContent=String(next.length);status.textContent='✅ Affiliateproduct verwijderd.';}
+     catch(error){status.textContent='⚠️ Verwijderen mislukt: '+error.message;}
+    });actions.append(del);card.append(actions);
     list.querySelector('.empty')?.remove();list.append(card);
    }
    status.textContent='✅ Affiliateproduct toegevoegd. Bewaar het daarna in je account.';
