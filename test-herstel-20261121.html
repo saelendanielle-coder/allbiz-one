@@ -1118,7 +1118,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
     del.addEventListener('click',function(){
      if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets verwijderd.';return;}
-     if(!confirm('Dit affiliateproduct verwijderen?'))return;
+     if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
      try{const latest=JSON.parse(localStorage.getItem(key)||'[]');const next=latest.filter(x=>x.id!==product.id);localStorage.setItem(key,JSON.stringify(next));card.remove();if(count)count.textContent=String(next.length);status.textContent='✅ Affiliateproduct verwijderd.';}
      catch(error){status.textContent='⚠️ Verwijderen mislukt: '+error.message;}
     });actions.append(del);card.append(actions);
@@ -1243,7 +1243,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
    const actions=document.createElement('div');actions.className='actions';
    const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
    del.addEventListener('click',async()=>{
-    if(!confirm('Dit affiliateproduct verwijderen?'))return;
+    if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
     del.disabled=true;
     try{
      const marker=localStorage.getItem('allbiz-affiliate-local-owner-v1');
@@ -1358,7 +1358,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     });card.append(edit);
     const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';del.style.marginTop='10px';
     del.addEventListener('click',async()=>{
-     if(!confirm('Dit affiliateproduct verwijderen?'))return;
+     if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
      del.disabled=true;
      try{
       const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',auth.user.id);
@@ -2515,7 +2515,7 @@ function affiliateCard(a,editable){
       }catch(error){if(error?.name!=='AbortError')el('affiliateStatus').textContent='Delen niet gelukt. Gebruik Link kopiëren.';}
     });act.append(share);
     const del=element('button','danger','Verwijderen');del.type='button';del.addEventListener('click',async()=>{
-     if(!confirm('Affiliateproduct verwijderen?'))return;
+     if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
      del.disabled=true;
      try{
        const marker=localStorage.getItem('allbiz-affiliate-local-owner-v1');
