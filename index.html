@@ -650,7 +650,7 @@ document.addEventListener('click',function(event){
 <a class="secondary allbiz-quick-link" href="./functie.html?onderdeel=trading&versie=20261115b" data-quick-section="trading" aria-label="Open trading">📈 Trading</a>
 <a class="secondary allbiz-quick-link" href="./functie.html?onderdeel=radar&versie=20261115b" data-quick-section="radar">🔥 Winnende producten radar</a>
 <a class="secondary allbiz-quick-link" href="./functie.html?onderdeel=plans&versie=20261115b" data-quick-section="plans" aria-label="Open plans">💎 Abonnement</a>
-<a class="secondary allbiz-quick-link" href="./functie.html?onderdeel=affiliate&versie=20261115b" data-quick-section="affiliate" aria-label="Open affiliate">🔗 Affiliate</a>
+<a class="secondary allbiz-quick-link" href="./index.html?embedded=affiliate" data-quick-section="affiliate" aria-label="Open affiliate">🔗 Affiliate</a>
 <a class="secondary allbiz-quick-link" href="./functie.html?onderdeel=ads&versie=20261115b" data-quick-section="ads" aria-label="Open ads">📢 Advertenties</a>
 </div>
 <p class="hint" style="margin-top:14px"><b>Geen antwoord gevonden?</b> Je kunt rechtstreeks contact opnemen met onze klantenservice. <a href="./contact.html" style="font-weight:750">✉ Stel je vraag aan AllBiz One</a>. Je e-mailapp wordt geopend wanneer je het contactformulier invult.</p>
@@ -2868,7 +2868,7 @@ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',
   {id:'site',label:'🌐 Website',href:'./functie.html?onderdeel=site&versie=20261115b'},
   {id:'shop',label:'🛍️ Webshop',href:'./webshop-bouwen.html'},
   {id:'digital',label:'📦 Digitale producten',href:'./functie.html?onderdeel=digital&versie=20261115b'},
-  {id:'affiliate',label:'🔗 Affiliate',href:'./functie.html?onderdeel=affiliate&versie=20261115b'},
+  {id:'affiliate',label:'🔗 Affiliate',href:'./index.html?embedded=affiliate'},
   {id:'trading',label:'📈 Trading',href:'./functie.html?onderdeel=trading&versie=20261115b'}
  ];
  function start(){
@@ -5523,4 +5523,13 @@ html.allbiz-embedded-mode body > main{padding-top:12px!important}
  window.addEventListener('load',isolate);
 })();
 </script>
+
+<style id="affiliate-hide-home-components-final">
+html.allbiz-embedded-mode body #help,
+html.allbiz-embedded-mode body #allbizHomePlans,
+html.allbiz-embedded-mode body #allbizHelpQuick,
+html.allbiz-embedded-mode body .mobile-shortcuts,
+html.allbiz-embedded-mode body > header{display:none!important;visibility:hidden!important}
+html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:visible!important}
+</style>
 </body></html>
