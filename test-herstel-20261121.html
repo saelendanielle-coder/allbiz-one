@@ -1135,7 +1135,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
       card.remove();
       if(count)count.textContent=String(next.length);
       status.textContent='✅ Affiliateproduct verwijderd.';
-     }catch(error){status.textContent='⚠️ '+(error.message||'Verwijderen mislukt.');}
+     }catch(error){const message='⚠️ '+(error.message||'Verwijderen mislukt.');status.textContent=message;del.textContent='Verwijderen';delete del.dataset.confirmDelete;let note=card.querySelector('.affiliate-delete-error');if(!note){note=document.createElement('p');note.className='affiliate-delete-error';note.setAttribute('role','alert');actions.append(note);}note.textContent=message;}
      finally{del.disabled=false;}
     });actions.append(del);card.append(actions);
     list.querySelector('.empty')?.remove();list.append(card);
@@ -1288,7 +1288,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
      localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(latest.filter(x=>x.id!==p.id)));
      card.remove();if(count)count.textContent=String(list.querySelectorAll('.affiliate-card').length);
      const status=document.getElementById('affiliateStatus');if(status)status.textContent='✅ Affiliateproduct verwijderd.';
-    }catch(error){alert('Verwijderen mislukt: '+(error.message||'onbekende fout'))}
+    }catch(error){const message='⚠️ Verwijderen mislukt: '+(error.message||'onbekende fout');const status=document.getElementById('affiliateStatus');if(status)status.textContent=message;let note=card.querySelector('.affiliate-delete-error');if(!note){note=document.createElement('p');note.className='affiliate-delete-error';note.setAttribute('role','alert');card.append(note);}note.textContent=message;del.textContent='Verwijderen';delete del.dataset.confirmDelete;}
     finally{del.disabled=false}
    });
    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
