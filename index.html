@@ -5573,9 +5573,9 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     var text=p.name+'\n'+p.url;
     try{
      if(navigator.share){
-      var payload={title:p.name,text:p.name+'\\n'+p.url};
+      var payload={title:p.name,text:p.name+'\n'+p.url};
       var photoReady=false;
-      if(p.image&&/^https?:\\/\\//i.test(p.image)&&navigator.canShare){
+      if(p.image&&/^https?:\/\//i.test(p.image)&&navigator.canShare){
        try{
         var controller=new AbortController();
         var timeout=setTimeout(function(){controller.abort();},4500);
@@ -5584,7 +5584,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
         if(response.ok){
          var blob=await response.blob();
          var mime=blob.type.toLowerCase();
-         if(/^image\\/(jpeg|png|webp)$/.test(mime)&&blob.size>0&&blob.size<10000000){
+         if(/^image\/(jpeg|png|webp)$/.test(mime)&&blob.size>0&&blob.size<10000000){
           var ext=mime==='image/png'?'png':mime==='image/webp'?'webp':'jpg';
           var file=new File([blob],'affiliate-product.'+ext,{type:mime});
           if(navigator.canShare({files:[file]})){payload.files=[file];photoReady=true;}
