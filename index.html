@@ -1297,22 +1297,52 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     finally{del.disabled=false}
    });
    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
-   edit.addEventListener('click',async()=>{
-    const show=document.getElementById('affiliateShowSaved');
-    if(!show){alert('Producten opnieuw laden is niet beschikbaar.');return}
-    show.click();
-    const status=document.getElementById('affiliateShowStatus');
-    const observer=new MutationObserver(()=>{
-     if(!show.disabled){
-      observer.disconnect();
-      const cards=[...document.querySelectorAll('#affiliateList .affiliate-card')];
-      const match=cards.find(c=>c.querySelector('h3')?.textContent===p.name&&c.querySelector('button')?.textContent.includes('Product aanpassen'));
-      const target=match?.querySelector('button');
-      if(target&&target!==edit)target.click();
-      else if(status)status.textContent+=' Klik opnieuw op Product aanpassen zodra je producten geladen zijn.';
-     }
-    });
-    observer.observe(show,{attributes:true,attributeFilter:['disabled']});
+   edit.addEventListener('click',()=>{
+    if(card.querySelector('.affiliate-edit-fields'))return;
+    const editor=document.createElement('div');editor.className='affiliate-edit-fields';editor.style.marginTop='12px';
+    const fields=[['name','Productnaam','text'],['network','Winkel / affiliateprogramma','text'],['link','Persoonlijke affiliate-link','url'],['description','Beschrijving','text'],['image','Productfoto-link','url'],['price','Prijs (€)','number'],['rate','Commissie (%)','number']];
+    const inputs={};
+    for(const [key,label,type] of fields){
+     const wrapper=document.createElement('label');wrapper.textContent=label;wrapper.style.cssText='display:block;margin-top:10px';
+     const input=document.createElement('input');input.type=type;input.value=p[key]??'';input.style.cssText='display:block;width:100%;box-sizing:border-box';
+     if(type==='number'){input.step='0.01';input.min='0';}
+     if(key==='name'||key==='link')input.required=true;
+     wrapper.append(input);editor.append(wrapper);inputs[key]=input;
+    }
+    const save=document.createElement('button');save.type='button';save.textContent='💾 Wijzigingen opslaan';
+    const cancel=document.createElement('button');cancel.type='button';cancel.className='secondary';cancel.textContent='Annuleren';cancel.style.marginLeft='8px';cancel.onclick=()=>editor.remove();
+    const note=document.createElement('p');note.setAttribute('role','status');
+    save.onclick=async()=>{
+     try{
+      if(!inputs.name.value.trim())throw Error('Vul een productnaam in.');
+      const u=new URL(inputs.link.value.trim());if(!['https:','http:'].includes(u.protocol))throw Error('Ongeldige affiliate-link.');
+      const photo=inputs.image.value.trim();if(photo&&!['https:','http:'].includes(new URL(photo).protocol))throw Error('Ongeldige foto-link.');
+      const rate=inputs.rate.value.trim()===''?null:Number(inputs.rate.value);
+      if(rate!==null&&(rate<0||rate>100))throw Error('Commissie moet tussen 0 en 100 liggen.');
+      const price=inputs.price.value.trim()===''?null:Number(inputs.price.value);
+      const changes={name:inputs.name.value.trim().slice(0,150),network:inputs.network.value.trim().slice(0,100),link:u.href,description:inputs.description.value.trim().slice(0,1000),image:photo,price,rate};
+      save.disabled=true;
+      const owner=localStorage.getItem('allbiz-affiliate-local-owner-v1');
+      if(owner){
+       const client=window.allbizClient;
+       if(!client?.auth)throw Error('Accountverbinding niet beschikbaar. Niets aangepast.');
+       const result=await client.auth.getUser();
+       if(result.error||result.data?.user?.id!==owner)throw Error('Log in met het juiste account. Niets aangepast.');
+       const response=await client.from('allbiz_affiliate_products').update(changes).eq('id',p.id).eq('owner_id',owner).select('id');
+       if(response.error||response.data?.length!==1)throw Error('Online opslaan niet bevestigd. Niets lokaal aangepast.');
+      }
+      const latest=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
+      const index=latest.findIndex(x=>x.id===p.id);
+      if(index<0)throw Error('Product niet lokaal gevonden. Vernieuw de productenlijst.');
+      latest[index]={...latest[index],...changes};
+      localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(latest));
+      Object.assign(p,changes);heading.textContent=p.name;link.href=p.link;link.textContent='Bekijk bij '+(p.network||'de winkel');
+      const existingImage=card.querySelector('img.affiliate-photo');if(existingImage){if(p.image){existingImage.src=p.image;existingImage.style.display='block';}else existingImage.remove();}
+      editor.remove();const status=document.getElementById('affiliateShowStatus');if(status)status.textContent='✅ Product aangepast.';
+     }catch(e){note.textContent='⚠️ '+(e.message||'Aanpassen mislukt.');}
+     finally{save.disabled=false;}
+    };
+    editor.append(save,cancel,note);card.append(editor);editor.scrollIntoView({behavior:'smooth',block:'nearest'});
    });
    actions.prepend(edit);
    actions.append(del);card.append(actions);list.append(card);
@@ -5560,7 +5590,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     if(item){url=item.link||url;img=item.image||img;}
    }catch(e){}
    // An image URL is not a commission-tracking affiliate destination.
-   function isPhoto(u){try{var x=new URL(u);return /\\.(?:jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(x.pathname)||/^(?:images\\.unsplash\\.com|images\\.pexels\\.com|i\\.pinimg\\.com)$/i.test(x.hostname);}catch(e){return false;}}
+   function isPhoto(u){try{var x=new URL(u);return /\.(?:jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(x.pathname)||/^(?:images\.unsplash\.com|images\.pexels\.com|i\.pinimg\.com)$/i.test(x.hostname);}catch(e){return false;}}
    if(isPhoto(url))url='';
    return {name:name,url:url,image:img};
   }
