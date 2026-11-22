@@ -5572,7 +5572,33 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     var p=productInfo(card);if(!p.url){notify('⚠️ Geen affiliate-link gevonden.');return;}
     var text=p.name+'\n'+p.url;
     try{
-     if(navigator.share){await navigator.share({title:p.name,text:p.name,url:p.url});notify('Deelvenster geopend. Kies waar je wilt promoten.');}
+     if(navigator.share){
+      var payload={title:p.name,text:p.name+'\\n'+p.url};
+      var photoReady=false;
+      if(p.image&&/^https?:\\/\\//i.test(p.image)&&navigator.canShare){
+       try{
+        var controller=new AbortController();
+        var timeout=setTimeout(function(){controller.abort();},4500);
+        var response;
+        try{response=await fetch(p.image,{mode:'cors',signal:controller.signal});}finally{clearTimeout(timeout);}
+        if(response.ok){
+         var blob=await response.blob();
+         var mime=blob.type.toLowerCase();
+         if(/^image\\/(jpeg|png|webp)$/.test(mime)&&blob.size>0&&blob.size<10000000){
+          var ext=mime==='image/png'?'png':mime==='image/webp'?'webp':'jpg';
+          var file=new File([blob],'affiliate-product.'+ext,{type:mime});
+          if(navigator.canShare({files:[file]})){payload.files=[file];photoReady=true;}
+         }
+        }
+       }catch(e){/* Cross-origin photo hosts may block image downloads. */}
+      }
+      try{
+       await navigator.share(payload);
+       notify(photoReady?'✅ Productfoto en affiliate-link aangeboden om te delen.':'✅ Affiliate-link aangeboden om te delen. De productfoto kon niet automatisch worden meegestuurd; gebruik Open productfoto.');
+      }catch(error){
+       if(error.name!=='AbortError')notify('⚠️ Delen niet gelukt. Probeer Kopieer link of Open productfoto.');
+      }
+     }
      else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);notify('✅ Productnaam en affiliate-link gekopieerd. Plak ze in je bericht.');}
      else{window.prompt('Kopieer de tekst en plak die in je bericht:',text);}
     }catch(e){if(e.name!=='AbortError')notify('Delen is niet gelukt. Gebruik Kopieer link.');}
