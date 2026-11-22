@@ -5573,7 +5573,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     var text=p.name+'\n'+p.url;
     try{
      if(navigator.share){
-      var payload={title:p.name,text:p.name+'\n'+p.url};
+      var payload={title:p.name,text:'Bekijk '+p.name+' via mijn affiliate-link:\n'+p.url+'\n(Affiliate-link)'};
       var photoReady=false;
       if(p.image&&/^https?:\/\//i.test(p.image)&&navigator.canShare){
        try{
@@ -5610,6 +5610,16 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     try{await navigator.clipboard.writeText(p.url);notify('✅ Affiliate-link gekopieerd.');}
     catch(e){window.prompt('Kopieer jouw affiliate-link:',p.url);}
    });actions.append(copy);
+   var copyPost=document.createElement('button');copyPost.type='button';copyPost.className='secondary';copyPost.textContent='📋 Kopieer promotietekst';
+   copyPost.addEventListener('click',async function(){
+    var p=productInfo(card);if(!p.url)return;
+    var post='Bekijk '+p.name+' via mijn affiliate-link:\\n'+p.url+'\\n(Advertentie / affiliate-link)';
+    try{await navigator.clipboard.writeText(post);notify('✅ Promotietekst met affiliate-link gekopieerd. Plak dit bij de gedeelde foto.');}
+    catch(e){window.prompt('Kopieer de promotietekst:',post);}
+   });actions.append(copyPost);
+   var preview=document.createElement('p');preview.className='small muted';preview.style.overflowWrap='anywhere';
+   preview.textContent='Link die je promoot: '+info.url;
+   actions.append(preview);
    var image=document.createElement('a');image.className='secondary';image.textContent='🖼️ Open productfoto';image.target='_blank';image.rel='noopener noreferrer';
    var updateImage=function(){var p=productInfo(card);if(p.image&&/^https?:/i.test(p.image)){image.href=p.image;image.hidden=false;}else image.hidden=true;};
    updateImage();actions.append(image);
