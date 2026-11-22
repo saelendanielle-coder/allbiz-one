@@ -1116,11 +1116,27 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
      form.scrollIntoView({behavior:'smooth',block:'start'});
     });actions.append(edit);
     const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
-    del.addEventListener('click',function(){
-     if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets verwijderd.';return;}
+    del.addEventListener('click',async function(){
      if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
-     try{const latest=JSON.parse(localStorage.getItem(key)||'[]');const next=latest.filter(x=>x.id!==product.id);localStorage.setItem(key,JSON.stringify(next));card.remove();if(count)count.textContent=String(next.length);status.textContent='✅ Affiliateproduct verwijderd.';}
-     catch(error){status.textContent='⚠️ Verwijderen mislukt: '+error.message;}
+     del.disabled=true;
+     try{
+      const owner=localStorage.getItem('allbiz-affiliate-local-owner-v1');
+      if(owner){
+       const client=window.allbizClient;
+       if(!client?.auth)throw Error('Accountverbinding niet beschikbaar. Niets verwijderd.');
+       const {data,error}=await client.auth.getUser();
+       if(error||data?.user?.id!==owner)throw Error('Log in met het juiste account. Niets verwijderd.');
+       const {error:deleteError}=await client.from('allbiz_affiliate_products').delete().eq('id',product.id).eq('owner_id',owner);
+       if(deleteError)throw Error('Online verwijderen mislukt. Niets lokaal verwijderd.');
+      }
+      const latest=JSON.parse(localStorage.getItem(key)||'[]');
+      const next=latest.filter(x=>x.id!==product.id);
+      localStorage.setItem(key,JSON.stringify(next));
+      card.remove();
+      if(count)count.textContent=String(next.length);
+      status.textContent='✅ Affiliateproduct verwijderd.';
+     }catch(error){status.textContent='⚠️ '+(error.message||'Verwijderen mislukt.');}
+     finally{del.disabled=false;}
     });actions.append(del);card.append(actions);
     list.querySelector('.empty')?.remove();list.append(card);
    }
