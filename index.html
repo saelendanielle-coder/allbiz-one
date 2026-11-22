@@ -1061,6 +1061,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
  if(!form||!button||!status)return;
  button.addEventListener('click',function(event){
   event.preventDefault();event.stopImmediatePropagation();
+  if(button.dataset.affiliateEditing==='yes')return;
   if(!form.reportValidity()){status.textContent='Vul eerst de verplichte velden in.';return;}
   const get=id=>document.getElementById(id)?.value.trim()||'';
   const name=get('affiliateName'),link=get('affiliateLink'),image=get('affiliateImage');
@@ -1084,6 +1085,59 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     const card=document.createElement('article');card.className='affiliate-card';
     const heading=document.createElement('h3');heading.textContent=product.name;card.append(heading);
     const a=document.createElement('a');a.href=product.link;a.target='_blank';a.rel='sponsored nofollow noopener noreferrer';a.textContent='Bekijk bij '+(product.network||'de winkel');card.append(a);
+    const actions=document.createElement('div');actions.className='actions';
+    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
+    edit.addEventListener('click',function(){
+     if(localStorage.getItem('allbiz-affiliate-local-owner-v1')){status.textContent='⚠️ Accountproducten eerst via Mijn account beheren. Niets aangepast.';return;}
+     const fields={affiliateName:'name',affiliateNetwork:'network',affiliateLink:'link',affiliateDescription:'description',affiliateImage:'image',affiliatePrice:'price',affiliateRate:'rate'};
+     Object.entries(fields).forEach(([id,field])=>{const input=document.getElementById(id);if(input)input.value=product[field]??'';});
+     const add=document.getElementById('affiliateAddProduct');if(add){add.dataset.affiliateEditing='yes';add.textContent='💾 Aanpassing bewaren';}
+     const editHandler=function(e){
+      e.preventDefault();e.stopImmediatePropagation();
+      if(!form.reportValidity())return;
+      const get=id=>document.getElementById(id)?.value.trim()||'';
+      try{
+       const link=new URL(get('affiliateLink'));if(!['http:','https:'].includes(link.protocol))throw Error('Ongeldige link');
+       const img=get('affiliateImage');if(img&&!['http:','https:'].includes(new URL(img).protocol))throw Error('Ongeldige foto');
+       const price=get('affiliatePrice'),rate=get('affiliateRate');
+       if(rate&&(Number(rate)<0||Number(rate)>100))throw Error('Ongeldige commissie');
+       const latest=JSON.parse(localStorage.getItem(key)||'[]');
+       const index=latest.findIndex(x=>x.id===product.id);
+       if(index<0)throw Error('Product niet meer gevonden');
+       Object.assign(product,{name:get('affiliateName').slice(0,150),network:get('affiliateNetwork').slice(0,100),link:link.href,description:get('affiliateDescription').slice(0,1000),image:img,price:price===''?null:Number(price),rate:rate===''?null:Number(rate)});
+       latest[index]={...product};localStorage.setItem(key,JSON.stringify(latest));
+       heading.textContent=product.name;a.href=product.link;a.textContent='Bekijk bij '+(product.network||'de winkel');
+       form.reset();status.textContent='✅ Affiliateproduct aangepast.';
+      }catch(error){status.textContent='⚠️ '+(error.message||'Aanpassen mislukt.');return;}
+      add?.removeEventListener('click',editHandler,true);if(add){delete add.dataset.affiliateEditing;add.textContent='+ Affiliateproduct toevoegen';}
+     };
+     add?.addEventListener('click',editHandler,true);
+     status.textContent='Wijzig de velden en klik op Aanpassing bewaren.';
+     form.scrollIntoView({behavior:'smooth',block:'start'});
+    });actions.append(edit);
+    const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
+    del.addEventListener('click',async function(){
+     if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
+     del.disabled=true;
+     try{
+      const owner=localStorage.getItem('allbiz-affiliate-local-owner-v1');
+      if(owner){
+       const client=window.allbizClient;
+       if(!client?.auth)throw Error('Accountverbinding niet beschikbaar. Niets verwijderd.');
+       const {data,error}=await client.auth.getUser();
+       if(error||data?.user?.id!==owner)throw Error('Log in met het juiste account. Niets verwijderd.');
+       const {data:deleted,error:deleteError}=await client.from('allbiz_affiliate_products').delete().eq('id',product.id).eq('owner_id',owner).select('id');
+       if(deleteError||deleted?.length!==1)throw Error('Online verwijderen niet bevestigd. Niets lokaal verwijderd.');
+      }
+      const latest=JSON.parse(localStorage.getItem(key)||'[]');
+      const next=latest.filter(x=>x.id!==product.id);
+      localStorage.setItem(key,JSON.stringify(next));
+      card.remove();
+      if(count)count.textContent=String(next.length);
+      status.textContent='✅ Affiliateproduct verwijderd.';
+     }catch(error){const message='⚠️ '+(error.message||'Verwijderen mislukt.');status.textContent=message;del.textContent='Verwijderen';delete del.dataset.confirmDelete;let note=card.querySelector('.affiliate-delete-error');if(!note){note=document.createElement('p');note.className='affiliate-delete-error';note.setAttribute('role','alert');actions.append(note);}note.textContent=message;}
+     finally{del.disabled=false;}
+    });actions.append(del);card.append(actions);
     list.querySelector('.empty')?.remove();list.append(card);
    }
    status.textContent='✅ Affiliateproduct toegevoegd. Bewaar het daarna in je account.';
@@ -1140,7 +1194,20 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
   try{
    const {client,user}=await account();
    const products=read();
-   if(!products.length){show('Er zijn geen lokale producten om op te slaan. Probeer eerst Haal mijn producten op.');return}
+   if(!products.length){
+    let stored=[];
+    try{const raw=JSON.parse(localStorage.getItem(key)||'[]');stored=Array.isArray(raw)?raw:[];}catch(_){}
+    const name=document.getElementById('affiliateName')?.value.trim()||'';
+    const link=document.getElementById('affiliateLink')?.value.trim()||'';
+    if(stored.length){
+      show('⚠️ Er staan '+stored.length+' lokale product(en), maar geen met zowel een naam als een geldige http(s)-productlink. Controleer de productlink bij Product aanpassen. Er is niets verwijderd.');
+    }else if(name||link){
+      show('⚠️ Het ingevulde product staat nog alleen in het formulier en is niet toegevoegd aan Mijn affiliateproducten. Klik eerst op + Affiliateproduct toevoegen en controleer of het product in de lijst verschijnt. Er is niets verwijderd.');
+    }else{
+      show('ℹ️ Er zijn momenteel 0 lokale affiliateproducten op deze pagina. Er is niets opgeslagen of verwijderd. Controleer Mijn affiliateproducten; een product dat alleen online staat kun je via Haal mijn producten op bekijken.');
+    }
+    return;
+   }
    if(!localStorage.getItem(ownerKey)&&!confirm('Zijn deze lokale affiliateproducten van jouw huidige account?')){show('Bewaren geannuleerd. Niets verwijderd.');return}
    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
    const rows=products.map(p=>({id:uuid.test(p.id)?p.id:crypto.randomUUID(),owner_id:user.id,name:String(p.name).slice(0,150),network:String(p.network||'').slice(0,100),link:p.link,description:String(p.description||'').slice(0,1000),image:String(p.image||'').slice(0,4000),price:p.price==null?null:Number(p.price),rate:p.rate==null?null:Number(p.rate)}));
@@ -1205,7 +1272,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
    const actions=document.createElement('div');actions.className='actions';
    const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';
    del.addEventListener('click',async()=>{
-    if(!confirm('Dit affiliateproduct verwijderen?'))return;
+    if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
     del.disabled=true;
     try{
      const marker=localStorage.getItem('allbiz-affiliate-local-owner-v1');
@@ -1214,14 +1281,14 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
       if(!client?.auth)throw Error('Accountverbinding niet beschikbaar.');
       const {data,error}=await client.auth.getUser();
       if(error||data?.user?.id!==marker)throw Error('Log eerst in met het juiste account.');
-      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',marker);
-      if(response.error)throw response.error;
+      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',marker).select('id');
+      if(response.error||response.data?.length!==1)throw Error('Online verwijderen niet bevestigd. Niets lokaal verwijderd.');
      }
      const latest=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
      localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(latest.filter(x=>x.id!==p.id)));
      card.remove();if(count)count.textContent=String(list.querySelectorAll('.affiliate-card').length);
      const status=document.getElementById('affiliateStatus');if(status)status.textContent='✅ Affiliateproduct verwijderd.';
-    }catch(error){alert('Verwijderen mislukt: '+(error.message||'onbekende fout'))}
+    }catch(error){const message='⚠️ Verwijderen mislukt: '+(error.message||'onbekende fout');const status=document.getElementById('affiliateStatus');if(status)status.textContent=message;let note=card.querySelector('.affiliate-delete-error');if(!note){note=document.createElement('p');note.className='affiliate-delete-error';note.setAttribute('role','alert');card.append(note);}note.textContent=message;del.textContent='Verwijderen';delete del.dataset.confirmDelete;}
     finally{del.disabled=false}
    });
    const edit=document.createElement('button');edit.type='button';edit.className='secondary';edit.textContent='✏️ Product aanpassen';
@@ -1320,11 +1387,11 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
     });card.append(edit);
     const del=document.createElement('button');del.type='button';del.className='danger';del.textContent='Verwijderen';del.style.marginTop='10px';
     del.addEventListener('click',async()=>{
-     if(!confirm('Dit affiliateproduct verwijderen?'))return;
+     if(del.dataset.confirmDelete!=='yes'){del.dataset.confirmDelete='yes';del.textContent='⚠️ Klik opnieuw om te verwijderen';return;}
      del.disabled=true;
      try{
-      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',auth.user.id);
-      if(response.error)throw response.error;
+      const response=await client.from('allbiz_affiliate_products').delete().eq('id',p.id).eq('owner_id',auth.user.id).select('id');
+      if(response.error||response.data?.length!==1)throw Error('Online verwijderen niet bevestigd. Niets lokaal verwijderd.');
       const updated=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]').filter(x=>x.id!==p.id);
       localStorage.setItem('business-studio-affiliate-v1',JSON.stringify(updated));
       card.remove();if(count)count.textContent=String(updated.length);
@@ -1341,7 +1408,7 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
 })();
 </script>
 </div>
-<div class="card">
+<div class="card" id="affiliatePromotionLegacy" style="display:none!important" aria-hidden="true">
 <h2>📣 Promotietekst voor website of YouTube</h2>
 <label for="affiliateSelect">Welk affiliateproduct wil je promoten?</label><select id="affiliateSelect"><option value="">Voeg eerst een affiliateproduct toe</option></select>
 <div class="import-buttons"><button type="button" id="affiliateMakePost">Maak promotietekst</button><button type="button" class="secondary" id="affiliateCopyPost">📋 Kopieer tekst</button><button type="button" class="secondary" id="affiliateToVideo">🎬 Naar YouTube-maker</button></div>
