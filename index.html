@@ -5613,7 +5613,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
    var copyPost=document.createElement('button');copyPost.type='button';copyPost.className='secondary';copyPost.textContent='📋 Kopieer promotietekst';
    copyPost.addEventListener('click',async function(){
     var p=productInfo(card);if(!p.url)return;
-    var post='Bekijk '+p.name+' via mijn affiliate-link:\\n'+p.url+'\\n(Advertentie / affiliate-link)';
+    var post='Bekijk '+p.name+' via mijn affiliate-link:\n'+p.url+'\n(Advertentie / affiliate-link)';
     try{await navigator.clipboard.writeText(post);notify('✅ Promotietekst met affiliate-link gekopieerd. Plak dit bij de gedeelde foto.');}
     catch(e){window.prompt('Kopieer de promotietekst:',post);}
    });actions.append(copyPost);
