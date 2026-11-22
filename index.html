@@ -5493,4 +5493,34 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
 })();
 </script>
 
+
+<style id="affiliate-standalone-visibility-20261122">
+/* Only on the dedicated affiliate URL: hide all other landing content. */
+html.allbiz-embedded-mode body:has(> main > #affiliate) > header,
+html.allbiz-embedded-mode body:has(> main > #affiliate) > #splashScreen,
+html.allbiz-embedded-mode body:has(> main > #affiliate) > nav,
+html.allbiz-embedded-mode body:has(> main > #affiliate) > main > :not(#affiliate){display:none!important;visibility:hidden!important}
+html.allbiz-embedded-mode body > main > #affiliate{display:block!important;visibility:visible!important;margin:0!important}
+html.allbiz-embedded-mode body > main{padding-top:12px!important}
+</style>
+<script id="affiliate-standalone-isolation-20261122">
+(function(){
+ if(new URLSearchParams(location.search).get('embedded')!=='affiliate')return;
+ document.documentElement.classList.add('allbiz-embedded-mode');
+ function isolate(){
+  var panel=document.getElementById('affiliate');if(!panel)return;
+  document.body.classList.add('allbiz-embedded');
+  for(var child of document.body.children){
+   if(child.tagName==='HEADER'||child.id==='splashScreen'||child.tagName==='NAV')child.style.setProperty('display','none','important');
+  }
+  var main=panel.parentElement;
+  if(main)for(var sibling of main.children){if(sibling!==panel)sibling.style.setProperty('display','none','important');}
+  panel.style.setProperty('display','block','important');panel.style.setProperty('visibility','visible','important');
+  panel.hidden=false;panel.removeAttribute('inert');panel.classList.add('active');
+  document.body.classList.remove('splash-open');
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',isolate);else isolate();
+ window.addEventListener('load',isolate);
+})();
+</script>
 </body></html>
