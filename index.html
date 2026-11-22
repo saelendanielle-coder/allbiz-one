@@ -5532,4 +5532,69 @@ html.allbiz-embedded-mode body .mobile-shortcuts,
 html.allbiz-embedded-mode body > header{display:none!important;visibility:hidden!important}
 html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:visible!important}
 </style>
+
+<style id="allbiz-affiliate-sharing-style">
+#affiliateList .allbiz-affiliate-share-actions{display:flex;flex-wrap:wrap;gap:8px;margin-top:10px}
+#affiliateList .allbiz-affiliate-share-actions button,#affiliateList .allbiz-affiliate-share-actions a{min-height:42px;padding:10px 12px;border-radius:9px;cursor:pointer;text-decoration:none}
+</style>
+<script id="allbiz-affiliate-sharing-20261122">
+/* Add non-destructive promotion controls to existing and newly rendered affiliate cards. */
+(function(){
+ function init(){
+  var list=document.getElementById('affiliateList');
+  if(!list||list.dataset.allbizShareReady)return;
+  list.dataset.allbizShareReady='yes';
+  function notify(message){
+   var status=document.getElementById('affiliateShowStatus')||document.getElementById('affiliateStatus');
+   if(status)status.textContent=message;
+  }
+  function productInfo(card){
+   var links=Array.from(card.querySelectorAll('a[href]'));
+   var link=links.find(function(a){return /^https?:/i.test(a.href)&&!a.closest('.allbiz-affiliate-share-actions');});
+   var name=card.querySelector('h3')?.textContent?.trim()||'Affiliateproduct';
+   var img=card.querySelector('img[src]')?.src||'';
+   if(!img){
+    try{
+     var items=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
+     var item=Array.isArray(items)?items.find(function(p){return p.link===link?.href&&p.name===name;}):null;
+     if(item)img=item.image||'';
+    }catch(e){}
+   }
+   return {name:name,url:link?.href||'',image:img};
+  }
+  function addActions(card){
+   if(card.querySelector('.allbiz-affiliate-share-actions'))return;
+   var info=productInfo(card);
+   if(!info.url)return;
+   var actions=document.createElement('div');actions.className='allbiz-affiliate-share-actions';
+   var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='📣 Promoten / Delen';
+   share.addEventListener('click',async function(){
+    var p=productInfo(card);if(!p.url){notify('⚠️ Geen affiliate-link gevonden.');return;}
+    var text=p.name+'\n'+p.url;
+    try{
+     if(navigator.share){await navigator.share({title:p.name,text:p.name,url:p.url});notify('Deelvenster geopend. Kies waar je wilt promoten.');}
+     else if(navigator.clipboard?.writeText){await navigator.clipboard.writeText(text);notify('✅ Productnaam en affiliate-link gekopieerd. Plak ze in je bericht.');}
+     else{window.prompt('Kopieer de tekst en plak die in je bericht:',text);}
+    }catch(e){if(e.name!=='AbortError')notify('Delen is niet gelukt. Gebruik Kopieer link.');}
+   });
+   actions.append(share);
+   var copy=document.createElement('button');copy.type='button';copy.className='secondary';copy.textContent='🔗 Kopieer link';
+   copy.addEventListener('click',async function(){
+    var p=productInfo(card);if(!p.url)return;
+    try{await navigator.clipboard.writeText(p.url);notify('✅ Affiliate-link gekopieerd.');}
+    catch(e){window.prompt('Kopieer jouw affiliate-link:',p.url);}
+   });actions.append(copy);
+   var image=document.createElement('a');image.className='secondary';image.textContent='🖼️ Open productfoto';image.target='_blank';image.rel='noopener noreferrer';
+   var updateImage=function(){var p=productInfo(card);if(p.image&&/^https?:/i.test(p.image)){image.href=p.image;image.hidden=false;}else image.hidden=true;};
+   updateImage();actions.append(image);
+   card.append(actions);
+  }
+  function scan(){list.querySelectorAll('.affiliate-card').forEach(addActions);}
+  scan();
+  var observer=new MutationObserver(scan);
+  observer.observe(list,{childList:true,subtree:true});
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body></html>
