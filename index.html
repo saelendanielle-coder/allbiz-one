@@ -459,7 +459,12 @@ document.addEventListener('click',function(e){
    document.getElementById(id)?.scrollIntoView({block:'start'});
  });
 })();
-</script><style id="allbiz-home-isolation-final">
+</script><style id="allbiz-affiliate-page-separation">
+/* Keep the affiliate editor off the landing page regardless of legacy DOM placement. */
+html:not(.allbiz-embedded-mode) #affiliate{display:none!important;visibility:hidden!important}
+html.allbiz-embedded-mode #affiliate{display:block!important;visibility:visible!important}
+</style>
+<style id="allbiz-home-isolation-final">
 /* The public landing page shows only the assistant menu. Feature pages use ?embedded=. */
 html:not(.allbiz-embedded-mode) body>main>section.panel:not(#help){display:none!important;visibility:hidden!important}
 html:not(.allbiz-embedded-mode) body>main>section#help{display:block!important;visibility:visible!important}
