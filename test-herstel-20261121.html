@@ -1194,7 +1194,20 @@ document.getElementById('allbizOwnerMollieOneEuro').addEventListener('click',asy
   try{
    const {client,user}=await account();
    const products=read();
-   if(!products.length){show('Er zijn geen lokale producten om op te slaan. Probeer eerst Haal mijn producten op.');return}
+   if(!products.length){
+    let stored=[];
+    try{const raw=JSON.parse(localStorage.getItem(key)||'[]');stored=Array.isArray(raw)?raw:[];}catch(_){}
+    const name=document.getElementById('affiliateName')?.value.trim()||'';
+    const link=document.getElementById('affiliateLink')?.value.trim()||'';
+    if(stored.length){
+      show('⚠️ Er staan '+stored.length+' lokale product(en), maar geen met zowel een naam als een geldige http(s)-productlink. Controleer de productlink bij Product aanpassen. Er is niets verwijderd.');
+    }else if(name||link){
+      show('⚠️ Het ingevulde product staat nog alleen in het formulier en is niet toegevoegd aan Mijn affiliateproducten. Klik eerst op + Affiliateproduct toevoegen en controleer of het product in de lijst verschijnt. Er is niets verwijderd.');
+    }else{
+      show('ℹ️ Er zijn momenteel 0 lokale affiliateproducten op deze pagina. Er is niets opgeslagen of verwijderd. Controleer Mijn affiliateproducten; een product dat alleen online staat kun je via Haal mijn producten op bekijken.');
+    }
+    return;
+   }
    if(!localStorage.getItem(ownerKey)&&!confirm('Zijn deze lokale affiliateproducten van jouw huidige account?')){show('Bewaren geannuleerd. Niets verwijderd.');return}
    const uuid=/^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{12}$/i;
    const rows=products.map(p=>({id:uuid.test(p.id)?p.id:crypto.randomUUID(),owner_id:user.id,name:String(p.name).slice(0,150),network:String(p.network||'').slice(0,100),link:p.link,description:String(p.description||'').slice(0,1000),image:String(p.image||'').slice(0,4000),price:p.price==null?null:Number(p.price),rate:p.rate==null?null:Number(p.rate)}));
