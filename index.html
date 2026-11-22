@@ -5598,7 +5598,8 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
    if(card.querySelector('.allbiz-affiliate-share-actions'))return;
    var info=productInfo(card);
    var actions=document.createElement('div');actions.className='allbiz-affiliate-share-actions';
-   var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='📣 Promoten / Delen';
+   var thumb=document.createElement('img');thumb.alt='Productfoto van '+info.name;thumb.loading='lazy';thumb.style.cssText='display:block;max-width:220px;width:100%;height:auto;max-height:220px;object-fit:contain;border-radius:12px;margin:10px 0;';if(info.image&&/^https?:\/\//i.test(info.image)){thumb.src=info.image;thumb.onerror=function(){thumb.hidden=true;};actions.append(thumb);}
+   var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='📣 Foto + affiliate-link delen';
    share.addEventListener('click',async function(){
     var p=productInfo(card);if(!p.url){notify('⚠️ Geen affiliate-link gevonden.');return;}
     var text=p.name+'\n'+p.url;
