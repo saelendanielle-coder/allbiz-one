@@ -5549,23 +5549,24 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
    if(status)status.textContent=message;
   }
   function productInfo(card){
-   var links=Array.from(card.querySelectorAll('a[href]'));
-   var link=links.find(function(a){return /^https?:/i.test(a.href)&&!a.closest('.allbiz-affiliate-share-actions');});
    var name=card.querySelector('h3')?.textContent?.trim()||'Affiliateproduct';
+   var links=Array.from(card.querySelectorAll('a[href]')).filter(function(a){return !a.closest('.allbiz-affiliate-share-actions');});
+   var link=links.find(function(a){return /^https?:/i.test(a.href)&&/Bekijk bij/i.test(a.textContent||'');})||links.find(function(a){return /^https?:/i.test(a.href);});
    var img=card.querySelector('img[src]')?.src||'';
-   if(!img){
-    try{
-     var items=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
-     var item=Array.isArray(items)?items.find(function(p){return p.link===link?.href&&p.name===name;}):null;
-     if(item)img=item.image||'';
-    }catch(e){}
-   }
-   return {name:name,url:link?.href||'',image:img};
+   var url=link?.href||'';
+   try{
+    var items=JSON.parse(localStorage.getItem('business-studio-affiliate-v1')||'[]');
+    var item=Array.isArray(items)?items.find(function(p){return p.name===name&&(p.link===url||!url);}):null;
+    if(item){url=item.link||url;img=item.image||img;}
+   }catch(e){}
+   // An image URL is not a commission-tracking affiliate destination.
+   function isPhoto(u){try{var x=new URL(u);return /\\.(?:jpe?g|png|webp|gif|avif)(?:$|[?#])/i.test(x.pathname)||/^(?:images\\.unsplash\\.com|images\\.pexels\\.com|i\\.pinimg\\.com)$/i.test(x.hostname);}catch(e){return false;}}
+   if(isPhoto(url))url='';
+   return {name:name,url:url,image:img};
   }
   function addActions(card){
    if(card.querySelector('.allbiz-affiliate-share-actions'))return;
    var info=productInfo(card);
-   if(!info.url)return;
    var actions=document.createElement('div');actions.className='allbiz-affiliate-share-actions';
    var share=document.createElement('button');share.type='button';share.className='secondary';share.textContent='📣 Promoten / Delen';
    share.addEventListener('click',async function(){
@@ -5606,7 +5607,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
    actions.append(share);
    var copy=document.createElement('button');copy.type='button';copy.className='secondary';copy.textContent='🔗 Kopieer link';
    copy.addEventListener('click',async function(){
-    var p=productInfo(card);if(!p.url)return;
+    var p=productInfo(card);if(!p.url){notify('⚠️ Vul eerst een echte affiliate-link in via Product aanpassen.');return;}
     try{await navigator.clipboard.writeText(p.url);notify('✅ Affiliate-link gekopieerd.');}
     catch(e){window.prompt('Kopieer jouw affiliate-link:',p.url);}
    });actions.append(copy);
@@ -5618,7 +5619,7 @@ html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:vis
     catch(e){window.prompt('Kopieer de promotietekst:',post);}
    });actions.append(copyPost);
    var preview=document.createElement('p');preview.className='small muted';preview.style.overflowWrap='anywhere';
-   preview.textContent='Link die je promoot: '+info.url;
+   preview.textContent=info.url?'Link die je promoot: '+info.url:'⚠️ Nog geen echte affiliate-link ingevuld. Pas het product aan en vul de affiliate-link van de winkel in.';
    actions.append(preview);
    var image=document.createElement('a');image.className='secondary';image.textContent='🖼️ Open productfoto';image.target='_blank';image.rel='noopener noreferrer';
    var updateImage=function(){var p=productInfo(card);if(p.image&&/^https?:/i.test(p.image)){image.href=p.image;image.hidden=false;}else image.hidden=true;};
