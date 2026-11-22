@@ -2964,6 +2964,38 @@ body>header .top-settings{gap:5px!important}
 #allbizHomeLanding #allbizHomePlans .allbiz-home-plan button{font-size:10px!important;padding:7px 3px!important}
 }
 </style>
+
+<!-- affiliate-route-fix-2026-11-22 -->
+<style id="affiliate-route-isolation">
+/* Affiliate is a separate view, never part of the landing page. */
+html:not(.allbiz-embedded-mode) body #affiliate,
+html:not(.allbiz-embedded-mode) body #affiliate.panel.active{display:none!important;visibility:hidden!important}
+html.allbiz-embedded-mode body #affiliate{display:block!important;visibility:visible!important}
+</style>
+<script id="affiliate-route-navigation">
+(function(){
+ var url=new URL(location.href);
+ var affiliatePage=url.searchParams.get('embedded')==='affiliate';
+ if(affiliatePage)document.documentElement.classList.add('allbiz-embedded-mode');
+ function goAffiliate(){var target=new URL(location.href);target.searchParams.set('embedded','affiliate');target.hash='';location.assign(target.href);}
+ document.addEventListener('click',function(e){
+  var el=e.target.closest&&e.target.closest('button[data-goto="affiliate"],button[data-tab="affiliate"],a[data-quick-section="affiliate"],a[href="#affiliate"]');
+  if(!el||affiliatePage)return;
+  e.preventDefault();e.stopImmediatePropagation();goAffiliate();
+ },true);
+ function init(){
+  var panel=document.getElementById('affiliate');
+  if(!panel)return;
+  if(affiliatePage){
+   document.body.classList.add('allbiz-embedded');
+   panel.hidden=false;panel.removeAttribute('inert');panel.classList.add('active');
+   var back=document.getElementById('affiliateReturnLink');
+   if(back){var home=new URL(location.href);home.searchParams.delete('embedded');home.hash='';back.href=home.href;}
+  }else{panel.classList.remove('active');panel.hidden=true;}
+ }
+ if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',init);else init();
+})();
+</script>
 </body></html>'
  ].join('');
  saveSiteSettings();
