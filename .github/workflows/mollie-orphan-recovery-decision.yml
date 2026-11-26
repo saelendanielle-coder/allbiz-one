@@ -1,0 +1,23 @@
+name: Mollie orphan recovery decision tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-orphan-recovery-decision.ts'
+      - 'review-only/mollie-orphan-recovery-decision.test.ts'
+      - 'review-only/mollie-provider-candidate-guard.ts'
+      - '.github/workflows/mollie-orphan-recovery-decision.yml'
+  workflow_dispatch:
+jobs:
+  orphan-recovery:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test orphan recovery decisions
+        run: |
+          deno check review-only/mollie-orphan-recovery-decision.ts review-only/mollie-orphan-recovery-decision.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-orphan-recovery-decision.test.ts

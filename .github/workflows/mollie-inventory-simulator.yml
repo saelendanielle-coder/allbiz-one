@@ -1,0 +1,24 @@
+name: Mollie inventory simulation tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-inventory-simulator.ts'
+      - 'review-only/mollie-inventory-simulator.test.ts'
+      - 'review-only/mollie-checkout-failure-policy.ts'
+      - 'review-only/mollie-reconciliation-plan.ts'
+      - '.github/workflows/mollie-inventory-simulator.yml'
+  workflow_dispatch:
+jobs:
+  inventory-simulation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and run simulated inventory lifecycle
+        run: |
+          deno check review-only/mollie-inventory-simulator.ts review-only/mollie-inventory-simulator.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-inventory-simulator.test.ts

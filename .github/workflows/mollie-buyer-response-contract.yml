@@ -1,0 +1,23 @@
+name: Mollie buyer response contract tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-buyer-response-contract.ts'
+      - 'review-only/mollie-buyer-response-contract.test.ts'
+      - 'review-only/mollie-buyer-status-policy.ts'
+      - '.github/workflows/mollie-buyer-response-contract.yml'
+  workflow_dispatch:
+jobs:
+  buyer-response-contract:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test buyer response contract
+        run: |
+          deno check review-only/mollie-buyer-response-contract.ts review-only/mollie-buyer-response-contract.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-buyer-response-contract.test.ts

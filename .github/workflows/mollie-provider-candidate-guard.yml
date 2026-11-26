@@ -1,0 +1,22 @@
+name: Mollie provider candidate validation tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-provider-candidate-guard.ts'
+      - 'review-only/mollie-provider-candidate-guard.test.ts'
+      - '.github/workflows/mollie-provider-candidate-guard.yml'
+  workflow_dispatch:
+jobs:
+  candidate-validation:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test candidate validation
+        run: |
+          deno check review-only/mollie-provider-candidate-guard.ts review-only/mollie-provider-candidate-guard.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-provider-candidate-guard.test.ts

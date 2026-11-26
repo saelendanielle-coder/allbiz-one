@@ -1,0 +1,22 @@
+name: Mollie checkout catch guard tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-checkout-catch-guard.ts'
+      - 'review-only/mollie-checkout-catch-guard.test.ts'
+      - '.github/workflows/mollie-checkout-catch-guard.yml'
+  workflow_dispatch:
+jobs:
+  catch-guard:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and test checkout catch guard
+        run: |
+          deno check review-only/mollie-checkout-catch-guard.ts review-only/mollie-checkout-catch-guard.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-checkout-catch-guard.test.ts

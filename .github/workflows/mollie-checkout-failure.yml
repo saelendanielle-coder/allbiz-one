@@ -1,0 +1,22 @@
+name: Mollie checkout failure tests (no payments)
+on:
+  pull_request:
+    paths:
+      - 'review-only/mollie-checkout-failure-policy.ts'
+      - 'review-only/mollie-checkout-failure-policy.test.ts'
+      - '.github/workflows/mollie-checkout-failure.yml'
+  workflow_dispatch:
+jobs:
+  checkout-failure-policy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - uses: actions/checkout@v4
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.x
+      - name: Typecheck and run failure policy tests
+        run: |
+          deno check review-only/mollie-checkout-failure-policy.ts review-only/mollie-checkout-failure-policy.test.ts
+          deno run --no-remote --no-prompt review-only/mollie-checkout-failure-policy.test.ts
